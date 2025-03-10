@@ -1,0 +1,31 @@
+.login-container {
+    height: 100vh;
+
+    .left-column {
+        background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
+        // background-image: url("src/assets/images/login.jpg");
+        background-size: cover;
+        background-position: center;
+        color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .right-column {
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+
+        .login-form {
+            // text-align: center;
+            // box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+            max-width: 375px;
+            width: 100%;
+            border-radius: 5px;
+        }
+    }
+}
