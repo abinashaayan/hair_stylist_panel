@@ -3,6 +3,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  InputLabel,
+  Typography,
 } from "@mui/material";
 import { useState } from "react";
 import Input from "../custom/Input";
@@ -12,59 +14,91 @@ import Divider from "@mui/material/Divider";
 import { showErrorToast, showSuccessToast, showCustomMessage } from "../Toast";
 import { CustomIconButton } from "../custom/Button";
 
-const AddCategory = ({ open, handleClose, addCategory }) => {
-  const [categoryName, setCategoryName] = useState("");
+const AddCategory = ({
+  open,
+  handleClose,
+  categoryName,
+  setCategoryName,
+  fetchAllCategoryDetails,
+  showCategoryDetails,
+}) => {
   const [loading, setLoading] = useState(false);
+  const isViewMode = Boolean(showCategoryDetails);
 
   const handleAddCategory = async () => {
     if (!categoryName.trim()) {
       showCustomMessage("Category name is required!");
       return;
     }
-
     setLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/category/admin/insert`, {
-        name: categoryName,
-      });
-
+      const response = await axios.post(
+        `${API_BASE_URL}/category/admin/insert`,
+        { name: categoryName }
+      );
       if (response?.data?.status === 200) {
-        showSuccessToast(response?.data?.message || "Category added successfully");
-        addCategory(response);
+        showSuccessToast(
+          response?.data?.message || "Category added successfully"
+        );
+        await fetchAllCategoryDetails();
+        handleClose();
         setCategoryName("");
-        handleClose(); 
-      } else {
-        showErrorToast(response?.data?.message || "Failed to add category");
       }
     } catch (error) {
       showErrorToast(error?.response?.data?.message || "An error occurred");
     } finally {
       setLoading(false);
+      handleClose();
     }
   };
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <DialogTitle>Add New Category</DialogTitle>
+      <DialogTitle>
+        {isViewMode ? "Category Details" : "Add New Category"}
+      </DialogTitle>
       <Divider />
       <DialogContent>
-        <Input
-          placeholder="Write category name"
-          type="text"
-          height={50}
-          value={categoryName}
-          onChange={(e) => setCategoryName(e.target.value)}
-        />
+        {isViewMode ? (
+          <>
+            <Typography variant="h6">{showCategoryDetails?.name}</Typography>
+            <Typography variant="body2">
+              ID: {showCategoryDetails?.categoryId}
+            </Typography>
+            <Typography variant="body2">
+              Slug: {showCategoryDetails?.slug}
+            </Typography>
+            <Typography variant="body2">
+              Status: {showCategoryDetails?.isActive}
+            </Typography>
+            <Typography variant="body2">
+              Created At: {showCategoryDetails?.createdAt}
+            </Typography>
+          </>
+        ) : (
+          <>
+            <InputLabel sx={{ color: "black" }}>Category Name</InputLabel>
+            <Input
+              placeholder="Write category name"
+              type="text"
+              height={50}
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+            />
+          </>
+        )}
       </DialogContent>
       <DialogActions>
-        <CustomIconButton color="red" text="Cancel" onClick={handleClose} />
-        <CustomIconButton
-          loading={loading}
-          disabled={loading}
-          color="black"
-          text="Add Category"
-          onClick={handleAddCategory}
-        />
+        <CustomIconButton color="red" text="Close" onClick={handleClose} />
+        {!isViewMode && (
+          <CustomIconButton
+            loading={loading}
+            disabled={loading}
+            color="black"
+            text="Add Category"
+            onClick={handleAddCategory}
+          />
+        )}
       </DialogActions>
     </Dialog>
   );

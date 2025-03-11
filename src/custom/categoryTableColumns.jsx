@@ -1,6 +1,6 @@
 import { DeleteOutline, Visibility } from "@mui/icons-material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import { Box, Button } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 import { Eye, PlusCircle, Trash2 } from "lucide-react";
 import { CustomIconButton } from "./Button";
 
@@ -12,7 +12,14 @@ export const categoryTableColumns = ({
   { field: "categoryId", headerName: "Category ID", width: 150 },
   { field: "name", headerName: "Category Name", width: 200 },
   { field: "slug", headerName: "Slug", width: 200 },
-  { field: "isActive", headerName: "Status", width: 120 },
+  {
+    field: "isActive",
+    headerName: "Status",
+    width: 180,
+    renderCell: (params) => {
+      return <Chip label="Active" color="success" size="small" />;
+    },
+  },
   { field: "createdAt", headerName: "Created At", width: 150 },
   {
     field: "actions",
