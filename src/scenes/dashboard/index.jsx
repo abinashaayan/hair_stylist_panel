@@ -29,13 +29,6 @@ import { mockTransactions } from "../../data/mockData";
 import { useState } from "react";
 import { CustomIconButton } from "../../custom/Button";
 
-// const statData = [
-//   { title: "11,361", subtitle: "Email Sent", progress: "0.75", increase: "+14%", icon: <Email sx={{ fontSize: "26px" }} /> },
-//   { title: "431,225", subtitle: "Sales Obtained", progress: "0.50", increase: "+21%", icon: <PointOfSale sx={{ fontSize: "26px" }} /> },
-//   { title: "32,441", subtitle: "New Clients", progress: "0.30", increase: "+5%", icon: <PersonAdd sx={{ fontSize: "26px" }} /> },
-//   { title: "1,325,134", subtitle: "Traffic Received", progress: "0.80", increase: "+43%", icon: <Traffic sx={{ fontSize: "26px" }} /> },
-// ];
-
 const statData = [
   // { title: "", subtitle: "Email Sent", progress: "0.75", increase: "+14%", icon: <Email sx={{ fontSize: "26px" }} /> },
   { title: "User Management", subtitle: "Add, Edit, Delete User", icon: <PersonAdd sx={{ fontSize: "26px" }} /> },
@@ -69,7 +62,7 @@ function Dashboard() {
   return (
     <Box m="15px">
       <Box display="flex" justifyContent="space-between">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+        {/* <Header title="DASHBOARD" subtitle="Welcome to your dashboard" /> */}
         {!isXsDevices && (
           <Box display="flex" alignItems="center" gap={1}>
             {/* <Button

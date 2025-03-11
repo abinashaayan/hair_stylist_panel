@@ -1,6 +1,6 @@
 import { TextField, InputAdornment, IconButton } from "@mui/material";
 
-const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconClick }) => {
+const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconClick, height = 40 }) => {
     return (
         <TextField
             fullWidth
@@ -21,11 +21,12 @@ const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconCli
                 sx: {
                     bgcolor: "#f5f5f5",
                     borderRadius: 1,
-                    height: 40,
+                    height: height,
                     "& fieldset": { border: "none" },
                     "& .MuiInputBase-input": {
                         padding: "8px 10px",
                         fontSize: "14px",
+                        height: "100%"
                     },
                 },
             }}

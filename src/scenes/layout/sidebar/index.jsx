@@ -1,5 +1,12 @@
 /* eslint-disable react/prop-types */
-import { Avatar, Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Divider,
+  IconButton,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { useContext, useState } from "react";
 // import avatar from "../../../assets/images/avatar.png";
 import logo from "../../../assets/images/logo1.png";
@@ -43,9 +50,7 @@ const SideBar = () => {
     >
       <Menu
         menuItemStyles={{
-          button: { ":hover": { background: "transparent" } },
-        }}
-      >
+          button: { ":hover": { background: "transparent" } }, }}>
         <MenuItem
           rootStyles={{
             margin: "10px 0 20px 0",
@@ -66,13 +71,12 @@ const SideBar = () => {
                 gap="12px"
                 sx={{ transition: ".3s ease" }}
               >
-                <Typography
-                  variant="h4"
-                  fontWeight="bold"
-                  textTransform="capitalize"
-                >
-                  {/* Johnson */}
-                </Typography>
+                <img
+                  alt="avatar"
+                  src={logo}
+                  className="mt-3"
+                  style={{ width: "130px", height: "40px" }}
+                />
               </Box>
             )}
             <IconButton onClick={() => setCollapsed(!collapsed)}>
@@ -81,7 +85,7 @@ const SideBar = () => {
           </Box>
         </MenuItem>
       </Menu>
-      {!collapsed && (
+      {/* {!collapsed && (
         <Box
           sx={{
             display: "flex",
@@ -97,7 +101,7 @@ const SideBar = () => {
             style={{ width: "200px", height: "65px" }}
           />
         </Box>
-      )}
+      )} */}
       <Divider />
 
       <Box mb={5} pl={collapsed ? undefined : "5%"}>

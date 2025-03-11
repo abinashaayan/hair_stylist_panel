@@ -4,23 +4,30 @@ import {
   InputBase,
   useMediaQuery,
   useTheme,
-  Tooltip
-
+  Tooltip,
+  Menu,
+  MenuItem,
+  Avatar,
 } from "@mui/material";
+
 import { tokens, ColorModeContext } from "../../../theme";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import {
   DarkModeOutlined,
   LightModeOutlined,
   MenuOutlined,
-  NotificationsOutlined,
-  PersonOutlined,
   SearchOutlined,
-  SettingsOutlined,
   LogoutOutlined,
+  AccountCircle,
+  Logout,
+  Settings,
+  SettingsOutlined,
+  Notifications,
 } from "@mui/icons-material";
+import { deepOrange } from "@mui/material/colors";
 import { ToggledContext } from "../../../App";
 import { useNavigate } from "react-router-dom";
+import { Header } from "../../../components";
 const Navbar = () => {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
@@ -29,21 +36,20 @@ const Navbar = () => {
   const isXsDevices = useMediaQuery("(max-width:466px)");
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    // Clear user/session data
-    // localStorage.clear();
-    // sessionStorage.clear();
-
-    localStorage.setItem("isAuthenticated", false)
-
-    // Optionally show an alert or toast
-    // alert("You have been logged out!");
-
-    // Redirect to login page
-    navigate("/login");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    navigate("/login", { replace: true });
+  };
 
   return (
     <Box
@@ -59,7 +65,7 @@ const Navbar = () => {
         >
           <MenuOutlined />
         </IconButton>
-        <Box
+        {/* <Box
           display="flex"
           alignItems="center"
           bgcolor={colors.primary[400]}
@@ -70,7 +76,8 @@ const Navbar = () => {
           <IconButton type="button" sx={{ p: 1 }}>
             <SearchOutlined />
           </IconButton>
-        </Box>
+        </Box> */}
+        <Header title="DASHBOARD" /> 
       </Box>
 
       <Box>
@@ -90,13 +97,49 @@ const Navbar = () => {
         <IconButton>
           <PersonOutlined />
         </IconButton> */}
-        <Tooltip title="Logout" arrow sx={{fontSize: "1rem"}}>
-          <IconButton onClick={handleLogout}>
-            <LogoutOutlined />
+        <Tooltip title="Profile">
+          <IconButton onClick={handleClick}>
+            <Avatar sx={{ width: 25, height: 25, backgroundColor: "hsl(0 84.2% 60.2%)" }} />
           </IconButton>
         </Tooltip>
-
       </Box>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        sx={{
+          "& .MuiPaper-root": {
+            width: 200,
+            maxHeight: 300,
+            borderRadius: 2,
+          },
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <MenuItem onClick={handleClose}>
+          <Settings fontSize="small" sx={{ mr: 1 }} />
+          Settings
+        </MenuItem>
+        <MenuItem onClick={handleClose}>
+          <Settings fontSize="small" sx={{ mr: 1 }} />
+          Explore More
+        </MenuItem>
+        <MenuItem onClick={handleClose}>
+          <Notifications fontSize="small" sx={{ mr: 1 }} />
+          Notifications
+        </MenuItem>
+        <MenuItem onClick={handleLogout}>
+          <Logout fontSize="small" sx={{ mr: 1 }} />
+          Logout
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };
