@@ -7,6 +7,7 @@ import watermark from "../assets/images/watermark1.png";
 
 import "../css/login.scss";
 import Input from "../custom/Input";
+import axios from "axios";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -14,14 +15,34 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        if (email === "adminjohnson@yopmail.com" && password === "admin@12") {
+    // const handleLogin = () => {
+    //     if (email === "adminjohnson@yopmail.com" && password === "admin@12") {
+    //         localStorage.setItem("isAuthenticated", "true");
+    //         navigate("/");
+    //     } else {
+    //         alert("Invalid credentials!");
+    //     }
+    // };
+
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post("http://localhost:5050/api/admin/login",
+                { email, password }
+            );
+
+            console.log(response.data, "response");
+            const token = response.data.token;
+
+
             localStorage.setItem("isAuthenticated", "true");
+            localStorage.setItem("token", token);
+
             navigate("/");
-        } else {
-            alert("Invalid credentials!");
         }
-    };
+        catch (error) {
+            return console.log(error)
+        }
+    }
 
     return (
         <Box className="login-container" sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -33,7 +54,7 @@ const Login = () => {
                     backgroundPosition: "center",
                     backgroundSize: "100px", // adjust as needed
                     backgroundColor: "rgba(255, 255, 255, 0.3)", // adds a light overlay effect
-                    
+
                 }}>
                     <Box >
                         <Box>

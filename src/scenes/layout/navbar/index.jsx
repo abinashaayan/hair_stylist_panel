@@ -48,6 +48,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("token");
     navigate("/login", { replace: true });
   };
 
