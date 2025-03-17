@@ -22,12 +22,13 @@ const UserDetails = () => {
         try {
             setLoading(true);
             const response = await axios.get(`${API_BASE_URL}/users/getAllUsers`);
+            console.log(response.data.data)
             const formattedData = response?.data?.data.map((user) => ({
                 id: user.userId,
                 userId: user.userId || "N/A",
                 email: user.email || "N/A",
                 mobile: user.mobile || "N/A",
-                status: "active",
+                status: user?.isActive||"N/A",
             }));
             setAllUsers(formattedData);
             setFilteredUsers(formattedData);
@@ -57,12 +58,22 @@ const UserDetails = () => {
         }
     };
 
-    const handleToggleStatus = (id) => {
-        setFilteredUsers((prevUsers) =>
-            prevUsers.map((user) =>
-                user.id === id ? { ...user, status: user.status === "active" ? "inactive" : "active" } : user
-            )
-        );
+    const handleToggleStatus = async (id) => {
+        try {
+            const response = await axios.put(`http://54.236.98.193:5050/api/users/admin/blockUnblockUser/${id}`);
+           console.log(response.data)
+            const updatedStatus = response.data.data
+            console.log(updatedStatus)
+            setFilteredUsers((prevUsers) =>
+                prevUsers.map((user) =>
+                    user.id === id ? { ...user, status: updatedStatus} : user
+                )
+            );
+            // fetchAllUsers();
+        }
+        catch (error) {
+            return console.log(error);
+        }
     };
 
     const handleDelete = (id) => {
@@ -93,7 +104,7 @@ const UserDetails = () => {
                     </IconButton>
                 </Box>
             </Box>
-            <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
+            <CustomTable columns={columns} rows={filteredUsers} onStatusToggle={handleToggleStatus} loading={loading} checkboxSelection />
         </Container>
     );
 };
