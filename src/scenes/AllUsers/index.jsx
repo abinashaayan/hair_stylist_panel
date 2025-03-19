@@ -60,7 +60,7 @@ const UserDetails = () => {
 
     const handleToggleStatus = async (id) => {
         try {
-            const response = await axios.put(`http://localhost:5050/api/users/admin/blockUnblockUser/${id}`);
+            const response = await axios.put(`http://3.223.253.106:5050/api/users/admin/blockUnblockUser/${id}`);
            console.log(response.data)
             const updatedStatus = response.data.data
             console.log(updatedStatus)
