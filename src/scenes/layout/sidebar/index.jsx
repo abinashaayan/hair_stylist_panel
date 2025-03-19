@@ -149,7 +149,7 @@ const SideBar = () => {
           />
           <Item
             title="Category"
-            path="/category"
+            path="/menu"
             colors={colors}
             icon={<PeopleAltOutlined />}
           />

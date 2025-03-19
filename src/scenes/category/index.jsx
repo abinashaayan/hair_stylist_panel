@@ -40,10 +40,14 @@ const Category = () => {
           id: category._id,
           categoryId: category.categoryId || "N/A",
           name: category.name.en || "N/A",
-          slug: category.slug || "N/A",
-          isActive: category.isActive ? "Active" : "Inactive",
-          createdAt: new Date(category.createdAt).toLocaleDateString(),
+          // slug: category.slug || "N/A",
+          status: category?.isActive || "N/A",
+          // createdAt: new Date(category.createdAt).toLocaleDateString(),
         }));
+
+    console.log(formattedData, "formattedData");
+
+
         setAllCategoriesList(formattedData);
         setFilteredUsers(formattedData);
       } else {
@@ -94,6 +98,23 @@ const Category = () => {
     }
   };
 
+  const handleToggleStatus = async (row) => {
+    console.log(row, "row");
+    
+    const newStatus = row.status === "Active" ? "Blocked" : "Active";
+  
+    try {
+      await axios.put(`${API_BASE_URL}/category/admin/activate-category/${row}`, {
+        status: newStatus,
+      });
+
+      await fetchAllCategoryDetails()
+    } catch (error) {
+      console.error("Failed to update status", error);
+    }
+  };
+  
+
   const handleAddSubCategory = (id) => {
     console.log("Adding subcategory for:", id);
     setOpenDialog(true);
@@ -135,6 +156,7 @@ const Category = () => {
   };
 
   const columns = categoryTableColumns({
+    handleToggleStatus,
     handleAddSubCategory,
     handleDelete,
     handleView,
@@ -193,6 +215,7 @@ const Category = () => {
         columns={columns}
         rows={filteredUsers}
         loading={loading}
+        onStatusToggle={handleToggleStatus}
         checkboxSelection
       />
       <AddSubCategoryDialog open={openDialog} handleClose={handleCloseDialog} />

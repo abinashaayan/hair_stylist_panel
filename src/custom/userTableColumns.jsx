@@ -14,14 +14,14 @@ export const userTableColumns = ({ handleToggleStatus, handleDelete, handleView 
         renderCell: (params) => (
             <Button
                 variant="contained"
-                color={params.row.status === "active" ? "success" : "error"}
+                color={params.row.status === true ? "success" : "error"}
                 size="small"
                 onClick={(event) => {
                     event.stopPropagation();
                     handleToggleStatus(params.row.id);
                 }}
             >
-                {params.row.status === "active" ? "Active" : "Inactive"}
+                {params.row.status === true ? "Active" : "Inactive"}
             </Button>
         ),
     },

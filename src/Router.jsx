@@ -23,6 +23,7 @@ import {
 import UserDetails from "./scenes/AllUsers";
 import Category from "./scenes/category";
 import Login from "./components/Login";
+import MenuTabs from "./custom/multipleTabs";
 import PrivateRoute from "./utils/PrivateRoute";
 
 const AppRouter = () => {
@@ -35,9 +36,11 @@ const AppRouter = () => {
           path="/login"
           element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
         />
+
         <Route element={<PrivateRoute />}>
-          <Route path="/" element={<App />}>
-            <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<App />}>
+        <Route path="/" element={<Dashboard />} />
+          <Route path="/menu" element={<MenuTabs />} />
             <Route path="/category" element={<Category />} />
             <Route path="/customers" element={<UserDetails />} />
             <Route path="/contacts" element={<Contacts />} />
