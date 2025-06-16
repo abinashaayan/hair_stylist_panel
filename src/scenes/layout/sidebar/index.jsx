@@ -13,19 +13,11 @@ import logo from "../../../assets/images/logo1.png";
 import { tokens } from "../../../theme";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import {
-  BarChartOutlined,
   CalendarTodayOutlined,
-  ContactsOutlined,
   DashboardOutlined,
-  DonutLargeOutlined,
-  HelpOutlineOutlined,
-  MapOutlined,
   MenuOutlined,
   PeopleAltOutlined,
   PersonOutlined,
-  ReceiptOutlined,
-  TimelineOutlined,
-  WavesOutlined,
 } from "@mui/icons-material";
 import Item from "./Item";
 import { ToggledContext } from "../../../App";
@@ -35,12 +27,22 @@ const SideBar = () => {
   const { toggled, setToggled } = useContext(ToggledContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const panelType = localStorage.getItem("panelType");
+
   return (
     <Sidebar
       backgroundColor={colors.primary[400]}
       rootStyles={{
+        position: "relative",
+        borderRightWidth: "1px",
+        borderRightStyle: "solid",
+        borderColor: "#efefef",
+        WebkitTransition: "width, left, right, 300ms",
+        transition: "width, left, right, 300ms",
+        width: "300px",
+        minWidth: "300px",
         border: 0,
-        height: "100%",
+        height: "100%"
       }}
       collapsed={collapsed}
       onBackdropClick={() => setToggled(false)}
@@ -48,29 +50,16 @@ const SideBar = () => {
       breakPoint="md"
       className="sidebar-container"
     >
-      <Menu
-        menuItemStyles={{
-          button: { ":hover": { background: "transparent" } }, }}>
+      <Menu menuItemStyles={{ button: { ":hover": { background: "transparent" } }, }}>
         <MenuItem
           rootStyles={{
             margin: "10px 0 20px 0",
             color: colors.gray[100],
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
             {!collapsed && (
-              <Box
-                display="flex"
-                alignItems="center"
-                gap="12px"
-                sx={{ transition: ".3s ease" }}
-              >
+              <Box display="flex" alignItems="center" gap="12px" sx={{ transition: ".3s ease" }}>
                 <img
                   alt="avatar"
                   src={logo}
@@ -85,23 +74,6 @@ const SideBar = () => {
           </Box>
         </MenuItem>
       </Menu>
-      {/* {!collapsed && (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "10px",
-            mb: "25px",
-          }}
-        >
-          <img
-            alt="avatar"
-            src={logo}
-            style={{ width: "200px", height: "65px" }}
-          />
-        </Box>
-      )} */}
       <Divider />
 
       <Box mb={5} pl={collapsed ? undefined : "5%"}>
@@ -116,142 +88,30 @@ const SideBar = () => {
             },
           }}
         >
-          <Item
-            title="Dashboard"
-            path="/"
-            colors={colors}
-            icon={<DashboardOutlined />}
-          />
+          <Item title="Dashboard" path="/" colors={colors} icon={<DashboardOutlined />} />
         </Menu>
-        <Typography
-          variant="h6"
-          color={colors.gray[300]}
-          sx={{ m: "15px 0 5px 20px" }}
-        >
-          {!collapsed ? "Data" : " "}
-        </Typography>{" "}
-        <Menu
-          menuItemStyles={{
-            button: {
-              ":hover": {
-                color: "#868dfb",
-                background: "transparent",
-                transition: ".4s ease",
-              },
-            },
-          }}
-        >
-          <Item
-            title="Customers"
-            path="/customers"
-            colors={colors}
-            icon={<PeopleAltOutlined />}
-          />
-          <Item
-            title="Category"
-            path="/menu"
-            colors={colors}
-            icon={<PeopleAltOutlined />}
-          />
-          {/* <Item
-            title="Contacts Information"
-            path="/contacts"
-            colors={colors}
-            icon={<ContactsOutlined />}
-          /> */}
-          {/* <Item
-            title="Invoices Balances"
-            path="/invoices"
-            colors={colors}
-            icon={<ReceiptOutlined />}
-          /> */}
-        </Menu>
-        {/* <Typography
-          variant="h6"
-          color={colors.gray[300]}
-          sx={{ m: "15px 0 5px 20px" }}
-        >
-          {!collapsed ? "Pages" : " "}
-        </Typography>
-        <Menu
-          menuItemStyles={{
-            button: {
-              ":hover": {
-                color: "#868dfb",
-                background: "transparent",
-                transition: ".4s ease",
-              },
-            },
-          }}
-        >
-          <Item
-            title="Profile Form"
-            path="/form"
-            colors={colors}
-            icon={<PersonOutlined />}
-          />
-          <Item
-            title="Calendar"
-            path="/calendar"
-            colors={colors}
-            icon={<CalendarTodayOutlined />}
-          />
-          <Item
-            title="FAQ Page"
-            path="/faq"
-            colors={colors}
-            icon={<HelpOutlineOutlined />}
-          />
-        </Menu> */}
-        {/* <Typography
-          variant="h6"
-          color={colors.gray[300]}
-          sx={{ m: "15px 0 5px 20px" }}
-        >
-          {!collapsed ? "Charts" : " "}
-        </Typography>
-        <Menu
-          menuItemStyles={{
-            button: {
-              ":hover": {
-                color: "#868dfb",
-                background: "transparent",
-                transition: ".4s ease",
-              },
-            },
-          }}
-        >
-          <Item
-            title="Bar Chart"
-            path="/bar"
-            colors={colors}
-            icon={<BarChartOutlined />}
-          />
-          <Item
-            title="Pie Chart"
-            path="/pie"
-            colors={colors}
-            icon={<DonutLargeOutlined />}
-          />
-          <Item
-            title="Line Chart"
-            path="/line"
-            colors={colors}
-            icon={<TimelineOutlined />}
-          />
-          <Item
-            title="Geography Chart"
-            path="/geography"
-            colors={colors}
-            icon={<MapOutlined />}
-          />
-          <Item
-            title="Stream Chart"
-            path="/stream"
-            colors={colors}
-            icon={<WavesOutlined />}
-          />
-        </Menu> */}
+
+        {panelType === "admin" ? (
+          <>
+            <Typography variant="h6" color={colors.gray[300]} sx={{ m: "15px 0 5px 20px" }}>
+              {!collapsed ? "Data" : " "}
+            </Typography>
+            <Menu menuItemStyles={{ button: { ":hover": { color: "#868dfb", background: "transparent", transition: ".4s ease", }, }, }}>
+              <Item title="Customers" path="/customers" colors={colors} icon={<PeopleAltOutlined />} />
+              <Item title="Category" path="/menu" colors={colors} icon={<PeopleAltOutlined />} />
+            </Menu>
+          </>
+        ) : (
+          <>
+            <Typography variant="h6" color={colors.gray[300]} sx={{ m: "15px 0 5px 20px" }}>
+              {!collapsed ? "Vendor" : " "}
+            </Typography>
+            <Menu menuItemStyles={{ button: { ":hover": { color: "#868dfb", background: "transparent", transition: ".4s ease", }, }, }}>
+              <Item title="Appointments" path="/stylist-appointments" colors={colors} icon={<CalendarTodayOutlined />} />
+              <Item title="Profile" path="/stylist-profile" colors={colors} icon={<PersonOutlined />} />
+            </Menu>
+          </>
+        )}
       </Box>
     </Sidebar>
   );

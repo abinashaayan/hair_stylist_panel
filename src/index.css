@@ -16,7 +16,7 @@ body,
 
 .sidebar-container {
   background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1));
-  box-shadow: 0 19px 38px rgb(116 116 116 / 30%), 0 15px 12px rgb(104 103 103 / 22%)
+  /* box-shadow: 0 19px 38px rgb(116 116 116 / 30%), 0 15px 12px rgb(104 103 103 / 22%) */
 }
 
 ::-webkit-scrollbar {

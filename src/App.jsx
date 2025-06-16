@@ -1,16 +1,22 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useMemo } from "react";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import { Navbar, SideBar } from "./scenes";
 import { Outlet } from "react-router-dom";
 import ToastNotification from "./Toast";
+import VendorSidebar from "./vendors/VendorSidebar";
+import VendorNavbar from "./vendors/VendorNavbar";
 
 export const ToggledContext = createContext(null);
 
-function App() {
+function App({ panelType }) {
   const [theme, colorMode] = useMode();
   const [toggled, setToggled] = useState(false);
-  const values = { toggled, setToggled };
+  
+  const values = useMemo(() => ({
+    toggled,
+    setToggled,
+  }), [toggled]);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -18,34 +24,11 @@ function App() {
         <CssBaseline />
         <ToggledContext.Provider value={values}>
           <ToastNotification />
-          <Box
-            sx={{
-              display: "flex",
-              height: "100vh",
-              width: "100vw",
-              overflowX: "hidden",
-            }}
-          >
-            <SideBar className="sidebar-container" />
-            <Box
-              sx={{
-                flexGrow: 1,
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-                width: "100%",
-                overflowX: "hidden",
-              }}
-            >
-              <Navbar />
-              <Box
-                sx={{
-                  overflowY: "auto",
-                  flex: 1,
-                  width: "100%",
-                  overflowX: "hidden",
-                }}
-              >
+          <Box sx={{ display: "flex", height: "100vh", width: "100vw", overflowX: "hidden" }}>
+            {panelType === "admin" ? <SideBar /> : <VendorSidebar />}
+            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+              {panelType === "admin" ? <Navbar /> : <VendorNavbar />}
+              <Box sx={{ overflowY: "auto", flex: 1 }}>
                 <Outlet />
               </Box>
             </Box>

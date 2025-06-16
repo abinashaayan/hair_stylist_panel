@@ -22,11 +22,12 @@ const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconCli
                     bgcolor: "#f5f5f5",
                     borderRadius: 1,
                     height: height,
-                    "& fieldset": { border: "none" },
+                    "& fieldset": { border: "1px solid #bdbdbd" },
                     "& .MuiInputBase-input": {
                         padding: "8px 10px",
                         fontSize: "14px",
-                        height: "100%"
+                        height: "100%",
+                        maxHeight:"50px"
                     },
                 },
             }}

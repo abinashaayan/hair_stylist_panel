@@ -30,10 +30,8 @@ import { useState } from "react";
 import { CustomIconButton } from "../../custom/Button";
 
 const statData = [
-  // { title: "", subtitle: "Email Sent", progress: "0.75", increase: "+14%", icon: <Email sx={{ fontSize: "26px" }} /> },
   { title: "User Management", subtitle: "Add, Edit, Delete User", icon: <PersonAdd sx={{ fontSize: "26px" }} /> },
   { title: "Category Management", subtitle: "Add, Edit, Delete Category, Subcategory and more", icon: <PointOfSale sx={{ fontSize: "26px" }} /> },
-  // { title: "1,325,134", subtitle: "Traffic Received", progress: "0.80", increase: "+43%", icon: <Traffic sx={{ fontSize: "26px" }} /> },
 ];
 
 function Dashboard() {
