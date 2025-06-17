@@ -28,6 +28,11 @@ import PrivateRoute from "./utils/PrivateRoute";
 import VendorDashboard from "./vendors/VendorDashboard";
 import VendorAppointments from "./vendors/VendorAppointments";
 import VendorProfile from "./vendors/VendorProfile";
+import AppointmentRequests from "./scenes/vendor/AppointmentRequests";
+import History from "./scenes/vendor/History";
+import Packages from "./scenes/vendor/Packages";
+import Availability from "./scenes/vendor/Availability";
+import CreateAppointment from "./scenes/vendor/CreateAppointment";
 
 const AppRouter = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -98,7 +103,12 @@ const AppRouter = () => {
             ) : panelType === "vendor" ? (
               <>
                 <Route index element={<VendorDashboard />} />
-                <Route path="stylist-appointments" element={<VendorAppointments />} />
+                <Route path="calendar" element={<Calendar />} />
+                <Route path="appointment-requests" element={<AppointmentRequests />} />
+                <Route path="history" element={<History />} />
+                <Route path="packages" element={<Packages />} />
+                <Route path="availability" element={<Availability />} />
+                <Route path="create-appointment" element={<CreateAppointment />} />
                 <Route path="stylist-profile" element={<VendorProfile />} />
               </>
             ) : (
