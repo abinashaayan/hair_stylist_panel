@@ -33,6 +33,7 @@ import History from "./scenes/vendor/History";
 import Packages from "./scenes/vendor/Packages";
 import Availability from "./scenes/vendor/Availability";
 import CreateAppointment from "./scenes/vendor/CreateAppointment";
+import StylistUsers from "./scenes/vendor/StylistUsers";
 
 const AppRouter = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -103,6 +104,7 @@ const AppRouter = () => {
             ) : panelType === "vendor" ? (
               <>
                 <Route index element={<VendorDashboard />} />
+                <Route path="users" element={<StylistUsers />} />
                 <Route path="calendar" element={<Calendar />} />
                 <Route path="appointment-requests" element={<AppointmentRequests />} />
                 <Route path="history" element={<History />} />

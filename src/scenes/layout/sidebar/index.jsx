@@ -60,12 +60,7 @@ const SideBar = () => {
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
             {!collapsed && (
               <Box display="flex" alignItems="center" gap="12px" sx={{ transition: ".3s ease" }}>
-                <img
-                  alt="avatar"
-                  src={logo}
-                  className="mt-3"
-                  style={{ width: "130px", height: "40px" }}
-                />
+                <img alt="avatar" src={logo} className="mt-3" height="50" />
               </Box>
             )}
             <IconButton onClick={() => setCollapsed(!collapsed)}>

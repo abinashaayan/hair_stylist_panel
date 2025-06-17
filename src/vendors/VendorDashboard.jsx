@@ -40,48 +40,6 @@ import {
 } from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-const mockAppointmentData = [
-  {
-    id: 1,
-    date: "15 June,2018",
-    hairStylist: "John Jackson",
-    service: "Hair Spa",
-    clientName: "Mark Austin",
-    number: "9898989898",
-    voucher: "Aftdfg58",
-    status: "Confirmed",
-  },
-  {
-    id: 2,
-    date: "15 June,2018",
-    hairStylist: "Michel Angelo",
-    service: "Hair Cutting",
-    clientName: "Corey Anderson",
-    number: "9898989898",
-    voucher: "Aftdfg58",
-    status: "Confirmed",
-  },
-  {
-    id: 3,
-    date: "15 June,2018",
-    hairStylist: "John Jackson",
-    service: "Mustache",
-    clientName: "Mike Mathews",
-    number: "9898989898",
-    voucher: "Aftdfg58",
-    status: "Confirmed",
-  },
-  {
-    id: 4,
-    date: "15 June,2018",
-    hairStylist: "John Jackson",
-    service: "Hair Spa",
-    clientName: "Pablo Marelo",
-    number: "9898989898",
-    voucher: "Aftdfg58",
-    status: "Confirmed",
-  },
-];
 
 const VendorDashboard = () => {
   const theme = useTheme();
@@ -237,8 +195,8 @@ const VendorDashboard = () => {
       </Box> */}
 
       {/* Appointments Table */}
-      <div class="row gx-4 mt-3">
-        <div class="col-12 col-md-4">
+      <div className="row gx-4 mt-3">
+        <div className="col-12 col-md-4">
           <Box mt="20px">
             <Typography variant="h4" fontWeight="bold" sx={{ mb: "15px", textTransform: "uppercase", }}>
               Upcoming Appointments
@@ -246,7 +204,7 @@ const VendorDashboard = () => {
             <CustomCalendar year={year} month={month} appointments={appointments} />
           </Box>
         </div>
-        <div class="col-12 col-md-8">
+        <div className="col-12 col-md-8">
           <Box sx={{ minHeight: "100vh" }}>
             <div className="row g-4">
               <div className="col-md-4">

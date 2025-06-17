@@ -15,6 +15,7 @@ import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import FlexBetween from "../components/FlexBetween";
 import { ToggledContext } from "../App";
 import { tokens } from "../theme"; // Import tokens
+import logo from "../assets/images/LOGO2.png"
 
 const VendorSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -29,6 +30,11 @@ const VendorSidebar = () => {
       text: "Dashboard",
       icon: <DashboardOutlined />,
       path: "/",
+    },
+    {
+      text: "All Users",
+      icon: <PersonOutline />,
+      path: "/users",
     },
     {
       text: "Calendar",
@@ -99,9 +105,10 @@ const VendorSidebar = () => {
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
             {!collapsed && (
               <Box display="flex" alignItems="center" gap="12px" sx={{ transition: ".3s ease" }}>
-                <Typography variant="h4" fontWeight="bold" color="#FFFFFF">
+                {/* <Typography variant="h4" fontWeight="bold" color="#FFFFFF">
                   VENDOR PANEL
-                </Typography>
+                </Typography> */}
+                <img src={logo} height="40" alt="" />
               </Box>
             )}
             <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: "#FFFFFF" }}>
@@ -119,7 +126,7 @@ const VendorSidebar = () => {
               ":hover": {
                 color: "#FFFFFF",
                 background: "transparent",
-                transition: ".4s ease",
+                // transition: "all 0.3s ease",
               },
             },
           }}
@@ -130,9 +137,10 @@ const VendorSidebar = () => {
                 active={location.pathname === path}
                 icon={icon}
                 style={{
-                  color: "#FFFFFF",
+                  color: location.pathname === path ? "#000000" : "#FFFFFF",
                   fontWeight: "bold",
-                  backgroundColor: location.pathname === path ? "rgba(255, 255, 255, 0.1)" : "transparent",
+                  backgroundColor: location.pathname === path ? "#f2f0f0" : "transparent",
+                  borderTopLeftRadius: location.pathname === path ? "30px" : "0px",
                 }}
               >
                 <Typography sx={{ fontWeight: "bold" }}>{text}</Typography>
