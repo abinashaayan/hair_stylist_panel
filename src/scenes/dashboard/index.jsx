@@ -59,70 +59,14 @@ function Dashboard() {
 
   return (
     <Box m="15px">
-      <Box display="flex" justifyContent="space-between">
-        {/* <Header title="DASHBOARD" subtitle="Welcome to your dashboard" /> */}
-        {!isXsDevices && (
-          <Box display="flex" alignItems="center" gap={1}>
-            {/* <Button
-              variant="outlined"
-              sx={{
-                fontWeight: "bold",
-                transition: ".3s ease",
-                textTransform: "none",
-              }}
-              onClick={() => setSelectedStat(null)}
-            >
-              Reset
-            </Button>
-            <Button
-              variant="contained"
-              sx={{
-                fontWeight: "bold",
-                transition: ".3s ease",
-                textTransform: "none",
-              }}
-              startIcon={<DownloadOutlined />}
-            >
-              DOWNLOAD REPORTS
-            </Button> */}
-          </Box>
-        )}
-      </Box>
-
-      {/* GRID & CHARTS */}
-
-      <Box
-        display="grid"
-        gridTemplateColumns={
-          isXlDevices
-            ? "repeat(12, 1fr)"
-            : isMdDevices
-              ? "repeat(6, 1fr)"
-              : "repeat(3, 1fr)"
-        }
-        gridAutoRows="140px"
-        gap="20px"
-      >
+      <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+      <Box display="grid" gridTemplateColumns={isXlDevices ? "repeat(12, 1fr)" : isMdDevices ? "repeat(6, 1fr)" : "repeat(3, 1fr)"} gridAutoRows="140px" gap="20px">
         {statData.map((stat, index) => (
 
-          <Box
-          key={index}
-            gridColumn="span 5"
-            bgcolor={colors.primary[400]}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            sx={{ borderRadius: "15px", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;", cursor: "pointer", width: "100%", transition: "transform 0.2s",
-              "&:hover": { transform: "scale(1.05)"} }}
-            // onClick={() => setSelectedStat(stat)}
-            onClick={() => handleStatClick(stat)}
-          >
+          <Box key={index} gridColumn="span 5" bgcolor={colors.primary[400]} display="flex" alignItems="center" justifyContent="center" onClick={() => handleStatClick(stat)}>
             <StatBox {...stat} />
           </Box>
-
         ))}
-
-
 
         {/* ---------------- Row 2 ---------------- */}
 

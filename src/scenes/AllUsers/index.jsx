@@ -1,5 +1,5 @@
 import {
-    Box, Container, IconButton, InputBase, useTheme
+    Box, Container, IconButton, InputBase, Typography, useTheme
 } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined, DeleteOutline, Visibility } from "@mui/icons-material";
@@ -28,7 +28,7 @@ const UserDetails = () => {
                 userId: user.userId || "N/A",
                 email: user.email || "N/A",
                 mobile: user.mobile || "N/A",
-                status: user?.isActive||"N/A",
+                status: user?.isActive || "N/A",
             }));
             setAllUsers(formattedData);
             setFilteredUsers(formattedData);
@@ -61,12 +61,12 @@ const UserDetails = () => {
     const handleToggleStatus = async (id) => {
         try {
             const response = await axios.put(`http://3.223.253.106:5050/api/users/admin/blockUnblockUser/${id}`);
-           console.log(response.data)
+            console.log(response.data)
             const updatedStatus = response.data.data
             console.log(updatedStatus)
             setFilteredUsers((prevUsers) =>
                 prevUsers.map((user) =>
-                    user.id === id ? { ...user, status: updatedStatus} : user
+                    user.id === id ? { ...user, status: updatedStatus } : user
                 )
             );
             // fetchAllUsers();
@@ -104,7 +104,40 @@ const UserDetails = () => {
                     </IconButton>
                 </Box>
             </Box>
-            <CustomTable columns={columns} rows={filteredUsers} onStatusToggle={handleToggleStatus} loading={loading} checkboxSelection />
+            {/* <CustomTable columns={columns} rows={filteredUsers} onStatusToggle={handleToggleStatus} loading={loading} checkboxSelection />
+            <Box>In processing mode. Add, edit, delete actions are temporarily disabled.</Box> */}
+            <Box position="relative">
+                <CustomTable
+                    columns={columns}
+                    rows={filteredUsers}
+                    onStatusToggle={handleToggleStatus}
+                    loading={loading}
+                    checkboxSelection
+                />
+
+                {/* Disabled Overlay */}
+                <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    width="100%"
+                    height="100%"
+                    bgcolor="rgba(255, 255, 255, 0.6)"  
+                    zIndex={1}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    pointerEvents="none"
+                >
+                    <Typography
+                        variant="h6"
+                        color="textSecondary"
+                        sx={{ fontWeight: 'bold', backgroundColor: 'white', color: "red", px: 2, py: 1, borderRadius: 1, boxShadow: 1 }}
+                    >
+                        In processing mode. Add, edit, delete actions are temporarily disabled.
+                    </Typography>
+                </Box>
+            </Box>
         </Container>
     );
 };

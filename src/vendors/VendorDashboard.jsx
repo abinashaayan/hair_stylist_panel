@@ -2,19 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, useTheme, IconButton, Button, useMediaQuery, Select, MenuItem } from "@mui/material";
 import {
   CalendarMonth,
-  PeopleAlt,
-  Star,
-  AttachMoney,
-  CheckCircleOutline,
   EventNoteOutlined,
-  PlaylistAddCheckOutlined,
-  HourglassEmptyOutlined,
-  CloseOutlined,
-  CalendarTodayOutlined,
-  DateRangeOutlined,
-  FilterListOutlined,
-  ListAltOutlined,
-  EditOutlined,
   SpaOutlined,
   HistoryOutlined,
   RedeemOutlined,
@@ -22,10 +10,8 @@ import {
   AddOutlined,
   StarOutline,
 } from "@mui/icons-material";
-import StatBox from "../components/StatBox";
-import FlexBetween from "../components/FlexBetween";
 import Header from "../components/Header";
-import CustomTable from "../custom/Table";
+// import CustomTable from "../custom/Table";
 import CustomCalendar from "./CustomCalendar";
 import { Banknote } from "lucide-react";
 import { Bar } from 'react-chartjs-2';
@@ -38,6 +24,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { Link } from "react-router-dom";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -51,56 +38,20 @@ const VendorDashboard = () => {
   const month = 1;
 
   const statData = [
-    { title: "Calendar", value: "31", icon: <CalendarMonth /> },
-    { title: "Appointment requests", icon: <EventNoteOutlined /> },
-    { title: "Upcoming Appointments", icon: <SpaOutlined /> },
-    { title: "History", icon: <HistoryOutlined /> },
-    { title: "Packages", icon: <RedeemOutlined /> },
-    { title: "Availability Management", icon: <FactCheckOutlined /> },
-    { title: "Create Appointment", icon: <AddOutlined /> },
-    { title: "Lorem Services", icon: <StarOutline /> },
-  ];
-
-  const columns = [
-    { field: "date", headerName: "Date", flex: 1 },
-    { field: "hairStylist", headerName: "Hair Stylist", flex: 1 },
-    { field: "service", headerName: "Service", flex: 1 },
-    { field: "clientName", headerName: "Client Name", flex: 1 },
-    { field: "number", headerName: "Number", flex: 1 },
-    { field: "voucher", headerName: "Voucher", flex: 1 },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 1,
-      renderCell: (params) => (
-        <Typography color={theme.palette.secondary[300]}>
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "edit",
-      headerName: "Edit",
-      flex: 0.5,
-      sortable: false,
-      renderCell: () => (
-        <IconButton>
-          <EditOutlined sx={{ fontSize: "20px", color: theme.palette.grey[100] }} />
-        </IconButton>
-      ),
-    },
+    { title: "Calendar", value: "31", path: "/calendar", icon: <CalendarMonth /> },
+    { title: "Appointment requests", path: "/appointment-requests", icon: <EventNoteOutlined /> },
+    { title: "Upcoming Appointments", path: "", icon: <SpaOutlined /> },
+    { title: "History", path: "/history", icon: <HistoryOutlined /> },
+    { title: "Packages", path: "/packages", icon: <RedeemOutlined /> },
+    { title: "Availability Management", path: "/availability", icon: <FactCheckOutlined /> },
+    { title: "Create Appointment", path: "/create-appointment", icon: <AddOutlined /> },
+    { title: "Lorem Services", path: "", icon: <StarOutline /> },
   ];
 
   return (
     <Box m="1.5rem 2.5rem">
       <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-      <Box
-        mt="20px"
-        display="grid"
-        gridTemplateColumns="repeat(8, 1fr)"
-        gridAutoRows="140px"
-        gap="20px"
-      >
+      <Box mt="20px" display="grid" gridTemplateColumns="repeat(8, 1fr)" gridAutoRows="140px" gap="20px">
         {statData.map((stat, index) => (
           <Box
             key={index}
@@ -128,9 +79,11 @@ const VendorDashboard = () => {
                 {stat.value}
               </Typography>
             )}
-            <Typography variant="h6" sx={{ color: "#FFFFFF", textAlign: "center" }}>
-              {stat.title}
-            </Typography>
+            <Link to={stat?.path} className="text-decoration-none">
+              <Typography variant="h6" sx={{ color: "#FFFFFF", textAlign: "center" }}>
+                {stat.title}
+              </Typography>
+            </Link>
           </Box>
         ))}
       </Box>
@@ -150,49 +103,6 @@ const VendorDashboard = () => {
           ))}
         </Box>
       </Box>
-
-      {/* Filter Section */}
-      {/* <Box mt="20px" display="flex" flexDirection={isNonMobile ? "row" : "column"} gap="10px" alignItems="center">
-        <Button
-          variant="outlined"
-          startIcon={<CalendarTodayOutlined />}
-          sx={{ textTransform: "none", color: theme.palette.grey[100], borderColor: theme.palette.grey[400] }}
-        >
-          From Date
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<DateRangeOutlined />}
-          sx={{ textTransform: "none", color: theme.palette.grey[100], borderColor: theme.palette.grey[400] }}
-        >
-          To Date
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<FilterListOutlined />}
-          sx={{ textTransform: "none", color: theme.palette.grey[100], borderColor: theme.palette.grey[400] }}
-        >
-          All
-        </Button>
-        <FlexBetween gap="10px" flexWrap="wrap">
-          {["CONFIRMED", "CANCELLED", "PENDING", "NO SHOWS"].map((status) => (
-            <Button
-              key={status}
-              variant={status === "CONFIRMED" ? "contained" : "outlined"}
-              sx={{ textTransform: "none", minWidth: "120px", ...(status === "CONFIRMED" && { backgroundColor: theme.palette.secondary[300] }) }}
-            >
-              {status}
-            </Button>
-          ))}
-          <Button
-            variant="outlined"
-            startIcon={<ListAltOutlined />}
-            sx={{ textTransform: "none", color: theme.palette.grey[100], borderColor: theme.palette.grey[400] }}
-          >
-            REPORTS
-          </Button>
-        </FlexBetween>
-      </Box> */}
 
       {/* Appointments Table */}
       <div className="row gx-4 mt-3">

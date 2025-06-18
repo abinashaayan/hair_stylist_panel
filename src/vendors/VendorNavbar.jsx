@@ -25,6 +25,7 @@ import { ToggledContext } from "../App";
 import logo from "../assets/images/logo1.png";
 import { ColorModeContext } from "../theme";
 import { Star, StarHalf } from "lucide-react";
+import { useAuth } from "../utils/context/AuthContext";
 
 const VendorNavbar = () => {
   const theme = useTheme();
@@ -38,6 +39,7 @@ const VendorNavbar = () => {
 
   const { toggled, setToggled } = useContext(ToggledContext);
   const colorMode = useContext(ColorModeContext);
+   const { logout } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -61,8 +63,8 @@ const VendorNavbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
+    logout(); 
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -83,12 +85,6 @@ const VendorNavbar = () => {
           </IconButton>
         )}
         <Box display="flex" alignItems="center" gap="10px">
-          {/* <img
-            alt="logo"
-            src={logo}
-            style={{ width: "auto", height: "40px", cursor: "pointer" }}
-            onClick={() => navigate("/")}
-          /> */}
           <Typography
             fontWeight="bold"
             fontSize="clamp(1rem, 2rem, 2.25rem)"

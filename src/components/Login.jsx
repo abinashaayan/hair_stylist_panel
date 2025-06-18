@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Grid, Box, Button, Typography, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from "@mui/material";
+import { Grid, Box, Button, Typography, FormControl, RadioGroup, FormControlLabel, Radio } from "@mui/material";
 import { Email, Visibility, VisibilityOff, Lock, PersonOutlined } from "@mui/icons-material";
 import logo from "../assets/images/logo1.png";
 import watermark from "../assets/images/watermark1.png";
@@ -65,91 +65,25 @@ const Login = ({ onLoginSuccess }) => {
   };
 
   return (
-    <Box
-      className="login-container"
-      sx={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <Box className="login-container" sx={{ height: "100vh", display: "flex", flexDirection: "column", }}>
       <Grid container spacing={0} sx={{ flex: 1 }}>
-        {/* Left Column - Video & Content */}
-        <Grid
-          item
-          xs={12}
-          md={8}
-          className="left-column"
-          sx={{
-            position: "relative",
-            overflow: "hidden",
-            minHeight: { xs: "50vh", md: "100%" }, // ensure height on small devices
-          }}
-        >
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              zIndex: 0,
-            }}
-          >
+        <Grid item xs={12} md={8} className="left-column" sx={{ position: "relative", overflow: "hidden", minHeight: { xs: "50vh", md: "100%" }, }}>
+          <video autoPlay muted loop playsInline style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, }}>
             <source src={watermark1} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              zIndex: 1,
-            }}
-          />
-
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              flexDirection: "column",
-              alignItems: "flex-start",
-            }}
-          >
+          <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: { xs: "none", md: "flex" }, flexDirection: "column", justifyContent: "center", alignItems: "flex-start", zIndex: 2, px: 8, backgroundColor: "rgba(0, 0, 0, 0.5)", }}>
             <Typography variant="h6" sx={{ color: "white" }}>
               Welcome to
             </Typography>
-            <Typography
-              variant="h2"
-              sx={{
-                fontWeight: "bold",
-                color: "white",
-                fontSize: { sm: "2.5rem", md: "3rem" },
-              }}
-            >
+            <Typography variant="h2" sx={{ fontWeight: "bold", color: "white", fontSize: { sm: "2.5rem", md: "3rem" }, }}>
               Hair Style Saloon
             </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: "white",
-                maxWidth: { sm: 600, md: 800 },
-                mt: 2,
-                fontSize: { sm: "1rem" },
-              }}
-            >
+            <Typography variant="body1" sx={{ color: "white", maxWidth: { sm: 600, md: 800 }, mt: 2, fontSize: { sm: "1rem" }, }}>
               Discover the art of transformation with our expert stylists. Whether you're after a bold new look or subtle sophistication, we deliver styles that speak for you. Walk in for a haircut — walk out with confidence.
             </Typography>
           </Box>
-
         </Grid>
         <Grid
           item
@@ -178,14 +112,11 @@ const Login = ({ onLoginSuccess }) => {
           }}
         >
           <Box className="login-form" sx={{ width: "100%", maxWidth: 400 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+              <img src={logo} alt="logo" height="80" />
+            </Box>
             <FormControl>
-              <RadioGroup
-                row
-                aria-labelledby="panel-selection"
-                name="panel-selection"
-                value={panelType}
-                onChange={(e) => setPanelType(e.target.value)}
-              >
+              <RadioGroup row aria-labelledby="panel-selection" name="panel-selection" value={panelType} onChange={(e) => setPanelType(e.target.value)}>
                 <FormControlLabel value="adminpanel" control={<Radio />} label="ADMIN PANEL" />
                 <FormControlLabel value="vendorpanel" control={<Radio />} label="VENDOR PANEL" />
               </RadioGroup>
@@ -193,13 +124,7 @@ const Login = ({ onLoginSuccess }) => {
 
             {panelType === "adminpanel" ? (
               <>
-                <Input
-                  placeholder="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  icon={<Email />}
-                />
+                <Input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} icon={<Email />} />
                 <Input
                   placeholder="Password"
                   type={showPassword ? "text" : "password"}

@@ -16,25 +16,21 @@ import {
   DarkModeOutlined,
   LightModeOutlined,
   MenuOutlined,
-  SearchOutlined,
-  LogoutOutlined,
-  AccountCircle,
   Logout,
   Settings,
-  SettingsOutlined,
   Notifications,
 } from "@mui/icons-material";
-import { deepOrange } from "@mui/material/colors";
 import { ToggledContext } from "../../../App";
 import { useNavigate } from "react-router-dom";
-import { Header } from "../../../components";
+import { useAuth } from "../../../utils/context/AuthContext";
+
 const Navbar = () => {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
   const { toggled, setToggled } = useContext(ToggledContext);
   const isMdDevices = useMediaQuery("(max-width:768px)");
-  const isXsDevices = useMediaQuery("(max-width:466px)");
   const colors = tokens(theme.palette.mode);
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -46,60 +42,37 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
+// const handleLogout = () => {
+//   localStorage.removeItem("isAuthenticated");
+//   localStorage.removeItem("token");
+//   localStorage.removeItem("panelType");
+//   localStorage.removeItem("stylistId");
+//   window.location.replace("/login");
+// };
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("token");
+    logout(); 
     navigate("/login", { replace: true });
   };
 
+
   return (
-    <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="space-between"
-      p={2}
-    >
+    <Box display="flex" alignItems="center" justifyContent="space-between" p={2} sx={{ position: "sticky", top: 0, zIndex: 100, background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)" }}>
       <Box display="flex" alignItems="center" gap={2}>
-        <IconButton
-          sx={{ display: `${isMdDevices ? "flex" : "none"}` }}
-          onClick={() => setToggled(!toggled)}
-        >
+        <IconButton sx={{ display: `${isMdDevices ? "flex" : "none"}`, color: "#FFFFFF" }} onClick={() => setToggled(!toggled)}>
           <MenuOutlined />
         </IconButton>
-        {/* <Box
-          display="flex"
-          alignItems="center"
-          bgcolor={colors.primary[400]}
-          borderRadius="3px"
-          sx={{ display: `${isXsDevices ? "none" : "flex"}` }}
-        >
-          <InputBase placeholder="Search" sx={{ ml: 2, flex: 1 }} />
-          <IconButton type="button" sx={{ p: 1 }}>
-            <SearchOutlined />
-          </IconButton>
-        </Box> */}
-        <Header title="DASHBOARD" /> 
       </Box>
 
       <Box>
-        <IconButton onClick={colorMode.toggleColorMode}>
+        <IconButton onClick={colorMode.toggleColorMode} sx={{ color: "#FFFFFF" }}>
           {theme.palette.mode === "dark" ? (
             <LightModeOutlined />
           ) : (
             <DarkModeOutlined />
           )}
         </IconButton>
-        {/* <IconButton>
-          <NotificationsOutlined />
-        </IconButton>
-        <IconButton>
-          <SettingsOutlined />
-        </IconButton>
-        <IconButton>
-          <PersonOutlined />
-        </IconButton> */}
         <Tooltip title="Profile">
-          <IconButton onClick={handleClick}>
+          <IconButton onClick={handleClick} sx={{ color: "#FFFFFF" }}>
             <Avatar sx={{ width: 25, height: 25, backgroundColor: "hsl(0 84.2% 60.2%)" }} />
           </IconButton>
         </Tooltip>

@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import React from "react";
 import {
   Avatar,
   Box,
@@ -8,8 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useContext, useState } from "react";
-// import avatar from "../../../assets/images/avatar.png";
-import logo from "../../../assets/images/logo1.png";
+import logo from "../../../assets/images/LOGO2.png";
 import { tokens } from "../../../theme";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import {
@@ -29,9 +29,21 @@ const SideBar = () => {
   const colors = tokens(theme.palette.mode);
   const panelType = localStorage.getItem("panelType");
 
+  const navSections = {
+    admin: [
+      { title: "Customers", path: "/customers", icon: <PeopleAltOutlined /> },
+      { title: "Category", path: "/menu", icon: <PeopleAltOutlined /> },
+      { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
+    ],
+    vendor: [
+      { title: "Appointments", path: "/stylist-appointments", icon: <CalendarTodayOutlined /> },
+      { title: "Profile", path: "/stylist-profile", icon: <PersonOutlined /> },
+    ],
+  };
+
   return (
     <Sidebar
-      backgroundColor={colors.primary[400]}
+      backgroundColor="transparent"
       rootStyles={{
         position: "relative",
         borderRightWidth: "1px",
@@ -42,7 +54,8 @@ const SideBar = () => {
         width: "300px",
         minWidth: "300px",
         border: 0,
-        height: "100%"
+        height: "100%",
+        background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"
       }}
       collapsed={collapsed}
       onBackdropClick={() => setToggled(false)}
@@ -54,7 +67,7 @@ const SideBar = () => {
         <MenuItem
           rootStyles={{
             margin: "10px 0 20px 0",
-            color: colors.gray[100],
+            color: "#FFFFFF",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
@@ -63,50 +76,51 @@ const SideBar = () => {
                 <img alt="avatar" src={logo} className="mt-3" height="50" />
               </Box>
             )}
-            <IconButton onClick={() => setCollapsed(!collapsed)}>
+            <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: "#FFFFFF" }}>
               <MenuOutlined />
             </IconButton>
           </Box>
         </MenuItem>
       </Menu>
-      <Divider />
+      <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.2)" }} />
 
       <Box mb={5} pl={collapsed ? undefined : "5%"}>
         <Menu
           menuItemStyles={{
             button: {
+              transition: "all 0.4s ease",
+              fontWeight: "bold",
+              color: "#FFFFFF",
               ":hover": {
-                color: "#868dfb",
-                background: "transparent",
-                transition: ".4s ease",
+                color: "#FFFFFF",
+                background: "rgba(255,255,255,0.1)",
+                transform: "translateX(4px)",
               },
             },
           }}
         >
-          <Item title="Dashboard" path="/" colors={colors} icon={<DashboardOutlined />} />
+          <Item title="Dashboard" path="/" colors={colors} icon={<DashboardOutlined sx={{ color: "#FFFFFF" }} />} />
         </Menu>
 
-        {panelType === "admin" ? (
-          <>
-            <Typography variant="h6" color={colors.gray[300]} sx={{ m: "15px 0 5px 20px" }}>
-              {!collapsed ? "Data" : " "}
-            </Typography>
-            <Menu menuItemStyles={{ button: { ":hover": { color: "#868dfb", background: "transparent", transition: ".4s ease", }, }, }}>
-              <Item title="Customers" path="/customers" colors={colors} icon={<PeopleAltOutlined />} />
-              <Item title="Category" path="/menu" colors={colors} icon={<PeopleAltOutlined />} />
-            </Menu>
-          </>
-        ) : (
-          <>
-            <Typography variant="h6" color={colors.gray[300]} sx={{ m: "15px 0 5px 20px" }}>
-              {!collapsed ? "Vendor" : " "}
-            </Typography>
-            <Menu menuItemStyles={{ button: { ":hover": { color: "#868dfb", background: "transparent", transition: ".4s ease", }, }, }}>
-              <Item title="Appointments" path="/stylist-appointments" colors={colors} icon={<CalendarTodayOutlined />} />
-              <Item title="Profile" path="/stylist-profile" colors={colors} icon={<PersonOutlined />} />
-            </Menu>
-          </>
-        )}
+        <Divider sx={{ mx: "auto", borderColor: "#fff" }} />
+        <Menu
+          menuItemStyles={{
+            button: {
+              transition: "all 0.4s ease",
+              fontWeight: "bold",
+              color: "#FFFFFF",
+              ":hover": {
+                color: "#FFFFFF",
+                background: "rgba(255,255,255,0.1)",
+                transform: "translateX(4px)",
+              },
+            },
+          }}
+        >
+          {(navSections[panelType] || []).map(({ title, path, icon }) => (
+            <Item key={title} title={title} path={path} colors={colors} icon={React.cloneElement(icon, { sx: { color: "#FFFFFF" } })} />
+          ))}
+        </Menu>
       </Box>
     </Sidebar>
   );

@@ -105,9 +105,6 @@ const VendorSidebar = () => {
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
             {!collapsed && (
               <Box display="flex" alignItems="center" gap="12px" sx={{ transition: ".3s ease" }}>
-                {/* <Typography variant="h4" fontWeight="bold" color="#FFFFFF">
-                  VENDOR PANEL
-                </Typography> */}
                 <img src={logo} height="40" alt="" />
               </Box>
             )}
@@ -120,35 +117,39 @@ const VendorSidebar = () => {
       <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.2)" }} />
 
       <Box mb={5} pl={collapsed ? undefined : "5%"}>
-        <Menu
-          menuItemStyles={{
-            button: {
-              ":hover": {
-                color: "#FFFFFF",
-                background: "transparent",
-                // transition: "all 0.3s ease",
-              },
-            },
-          }}
-        >
-          {navItems.map(({ text, icon, path }) => (
-            <Link key={text} to={path} style={{ textDecoration: "none", color: "inherit", }}>
-              <MenuItem
-                active={location.pathname === path}
-                icon={icon}
-                style={{
-                  color: location.pathname === path ? "#000000" : "#FFFFFF",
-                  fontWeight: "bold",
-                  backgroundColor: location.pathname === path ? "#f2f0f0" : "transparent",
-                  borderTopLeftRadius: location.pathname === path ? "30px" : "0px",
-                }}
-              >
-                <Typography sx={{ fontWeight: "bold" }}>{text}</Typography>
-              </MenuItem>
-            </Link>
-          ))}
+        <Menu menuItemStyles={{ button: { position: "relative", transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)", ":hover": { color: "#FFFFFF", background: "rgba(255,255,255,0.1)", transform: "translateX(4px)", }, }, }}>
+          {navItems.map(({ text, icon, path }) => {
+            const isActive = location.pathname === path;
+            return (
+              <Link key={text} to={path} style={{ textDecoration: "none", color: "inherit" }}>
+                <MenuItem
+                  active={isActive}
+                  icon={icon}
+                  style={{
+                    color: isActive ? "#000000" : "#FFFFFF",
+                    fontWeight: "bold",
+                    backgroundColor: isActive ? "#f2f0f0" : "transparent",
+                    borderTopLeftRadius: "30px",
+                    transition: "all 0.4s ease",
+                    ...(isActive
+                      ? {
+                        boxShadow: "inset 3px 0 0 #1976d2",
+                      }
+                      : {
+                        boxShadow: "none",
+                      }),
+                  }}
+                >
+                  <Typography sx={{ fontWeight: "bold", transition: "margin 0.3s ease", ml: isActive ? "4px" : "0", }}>
+                    {text}
+                  </Typography>
+                </MenuItem>
+              </Link>
+            );
+          })}
         </Menu>
       </Box>
+
     </Sidebar>
   );
 };

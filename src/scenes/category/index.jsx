@@ -5,6 +5,7 @@ import {
   InputBase,
   Button,
   useTheme,
+  Typography,
 } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined, PersonAdd } from "@mui/icons-material";
@@ -40,12 +41,10 @@ const Category = () => {
           id: category._id,
           categoryId: category.categoryId || "N/A",
           name: category.name.en || "N/A",
-          // slug: category.slug || "N/A",
           status: category?.isActive || "N/A",
-          // createdAt: new Date(category.createdAt).toLocaleDateString(),
         }));
 
-    console.log(formattedData, "formattedData");
+        console.log(formattedData, "formattedData");
 
 
         setAllCategoriesList(formattedData);
@@ -100,9 +99,9 @@ const Category = () => {
 
   const handleToggleStatus = async (row) => {
     console.log(row, "row");
-    
+
     const newStatus = row.status === "Active" ? "Blocked" : "Active";
-  
+
     try {
       await axios.put(`${API_BASE_URL}/category/admin/activate-category/${row}`, {
         status: newStatus,
@@ -113,7 +112,7 @@ const Category = () => {
       console.error("Failed to update status", error);
     }
   };
-  
+
 
   const handleAddSubCategory = (id) => {
     console.log("Adding subcategory for:", id);
@@ -140,7 +139,7 @@ const Category = () => {
         showSuccessToast(response?.data?.message || "Category deleted successfully");
         setAllCategoriesList((prevList) => prevList.filter(category => category.id !== id));
         setFilteredUsers((prevList) => prevList.filter(category => category.id !== id));
-  
+
       } else {
         showErrorToast("Failed to delete category.");
       }
@@ -148,7 +147,7 @@ const Category = () => {
       showErrorToast(error?.response?.data?.message || "An error occurred while deleting.");
     }
   };
-  
+
 
   const handleView = (row) => {
     setShowCategoryDetails(row);
@@ -164,28 +163,11 @@ const Category = () => {
 
   return (
     <Container maxWidth={false}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, }}>
         <Header title="Category" />
         <Box display="flex" alignItems="center" ml={2} gap={2}>
-          <Box
-            display="flex"
-            alignItems="center"
-            bgcolor={colors.primary[400]}
-            borderRadius="3px"
-          >
-            <InputBase
-              placeholder="Search category"
-              value={searchText}
-              onChange={handleSearch}
-              sx={{ ml: 2, flex: 1 }}
-            />
+          <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} borderRadius="3px">
+            <InputBase placeholder="Search category" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
             <IconButton type="button" sx={{ p: 1 }}>
               <SearchOutlined />
             </IconButton>
@@ -211,13 +193,33 @@ const Category = () => {
           </Button>
         </Box>
       </Box>
-      <CustomTable
-        columns={columns}
-        rows={filteredUsers}
-        loading={loading}
-        onStatusToggle={handleToggleStatus}
-        checkboxSelection
-      />
+      {/* <CustomTable columns={columns} rows={filteredUsers} loading={loading} onStatusToggle={handleToggleStatus} checkboxSelection /> */}
+      <Box position="relative">
+        <CustomTable columns={columns} rows={filteredUsers} loading={loading} onStatusToggle={handleToggleStatus} checkboxSelection />
+
+        {/* Disabled Overlay */}
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          width="100%"
+          height="100%"
+          bgcolor="rgba(255, 255, 255, 0.6)"
+          zIndex={1}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          pointerEvents="none"
+        >
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            sx={{ fontWeight: 'bold', backgroundColor: 'white', color: "red", px: 2, py: 1, borderRadius: 1, boxShadow: 1 }}
+          >
+            In processing mode. Add, edit, delete actions are temporarily disabled.
+          </Typography>
+        </Box>
+      </Box>
       <AddSubCategoryDialog open={openDialog} handleClose={handleCloseDialog} />
       <AddCategory
         open={openCategoryDialog}

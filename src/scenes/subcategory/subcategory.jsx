@@ -166,12 +166,12 @@ import {
           </Box>
         </Box>
   
-        <CustomTable
+        {/* <CustomTable
           columns={columns}
           rows={filteredSubCategories}
           loading={loading}
           checkboxSelection
-        />
+        /> */}
   
         {/* <AddSubCategoryDialog
           open={openDialog}

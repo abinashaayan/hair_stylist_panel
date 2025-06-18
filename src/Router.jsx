@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
 } from "react-router-dom";
+
 import App from "./App";
 import {
   Dashboard,
-  // Team,
   Invoices,
   Contacts,
   Form,
@@ -20,11 +20,13 @@ import {
   Calendar,
   Stream,
 } from "./scenes";
+
 import UserDetails from "./scenes/AllUsers";
 import Category from "./scenes/category";
 import Login from "./components/Login";
 import MenuTabs from "./custom/multipleTabs";
 import PrivateRoute from "./utils/PrivateRoute";
+
 import VendorDashboard from "./vendors/VendorDashboard";
 import VendorAppointments from "./vendors/VendorAppointments";
 import VendorProfile from "./vendors/VendorProfile";
@@ -35,53 +37,38 @@ import Availability from "./scenes/vendor/Availability";
 import CreateAppointment from "./scenes/vendor/CreateAppointment";
 import StylistUsers from "./scenes/vendor/StylistUsers";
 
+import { useAuth } from "./utils/context/AuthContext";
+import OrderDetails from "./scenes/admin/OrderDetails";
+
 const AppRouter = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [panelType, setPanelType] = useState(null);
-  const [token, setToken] = useState(null);
-  const [stylistId, setStylistId] = useState(null);
+  const [isAppLoading, setIsAppLoading] = useState(true);
+  const { isAuthenticated, panelType, token, stylistId, login } = useAuth();
 
-  useEffect(() => {
-    const auth = localStorage.getItem("isAuthenticated") === "true";
-    const type = localStorage.getItem("panelType");
-    const storedToken = localStorage.getItem("token");
-    const storedStylistId = localStorage.getItem("stylistId");
-
-    setIsAuthenticated(auth);
-    setPanelType(type);
-    setToken(storedToken);
-    setStylistId(storedStylistId);
-    setIsLoading(false);
-  }, []);
-
-  const handleLoginSuccess = useCallback((authStatus, type, authToken, vendorId) => {
-    setIsAuthenticated(authStatus);
-    setPanelType(type);
-    setToken(authToken);
-    setStylistId(vendorId);
-  }, []);
-
-  if (isLoading) {
-    return null; // or a loading spinner
+  if (isAuthenticated === null) {
+    return null;
   }
+
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     setIsAppLoading(false);
+  //   }, 1500);
+  //   return () => clearTimeout(timeout);
+  // }, []);
 
   return (
     <Router>
       <Routes>
-        {/* Login Route */}
+        {/* Public Route */}
         <Route
           path="/login"
           element={
             isAuthenticated ? (
               <Navigate to="/" replace />
             ) : (
-              <Login onLoginSuccess={handleLoginSuccess} />
+              <Login onLoginSuccess={login} />
             )
           }
         />
-
-        {/* Protected Routes */}
         <Route
           element={
             <PrivateRoute
@@ -99,6 +86,7 @@ const AppRouter = () => {
                 <Route path="menu" element={<MenuTabs />} />
                 <Route path="category" element={<Category />} />
                 <Route path="customers" element={<UserDetails />} />
+                <Route path="order-details" element={<OrderDetails />} />
                 <Route path="contacts" element={<Contacts />} />
               </>
             ) : panelType === "vendor" ? (

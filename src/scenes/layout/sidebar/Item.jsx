@@ -10,7 +10,11 @@ const Item = ({ title, path, icon }) => {
       to={path}
       icon={icon}
       rootStyles={{
-        color: path === location.pathname && "#6870fa",
+        color: "#FFFFFF",
+        "&.ps-active": {
+          color: "#FFFFFF",
+          backgroundColor: "rgba(255,255,255,0.1)",
+        }
       }}
     >
       {title}
