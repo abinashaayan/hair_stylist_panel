@@ -46,6 +46,10 @@ const Login = ({ onLoginSuccess }) => {
         localStorage.setItem("panelType", "admin");
         onLoginSuccess(true, 'admin', token, null);
       } else {
+        if (!stylistId) {
+          setError("Please type any things at this time.");
+          return;
+        }
         localStorage.removeItem("isAuthenticated");
         localStorage.removeItem("token");
         localStorage.removeItem("panelType");

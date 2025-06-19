@@ -14,6 +14,7 @@ const CustomCalendar = ({ year, month, appointments }) => {
   const theme = useTheme();
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const colors = theme.palette.mode === "dark" ? theme.palette.grey[700] : theme.palette.grey[100];
 
   const weeks = [];
   let currentDay = 1 - firstDay;
@@ -72,7 +73,7 @@ const CustomCalendar = ({ year, month, appointments }) => {
                 justifyContent="center"
                 sx={{
                   backgroundColor: day && isAppointmentDay(day) ? "#ffb6c1" : "transparent",
-                  color: "#000",
+                  color: theme.palette.text.primary,
                 }}
               >
                 <Typography variant="body2" fontWeight="medium">

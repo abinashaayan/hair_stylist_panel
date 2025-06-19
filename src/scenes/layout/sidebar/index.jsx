@@ -51,8 +51,8 @@ const SideBar = () => {
         borderColor: "#efefef",
         WebkitTransition: "width, left, right, 300ms",
         transition: "width, left, right, 300ms",
-        width: "300px",
-        minWidth: "300px",
+        width: "250px",
+        minWidth: "250px",
         border: 0,
         height: "100%",
         background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"

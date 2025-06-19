@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, Typography, useTheme, IconButton, Button, useMediaQuery, Select, MenuItem } from "@mui/material";
+import React from "react";
+import { Box, Typography, useTheme, Button, useMediaQuery, Select, MenuItem } from "@mui/material";
 import {
   CalendarMonth,
   EventNoteOutlined,
@@ -11,7 +11,6 @@ import {
   StarOutline,
 } from "@mui/icons-material";
 import Header from "../components/Header";
-// import CustomTable from "../custom/Table";
 import CustomCalendar from "./CustomCalendar";
 import { Banknote } from "lucide-react";
 import { Bar } from 'react-chartjs-2';
@@ -25,6 +24,7 @@ import {
   Legend
 } from 'chart.js';
 import { Link } from "react-router-dom";
+import "../vendors/customscss/Dashboard.scss";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 

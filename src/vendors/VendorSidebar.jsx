@@ -1,36 +1,41 @@
-import React, { useContext, useState } from "react";
-import { Box, Typography, IconButton, Divider, useTheme } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+/* eslint-disable react/prop-types */
+import React from "react";
+import {
+  Avatar,
+  Box,
+  Divider,
+  IconButton,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { useContext, useState } from "react";
+import logo from "../assets/images/LOGO2.png"
+import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import {
   DashboardOutlined,
+  MenuOutlined,
   CalendarMonthOutlined,
   PersonOutline,
-  MenuOutlined,
   HistoryOutlined,
   InventoryOutlined,
   AccessTimeOutlined,
   AddCircleOutline,
 } from "@mui/icons-material";
-import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
-import FlexBetween from "../components/FlexBetween";
-import { ToggledContext } from "../App";
-import { tokens } from "../theme"; // Import tokens
-import logo from "../assets/images/LOGO2.png"
+import { tokens } from "../theme";
+import { ToggledContext } from '../App';
+import Item from "../scenes/layout/sidebar/Item";
+import { useLocation } from "react-router-dom";
 
 const VendorSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { toggled, setToggled } = useContext(ToggledContext);
-  const location = useLocation();
-
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const navItems = [
-    {
-      text: "Dashboard",
-      icon: <DashboardOutlined />,
-      path: "/",
-    },
+  const location = useLocation();
+  const panelType = localStorage.getItem("panelType");
+
+  const navSections = [
     {
       text: "All Users",
       icon: <PersonOutline />,
@@ -83,8 +88,8 @@ const VendorSidebar = () => {
         borderColor: "#efefef",
         WebkitTransition: "width, left, right, 300ms",
         transition: "width, left, right, 300ms",
-        width: "300px",
-        minWidth: "300px",
+        width: "250px",
+        minWidth: "250px",
         border: 0,
         height: "100%",
         background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"
@@ -105,7 +110,7 @@ const VendorSidebar = () => {
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
             {!collapsed && (
               <Box display="flex" alignItems="center" gap="12px" sx={{ transition: ".3s ease" }}>
-                <img src={logo} height="40" alt="" />
+                <img alt="avatar" src={logo} className="mt-3" height="50" />
               </Box>
             )}
             <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: "#FFFFFF" }}>
@@ -117,39 +122,39 @@ const VendorSidebar = () => {
       <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.2)" }} />
 
       <Box mb={5} pl={collapsed ? undefined : "5%"}>
-        <Menu menuItemStyles={{ button: { position: "relative", transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)", ":hover": { color: "#FFFFFF", background: "rgba(255,255,255,0.1)", transform: "translateX(4px)", }, }, }}>
-          {navItems.map(({ text, icon, path }) => {
-            const isActive = location.pathname === path;
-            return (
-              <Link key={text} to={path} style={{ textDecoration: "none", color: "inherit" }}>
-                <MenuItem
-                  active={isActive}
-                  icon={icon}
-                  style={{
-                    color: isActive ? "#000000" : "#FFFFFF",
-                    fontWeight: "bold",
-                    backgroundColor: isActive ? "#f2f0f0" : "transparent",
-                    borderTopLeftRadius: "30px",
-                    transition: "all 0.4s ease",
-                    ...(isActive
-                      ? {
-                        boxShadow: "inset 3px 0 0 #1976d2",
-                      }
-                      : {
-                        boxShadow: "none",
-                      }),
-                  }}
-                >
-                  <Typography sx={{ fontWeight: "bold", transition: "margin 0.3s ease", ml: isActive ? "4px" : "0", }}>
-                    {text}
-                  </Typography>
-                </MenuItem>
-              </Link>
-            );
-          })}
+        <Menu
+          menuItemStyles={{
+            button: {
+              transition: "all 0.4s ease",
+              fontWeight: "bold",
+              color: "#FFFFFF",
+              ":hover": {
+                color: "#FFFFFF",
+                background: "rgba(255,255,255,0.1)",
+                transform: "translateX(4px)",
+              },
+            },
+          }}
+        >
+          <Item title="Dashboard" path="/" icon={<DashboardOutlined />} />
+        </Menu>
+
+        <Divider sx={{ mx: "auto", borderColor: "#fff" }} />
+              fontWeight: "bold",
+              color: "#FFFFFF",
+              ":hover": {
+                color: "#FFFFFF",
+                background: "rgba(255,255,255,0.1)",
+                transform: "translateX(4px)",
+              },
+            },
+          }}
+        >
+          {navSections?.map(({ text, path, icon }) => (
+            <Item key={text} title={text} path={path} colors={colors} icon={icon} />
+          ))}
         </Menu>
       </Box>
-
     </Sidebar>
   );
 };
