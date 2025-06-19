@@ -140,6 +140,10 @@ const VendorSidebar = () => {
         </Menu>
 
         <Divider sx={{ mx: "auto", borderColor: "#fff" }} />
+        <Menu
+          menuItemStyles={{
+            button: {
+              transition: "all 0.4s ease",
               fontWeight: "bold",
               color: "#FFFFFF",
               ":hover": {
