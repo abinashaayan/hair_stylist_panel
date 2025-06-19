@@ -4,7 +4,7 @@ Welcome to Argon Admin Dashboard, a sleek and feature-rich solution built with R
 
 ## Features
 
-- **Dashboard Page:** An overview of key metrics and insights.
+- **Dashboard Page:** An overview of key metrics and insight
 - **Manage Team Page:** Efficiently handle team members with MUI DataGrid.
 - **Contacts Information:** Keep track of contacts effortlessly with a DataGrid.
 - **Invoices Balances Page:** Manage invoice balances conveniently using MUI DataGrid.
