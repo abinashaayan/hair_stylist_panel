@@ -2,8 +2,7 @@ pipeline {
 agent any
 
 environment {
-IMAGE_NAME = "docker.io/aayanindia/hair_stylist_panel
-"
+IMAGE_NAME = "docker.io/aayanindia/hair_stylist_panel" // Fixed unclosed string
 CONTAINER_PORT = "2233"
 HOST_PORT = "2233"
 DOCKER_HUB_USERNAME = credentials('docker-hub-username')
