@@ -71,11 +71,11 @@ const VendorSidebar = () => {
       icon: <AddCircleOutline />,
       path: "/create-appointment",
     },
-    {
-      text: "Profile",
-      icon: <PersonOutline />,
-      path: "/stylist-profile",
-    },
+    // {
+    //   text: "Profile",
+    //   icon: <PersonOutline />,
+    //   path: "/stylist-profile",
+    // },
   ];
 
   return (
