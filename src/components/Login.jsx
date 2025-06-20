@@ -5,10 +5,11 @@ import { Email, Visibility, VisibilityOff, Lock, PersonOutlined } from "@mui/ico
 import logo from "../assets/images/logo1.png";
 import watermark from "../assets/images/watermark1.png";
 import watermark1 from "../assets/images/3997198-uhd_4096_2160_25fps.mp4";
-
+import Cookies from 'js-cookie';
 import "../css/login.scss";
 import Input from "../custom/Input";
 import axios from "axios";
+import { API_BASE_URL } from "../utils/apiConfig";
 
 const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ const Login = ({ onLoginSuccess }) => {
           setError("Please fill in all fields");
           return;
         }
-        const response = await axios.post("http://3.223.253.106:5050/api/admin/login", {
+        const response = await axios.post(`${API_BASE_URL}/admin/login`, {
           email,
           password,
         });
@@ -42,7 +43,8 @@ const Login = ({ onLoginSuccess }) => {
         localStorage.removeItem("vendorToken");
         const token = response.data.token;
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("token", token);
+        // localStorage.setItem("token", token);
+        Cookies.set("token", token, { expires: 1 });
         localStorage.setItem("panelType", "admin");
         onLoginSuccess(true, 'admin', token, null);
       } else {

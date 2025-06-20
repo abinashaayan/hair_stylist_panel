@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
+import { Header } from '../../components';
 
 const StylistUsers = () => {
   const theme = useTheme();
@@ -8,11 +9,7 @@ const StylistUsers = () => {
 
   return (
     <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h2" color={colors.gray[100]} fontWeight="bold" mb="5px">
-         StylistUsers
-        </Typography>
-      </Box>
+      <Header title="All Users" />
       <Box
         backgroundColor={colors.primary[400]}
         p="30px"

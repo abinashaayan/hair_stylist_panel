@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
@@ -11,12 +12,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const auth = localStorage.getItem("isAuthenticated") === "true";
     const type = localStorage.getItem("panelType");
-    const storedToken = localStorage.getItem("token");
+    // const storedToken = localStorage.getItem("token");
+    const cookieToken = Cookies.get("token");
     const storedStylistId = localStorage.getItem("stylistId");
 
     setIsAuthenticated(auth);
     setPanelType(type);
-    setToken(storedToken);
+    setToken(cookieToken);
     setStylistId(storedStylistId);
   }, []);
 

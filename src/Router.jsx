@@ -22,7 +22,7 @@ import {
 } from "./scenes";
 
 import UserDetails from "./scenes/AllUsers";
-import Category from "./scenes/category";
+import Category from "./scenes/stylist";
 import Login from "./components/Login";
 import MenuTabs from "./custom/multipleTabs";
 import PrivateRoute from "./utils/PrivateRoute";
@@ -36,6 +36,7 @@ import Packages from "./scenes/vendor/Packages";
 import Availability from "./scenes/vendor/Availability";
 import CreateAppointment from "./scenes/vendor/CreateAppointment";
 import StylistUsers from "./scenes/vendor/StylistUsers";
+import Stylist from "./scenes/stylist";
 
 import { useAuth } from "./utils/context/AuthContext";
 import OrderDetails from "./scenes/admin/OrderDetails";
@@ -47,13 +48,6 @@ const AppRouter = () => {
   if (isAuthenticated === null) {
     return null;
   }
-
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     setIsAppLoading(false);
-  //   }, 1500);
-  //   return () => clearTimeout(timeout);
-  // }, []);
 
   return (
     <Router>
@@ -83,8 +77,8 @@ const AppRouter = () => {
             {panelType === "admin" ? (
               <>
                 <Route index element={<Dashboard />} />
-                <Route path="menu" element={<MenuTabs />} />
-                <Route path="category" element={<Category />} />
+                {/* <Route path="menu" element={<MenuTabs />} /> */}
+                <Route path="Stylist" element={<Stylist />} />
                 <Route path="customers" element={<UserDetails />} />
                 <Route path="order-details" element={<OrderDetails />} />
                 <Route path="contacts" element={<Contacts />} />

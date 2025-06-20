@@ -32,7 +32,7 @@ const SideBar = () => {
   const navSections = {
     admin: [
       { title: "Customers", path: "/customers", icon: <PeopleAltOutlined /> },
-      { title: "Category", path: "/menu", icon: <PeopleAltOutlined /> },
+      { title: "Stylist", path: "/Stylist", icon: <PeopleAltOutlined /> },
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [

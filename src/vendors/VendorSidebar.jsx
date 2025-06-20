@@ -1,13 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import {
-  Avatar,
-  Box,
-  Divider,
-  IconButton,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Divider, IconButton, useTheme, } from "@mui/material";
 import { useContext, useState } from "react";
 import logo from "../assets/images/LOGO2.png"
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
@@ -24,16 +17,12 @@ import {
 import { tokens } from "../theme";
 import { ToggledContext } from '../App';
 import Item from "../scenes/layout/sidebar/Item";
-import { useLocation } from "react-router-dom";
 
 const VendorSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { toggled, setToggled } = useContext(ToggledContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
-  const location = useLocation();
-  const panelType = localStorage.getItem("panelType");
 
   const navSections = [
     {
@@ -71,11 +60,6 @@ const VendorSidebar = () => {
       icon: <AddCircleOutline />,
       path: "/create-appointment",
     },
-    // {
-    //   text: "Profile",
-    //   icon: <PersonOutline />,
-    //   path: "/stylist-profile",
-    // },
   ];
 
   return (

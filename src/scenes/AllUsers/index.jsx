@@ -2,13 +2,14 @@ import {
     Box, Container, IconButton, InputBase, Typography, useTheme
 } from "@mui/material";
 import { Header } from "../../components";
-import { SearchOutlined, DeleteOutline, Visibility } from "@mui/icons-material";
+import { SearchOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
 import { userTableColumns } from "../../custom/userTableColumns";
 import { API_BASE_URL } from "../../utils/apiConfig";
 import { tokens } from "../../theme";
+import Cookies from "js-cookie";
 
 const UserDetails = () => {
     const [allUsers, setAllUsers] = useState([]);
@@ -17,18 +18,26 @@ const UserDetails = () => {
     const [searchText, setSearchText] = useState("");
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const authToken = Cookies.get("token");
 
     const fetchAllUsers = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${API_BASE_URL}/users/getAllUsers`);
-            console.log(response.data.data)
+            const response = await axios.get(`${API_BASE_URL}/user/admin/get-all`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`
+                }
+            });
             const formattedData = response?.data?.data.map((user) => ({
-                id: user.userId,
-                userId: user.userId || "N/A",
+                id: user._id,
+                fullName: user.fullName || "N/A",
                 email: user.email || "N/A",
-                mobile: user.mobile || "N/A",
-                status: user?.isActive || "N/A",
+                mobile: user.phoneNumber || "N/A",
+                role: user.role || "N/A",
+                city: user.city || "N/A",
+                gender: user.gender || "N/A",
+                createdAt: new Date(user.createdAt).toLocaleDateString(),
             }));
             setAllUsers(formattedData);
             setFilteredUsers(formattedData);
@@ -50,29 +59,11 @@ const UserDetails = () => {
             setFilteredUsers(allUsers);
         } else {
             const filtered = allUsers.filter(user =>
-                user.userId.toLowerCase().includes(value) ||
+                user.fullName.toLowerCase().includes(value) ||
                 user.email.toLowerCase().includes(value) ||
                 user.mobile.toLowerCase().includes(value)
             );
             setFilteredUsers(filtered);
-        }
-    };
-
-    const handleToggleStatus = async (id) => {
-        try {
-            const response = await axios.put(`http://3.223.253.106:5050/api/users/admin/blockUnblockUser/${id}`);
-            console.log(response.data)
-            const updatedStatus = response.data.data
-            console.log(updatedStatus)
-            setFilteredUsers((prevUsers) =>
-                prevUsers.map((user) =>
-                    user.id === id ? { ...user, status: updatedStatus } : user
-                )
-            );
-            // fetchAllUsers();
-        }
-        catch (error) {
-            return console.log(error);
         }
     };
 
@@ -81,64 +72,26 @@ const UserDetails = () => {
     };
 
     const handleView = (user) => {
-        alert(`User Details:\n\nID: ${user.userId}\nEmail: ${user.email}\nMobile: ${user.mobile}`);
+        alert(`User Details:\n\nID: ${user.id}\nName: ${user.fullName}\nEmail: ${user.email}\nMobile: ${user.mobile}`);
     };
 
-
-    const columns = userTableColumns({ handleToggleStatus, handleDelete, handleView });
-
+    const columns = userTableColumns({ handleDelete, handleView });
 
     return (
-        <Container maxWidth={false}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Box className="p-1 mt-4">
+            <Container maxWidth={false}>
                 <Header title="Users" />
-                <Box display="flex" alignItems="center" borderRadius="3px" bgcolor={colors.primary[400]}>
-                    <InputBase
-                        placeholder="Search user"
-                        value={searchText}
-                        onChange={handleSearch}
-                        sx={{ ml: 2, flex: 1 }}
-                    />
-                    <IconButton type="button" sx={{ p: 1 }}>
-                        <SearchOutlined />
-                    </IconButton>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                    <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
+                        <InputBase placeholder="Search user" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+                        <IconButton type="button" sx={{ p: 1 }}>
+                            <SearchOutlined />
+                        </IconButton>
+                    </Box>
                 </Box>
-            </Box>
-            {/* <CustomTable columns={columns} rows={filteredUsers} onStatusToggle={handleToggleStatus} loading={loading} checkboxSelection />
-            <Box>In processing mode. Add, edit, delete actions are temporarily disabled.</Box> */}
-            <Box position="relative">
-                <CustomTable
-                    columns={columns}
-                    rows={filteredUsers}
-                    onStatusToggle={handleToggleStatus}
-                    loading={loading}
-                    checkboxSelection
-                />
-
-                {/* Disabled Overlay */}
-                <Box
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    width="100%"
-                    height="100%"
-                    bgcolor="rgba(255, 255, 255, 0.6)"  
-                    zIndex={1}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    pointerEvents="none"
-                >
-                    <Typography
-                        variant="h6"
-                        color="textSecondary"
-                        sx={{ fontWeight: 'bold', backgroundColor: 'white', color: "red", px: 2, py: 1, borderRadius: 1, boxShadow: 1 }}
-                    >
-                        In processing mode. Add, edit, delete actions are temporarily disabled.
-                    </Typography>
-                </Box>
-            </Box>
-        </Container>
+                <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
+            </Container>
+        </Box>
     );
 };
 
