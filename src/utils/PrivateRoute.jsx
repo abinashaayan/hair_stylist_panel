@@ -1,19 +1,21 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 const PrivateRoute = ({ isAuthenticated, panelType, token, stylistId }) => {
-  // For admin panel, we need both authentication and token
+  // Wait until auth state is loaded
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
   if (panelType === "admin" && (!isAuthenticated || !token)) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
-  // For vendor panel, we need authentication and stylistId
   if (panelType === "vendor" && (!isAuthenticated || !stylistId)) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
-  // If not authenticated at all
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

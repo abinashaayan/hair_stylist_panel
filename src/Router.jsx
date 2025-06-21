@@ -1,34 +1,10 @@
-import React, { useEffect, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
-
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate, } from "react-router-dom";
 import App from "./App";
-import {
-  Dashboard,
-  Invoices,
-  Contacts,
-  Form,
-  Bar,
-  Line,
-  Pie,
-  FAQ,
-  Geography,
-  Calendar,
-  Stream,
-} from "./scenes";
-
-import UserDetails from "./scenes/AllUsers";
-import Category from "./scenes/stylist";
+import { Dashboard, Contacts, Calendar, } from "./scenes";
 import Login from "./components/Login";
-import MenuTabs from "./custom/multipleTabs";
 import PrivateRoute from "./utils/PrivateRoute";
-
 import VendorDashboard from "./vendors/VendorDashboard";
-import VendorAppointments from "./vendors/VendorAppointments";
 import VendorProfile from "./vendors/VendorProfile";
 import AppointmentRequests from "./scenes/vendor/AppointmentRequests";
 import History from "./scenes/vendor/History";
@@ -36,50 +12,34 @@ import Packages from "./scenes/vendor/Packages";
 import Availability from "./scenes/vendor/Availability";
 import CreateAppointment from "./scenes/vendor/CreateAppointment";
 import StylistUsers from "./scenes/vendor/StylistUsers";
-import Stylist from "./scenes/stylist";
-
 import { useAuth } from "./utils/context/AuthContext";
 import OrderDetails from "./scenes/admin/OrderDetails";
+import CustomerDetails from "./scenes/admin/CustomerDetails";
+import RegisteredStylist from "./scenes/admin/RegisteredStylist";
+import Category from "./scenes/admin/Category";
+import ServiceCategory from "./scenes/admin/ServiceCategory";
 
 const AppRouter = () => {
-  const [isAppLoading, setIsAppLoading] = useState(true);
   const { isAuthenticated, panelType, token, stylistId, login } = useAuth();
+  console.log("PrivateRoute", { isAuthenticated, panelType, token, stylistId });
 
   if (isAuthenticated === null) {
-    return null;
+    return <div>Loading...</div>;
   }
 
   return (
     <Router>
       <Routes>
-        {/* Public Route */}
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/" replace />
-            ) : (
-              <Login onLoginSuccess={login} />
-            )
-          }
-        />
-        <Route
-          element={
-            <PrivateRoute
-              isAuthenticated={isAuthenticated}
-              panelType={panelType}
-              token={token}
-              stylistId={stylistId}
-            />
-          }
-        >
+        <Route path="/login" element={isAuthenticated === null ? (<div>Loading...</div>) : isAuthenticated ? (<Navigate to="/" replace />) : (<Login onLoginSuccess={login} />)} />
+        <Route element={<PrivateRoute isAuthenticated={isAuthenticated} panelType={panelType} token={token} stylistId={stylistId} />}>
           <Route path="/" element={<App panelType={panelType} />}>
             {panelType === "admin" ? (
               <>
                 <Route index element={<Dashboard />} />
-                {/* <Route path="menu" element={<MenuTabs />} /> */}
-                <Route path="Stylist" element={<Stylist />} />
-                <Route path="customers" element={<UserDetails />} />
+                <Route path="customers" element={<CustomerDetails />} />
+                <Route path="stylist" element={<RegisteredStylist />} />
+                <Route path="category" element={<Category />} />
+                <Route path="service" element={<ServiceCategory />} />
                 <Route path="order-details" element={<OrderDetails />} />
                 <Route path="contacts" element={<Contacts />} />
               </>

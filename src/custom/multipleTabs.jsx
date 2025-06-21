@@ -6,7 +6,6 @@ import {
   Typography,
   Paper
 } from "@mui/material";
-import CategoryTab from "../scenes/stylist/index";
 import SubCategoryTable from "../scenes/subcategory/subcategory"; 
 
 const MultipleTabs = () => {
@@ -35,7 +34,6 @@ const MultipleTabs = () => {
             <Typography variant="h6" gutterBottom>
               Manage Categories
             </Typography>
-            <CategoryTab />
           </Box>
         )}
 

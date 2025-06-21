@@ -13,15 +13,9 @@ import { API_BASE_URL } from "../utils/apiConfig";
 import Divider from "@mui/material/Divider";
 import { showErrorToast, showSuccessToast, showCustomMessage } from "../Toast";
 import { CustomIconButton } from "../custom/Button";
+import { Close, PersonAdd } from "@mui/icons-material";
 
-const AddCategory = ({
-  open,
-  handleClose,
-  categoryName,
-  setCategoryName,
-  fetchAllCategoryDetails,
-  showCategoryDetails,
-}) => {
+const AddCategory = ({ open, handleClose, categoryName, setCategoryName, fetchAllCategoryDetails, showCategoryDetails }) => {
   const [loading, setLoading] = useState(false);
   const isViewMode = Boolean(showCategoryDetails);
 
@@ -55,9 +49,11 @@ const AddCategory = ({
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogTitle>
-        {isViewMode ? "Category Details" : "Add New Category"}
+        <Typography variant="h5" className="fw-bold">
+          {isViewMode ? "Category Details" : "Add New Category"}
+        </Typography>
       </DialogTitle>
-      <Divider />
+      <Divider sx={{ borderBottomWidth: 1, borderColor: 'black' }} />
       <DialogContent>
         {isViewMode ? (
           <>
@@ -89,9 +85,10 @@ const AddCategory = ({
         )}
       </DialogContent>
       <DialogActions>
-        <CustomIconButton color="red" text="Close" onClick={handleClose} />
+        <CustomIconButton icon={<Close />} color="red" text="Close" onClick={handleClose} />
         {!isViewMode && (
           <CustomIconButton
+            icon={<PersonAdd />}
             loading={loading}
             disabled={loading}
             color="black"

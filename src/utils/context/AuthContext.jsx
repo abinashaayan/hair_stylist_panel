@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [panelType, setPanelType] = useState(null);
   const [token, setToken] = useState(null);
   const [stylistId, setStylistId] = useState(null);
@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const auth = localStorage.getItem("isAuthenticated") === "true";
     const type = localStorage.getItem("panelType");
-    // const storedToken = localStorage.getItem("token");
     const cookieToken = Cookies.get("token");
     const storedStylistId = localStorage.getItem("stylistId");
 

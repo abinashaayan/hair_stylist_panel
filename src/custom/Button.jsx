@@ -1,3 +1,4 @@
+// src/custom/Button.jsx
 import { Box, CircularProgress } from "@mui/material";
 
 export const CustomIconButton = ({
@@ -7,7 +8,11 @@ export const CustomIconButton = ({
   onClick,
   loading = false,
   disabled = false,
+  variant = "contained",
+  fontWeight = "500",
 }) => {
+  const isOutlined = variant === "outlined";
+
   return (
     <Box
       sx={{
@@ -15,12 +20,23 @@ export const CustomIconButton = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "white",
+        color: isOutlined ? color : "white",
         borderRadius: "5px",
-        backgroundColor: disabled ? "#ccc" : color,
+        border: isOutlined ? `1px solid ${color}` : "none",
+        backgroundColor: disabled
+          ? "#ccc"
+          : isOutlined
+          ? "transparent"
+          : color,
         cursor: disabled ? "not-allowed" : "pointer",
         padding: "12px 15px 12px 15px",
-        "&:hover": { opacity: disabled ? 1 : 0.8 },
+        fontWeight: fontWeight,
+        "&:hover": {
+          opacity: disabled ? 1 : 0.8,
+          backgroundColor: isOutlined
+            ? `${color}1A`
+            : color,
+        },
       }}
       onClick={(event) => {
         event.stopPropagation();
@@ -28,13 +44,14 @@ export const CustomIconButton = ({
       }}
     >
       {loading ? (
-        <CircularProgress size={20} sx={{ color: "white" }} />
+        <CircularProgress size={20} sx={{ color: isOutlined ? color : "white" }} />
       ) : (
         <>
-          {icon} {/* ✅ Show icon */}
+          {icon}
           {text && <span style={{ marginLeft: 8 }}>{text}</span>}
         </>
       )}
     </Box>
   );
 };
+

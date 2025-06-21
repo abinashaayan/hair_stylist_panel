@@ -20,7 +20,7 @@ import { showErrorToast, showSuccessToast } from "../../Toast";
 import Cookies from "js-cookie";
 import { stylistUserTableColumns } from "../../custom/StylistUserTableColumns";
 
-const Category = () => {
+export default function RegisteredStylist() {
   const [allUsers, setAllUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -138,7 +138,7 @@ const Category = () => {
   return (
     <Box className="p-1 mt-4">
       <Container maxWidth={false}>
-        <Header title="Stylist Users" />
+        <Header title="All Registered Stylist" />
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
           <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
             <InputBase placeholder="Search user" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
@@ -152,5 +152,3 @@ const Category = () => {
     </Box>
   );
 };
-
-export default Category;

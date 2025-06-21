@@ -1,6 +1,4 @@
-import {
-    Box, Container, IconButton, InputBase, Typography, useTheme
-} from "@mui/material";
+import { Box, Container, IconButton, InputBase, useTheme } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
@@ -11,7 +9,7 @@ import { API_BASE_URL } from "../../utils/apiConfig";
 import { tokens } from "../../theme";
 import Cookies from "js-cookie";
 
-const UserDetails = () => {
+export default function CustomerDetails() {
     const [allUsers, setAllUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -80,7 +78,7 @@ const UserDetails = () => {
     return (
         <Box className="p-1 mt-4">
             <Container maxWidth={false}>
-                <Header title="Users" />
+                <Header title="All Customers" />
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                     <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
                         <InputBase placeholder="Search user" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
@@ -94,5 +92,3 @@ const UserDetails = () => {
         </Box>
     );
 };
-
-export default UserDetails;

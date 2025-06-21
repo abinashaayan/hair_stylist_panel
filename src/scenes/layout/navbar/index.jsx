@@ -42,13 +42,6 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-// const handleLogout = () => {
-//   localStorage.removeItem("isAuthenticated");
-//   localStorage.removeItem("token");
-//   localStorage.removeItem("panelType");
-//   localStorage.removeItem("stylistId");
-//   window.location.replace("/login");
-// };
   const handleLogout = () => {
     logout(); 
     navigate("/login", { replace: true });

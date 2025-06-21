@@ -43,7 +43,6 @@ const Login = ({ onLoginSuccess }) => {
         localStorage.removeItem("vendorToken");
         const token = response.data.token;
         localStorage.setItem("isAuthenticated", "true");
-        // localStorage.setItem("token", token);
         Cookies.set("token", token, { expires: 1 });
         localStorage.setItem("panelType", "admin");
         onLoginSuccess(true, 'admin', token, null);
@@ -60,7 +59,6 @@ const Login = ({ onLoginSuccess }) => {
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("panelType", "vendor");
         localStorage.setItem("stylistId", stylistId);
-
         onLoginSuccess(true, 'vendor', null, stylistId);
       }
     } catch (error) {
