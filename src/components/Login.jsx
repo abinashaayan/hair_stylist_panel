@@ -47,19 +47,26 @@ const Login = ({ onLoginSuccess }) => {
         localStorage.setItem("panelType", "admin");
         onLoginSuccess(true, 'admin', token, null);
       } else {
-        if (!stylistId) {
-          setError("Please type any things at this time.");
+        if (!email || !password) {
+          setError("Please fill in all fields");
           return;
         }
+
+        const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+          email,
+          password,
+          role: "stylist"
+        });
+
+        const token = response.data.token;
         localStorage.removeItem("isAuthenticated");
         localStorage.removeItem("token");
         localStorage.removeItem("panelType");
-        localStorage.removeItem("stylistId");
         localStorage.removeItem("vendorToken");
         localStorage.setItem("isAuthenticated", "true");
+        Cookies.set("token", token, { expires: 1 });
         localStorage.setItem("panelType", "vendor");
-        localStorage.setItem("stylistId", stylistId);
-        onLoginSuccess(true, 'vendor', null, stylistId);
+        onLoginSuccess(true, "vendor", token);
       }
     } catch (error) {
       setError(error.response?.data?.message || "Login failed. Please try again.");
@@ -126,7 +133,7 @@ const Login = ({ onLoginSuccess }) => {
               </RadioGroup>
             </FormControl>
 
-            {panelType === "adminpanel" ? (
+            {/* {panelType === "adminpanel" ? (
               <>
                 <Input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} icon={<Email />} />
                 <Input
@@ -147,7 +154,27 @@ const Login = ({ onLoginSuccess }) => {
                 onChange={(e) => setStylistId(e.target.value)}
                 icon={<PersonOutlined />}
               />
-            )}
+            )} */}
+            {panelType === "adminpanel" || panelType === "vendorpanel" ? (
+              <>
+                <Input
+                  placeholder="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  icon={<Email />}
+                />
+                <Input
+                  placeholder="Password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  icon={<Lock />}
+                  endIcon={showPassword ? <VisibilityOff /> : <Visibility />}
+                  onEndIconClick={() => setShowPassword(!showPassword)}
+                />
+              </>
+            ) : null}
 
             {error && (
               <Typography color="error" sx={{ mt: 1, mb: 1 }}>

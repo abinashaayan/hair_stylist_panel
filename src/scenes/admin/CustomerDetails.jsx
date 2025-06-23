@@ -4,16 +4,20 @@ import { SearchOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
-import { userTableColumns } from "../../custom/userTableColumns";
+import { userTableColumns } from "../../custom/TableColumns";
 import { API_BASE_URL } from "../../utils/apiConfig";
 import { tokens } from "../../theme";
 import Cookies from "js-cookie";
+import ShowDetailsDialog from "../../components/ShowDetailsDialog";
 
 export default function CustomerDetails() {
     const [allUsers, setAllUsers] = useState([]);
+    const [originalUsers, setOriginalUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
+    const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+    const [selectedUserDetails, setSelectedUserDetails] = useState(null);
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const authToken = Cookies.get("token");
@@ -27,6 +31,7 @@ export default function CustomerDetails() {
                     Authorization: `Bearer ${authToken}`
                 }
             });
+            setOriginalUsers(response.data.data);
             const formattedData = response?.data?.data.map((user) => ({
                 id: user._id,
                 fullName: user.fullName || "N/A",
@@ -70,7 +75,9 @@ export default function CustomerDetails() {
     };
 
     const handleView = (user) => {
-        alert(`User Details:\n\nID: ${user.id}\nName: ${user.fullName}\nEmail: ${user.email}\nMobile: ${user.mobile}`);
+        const fullUserDetails = originalUsers.find(u => u._id === user.id);
+        setSelectedUserDetails(fullUserDetails);
+        setIsDetailsDialogOpen(true);
     };
 
     const columns = userTableColumns({ handleDelete, handleView });
@@ -89,6 +96,11 @@ export default function CustomerDetails() {
                 </Box>
                 <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
             </Container>
+            <ShowDetailsDialog
+                open={isDetailsDialogOpen}
+                onClose={() => setIsDetailsDialogOpen(false)}
+                data={selectedUserDetails}
+            />
         </Box>
     );
 };

@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.clear();
+    Cookies.remove("token");
     setIsAuthenticated(false);
     setPanelType(null);
     setToken(null);

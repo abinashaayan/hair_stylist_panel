@@ -5,7 +5,7 @@ import { Dashboard, Contacts, Calendar, } from "./scenes";
 import Login from "./components/Login";
 import PrivateRoute from "./utils/PrivateRoute";
 import VendorDashboard from "./vendors/VendorDashboard";
-import VendorProfile from "./vendors/VendorProfile";
+import VendorProfile from "./scenes/vendor/VendorProfile";
 import AppointmentRequests from "./scenes/vendor/AppointmentRequests";
 import History from "./scenes/vendor/History";
 import Packages from "./scenes/vendor/Packages";
@@ -18,11 +18,11 @@ import CustomerDetails from "./scenes/admin/CustomerDetails";
 import RegisteredStylist from "./scenes/admin/RegisteredStylist";
 import Category from "./scenes/admin/Category";
 import ServiceCategory from "./scenes/admin/ServiceCategory";
+import ChangePassword from "./scenes/vendor/ChangePassword";
 
 const AppRouter = () => {
   const { isAuthenticated, panelType, token, stylistId, login } = useAuth();
-  console.log("PrivateRoute", { isAuthenticated, panelType, token, stylistId });
-
+  
   if (isAuthenticated === null) {
     return <div>Loading...</div>;
   }
@@ -54,6 +54,7 @@ const AppRouter = () => {
                 <Route path="availability" element={<Availability />} />
                 <Route path="create-appointment" element={<CreateAppointment />} />
                 <Route path="stylist-profile" element={<VendorProfile />} />
+                <Route path="change-password" element={<ChangePassword />} />
               </>
             ) : (
               <Route index element={<Navigate to="/login" replace />} />

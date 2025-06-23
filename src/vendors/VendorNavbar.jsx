@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {
   PersonOutlined,
-  SettingsOutlined,
+  Person,
   LogoutOutlined,
   MenuOutlined,
   LightModeOutlined,
@@ -39,7 +39,7 @@ const VendorNavbar = () => {
 
   const { toggled, setToggled } = useContext(ToggledContext);
   const colorMode = useContext(ColorModeContext);
-   const { logout } = useAuth();
+  const { logout } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,20 +50,20 @@ const VendorNavbar = () => {
   }, []);
 
   const formatDateTime = (date) => {
-    const options = { 
+    const options = {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: true 
+      hour12: true
     };
     return date.toLocaleString('en-US', options);
   };
 
   const handleLogout = () => {
-    logout(); 
+    logout();
     navigate("/login", { replace: true });
   };
 
@@ -90,36 +90,17 @@ const VendorNavbar = () => {
             fontSize="clamp(1rem, 2rem, 2.25rem)"
             color="#FFFFFF"
             onClick={() => navigate("/")}
-            sx={{
-              "&:hover": {
-                color: "rgba(255, 255, 255, 0.8)",
-                cursor: "pointer",
-              },
-            }}
+            sx={{ "&:hover": { color: "rgba(255, 255, 255, 0.8)", cursor: "pointer", }, }}
           >
             Stylist
           </Typography>
         </Box>
 
         <Box display="flex" gap="15px" ml="20px">
-          <Typography
-            variant="body2"
-            sx={{
-              cursor: "pointer",
-              color: "#FFFFFF",
-              "&:hover": { textDecoration: "underline" },
-            }}
-          >
+          <Typography variant="body2" sx={{ cursor: "pointer", color: "#FFFFFF", "&:hover": { textDecoration: "underline" }, }}>
             Edit Salon Page
           </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              cursor: "pointer",
-              color: "#FFFFFF",
-              "&:hover": { textDecoration: "underline" },
-            }}
-          >
+          <Typography variant="body2" sx={{ cursor: "pointer", color: "#FFFFFF", "&:hover": { textDecoration: "underline" }, }}>
             Headcase Salon
           </Typography>
         </Box>
@@ -130,11 +111,7 @@ const VendorNavbar = () => {
           <AccessTime sx={{ color: "#FFFFFF", fontSize: "1.2rem" }} />
           <Typography
             variant="body2"
-            sx={{
-              color: "#FFFFFF",
-              fontSize: "0.9rem",
-              whiteSpace: "nowrap",
-            }}
+            sx={{ color: "#FFFFFF", fontSize: "0.9rem", whiteSpace: "nowrap", }}
           >
             {formatDateTime(currentDateTime)}
           </Typography>
@@ -150,69 +127,51 @@ const VendorNavbar = () => {
           <PersonOutlined sx={{ fontSize: "25px" }} />
         </IconButton>
         <Menu
-        anchorEl={anchorEl}
-        open={isOpen}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-        PaperProps={{
-          sx: {
-            width: 300,
-            p: 2,
-            borderRadius: 3,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-          },
-        }}
-      >
-        {/* Profile Section */}
-        <Box textAlign="center">
-          <Avatar
-            sx={{
-              width: 80,
-              height: 80,
-              mx: "auto",
-              border: "2px solid #444",
-              mb: 1,
-            }}
-          />
-          <Typography variant="h6" fontWeight="bold">
-            Tommy M. Mitchell
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            BarberMan at Looks Unisex Salon
-          </Typography>
+          anchorEl={anchorEl}
+          open={isOpen}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          transformOrigin={{ vertical: "top", horizontal: "center" }}
+          PaperProps={{
+            sx: { width: 300, p: 2, borderRadius: 3, boxShadow: "0 4px 20px rgba(0,0,0,0.15)", },
+          }}
+        >
+          <Box textAlign="center">
+            <Avatar sx={{ width: 80, height: 80, mx: "auto", border: "2px solid #444", mb: 1, }} />
+            <Typography variant="h6" fontWeight="bold">
+              Tommy M. Mitchell
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              BarberMan at Looks Unisex Salon
+            </Typography>
 
-          <Box mt={1} display="flex" justifyContent="center" alignItems="center" gap={0.5}>
-            <Star size={16} color="#fbc02d" fill="#fbc02d" />
-            <Star size={16} color="#fbc02d" fill="#fbc02d" />
-            <Star size={16} color="#fbc02d" fill="#fbc02d" />
-            <Star size={16} color="#fbc02d" fill="#fbc02d" />
-            <StarHalf size={16} color="#fbc02d" fill="#fbc02d" />
-            <Typography variant="body2" sx={{ ml: 1 }}>
-              (212 Reviews)
+            <Box mt={1} display="flex" justifyContent="center" alignItems="center" gap={0.5}>
+              <Star size={16} color="#fbc02d" fill="#fbc02d" />
+              <Star size={16} color="#fbc02d" fill="#fbc02d" />
+              <Star size={16} color="#fbc02d" fill="#fbc02d" />
+              <Star size={16} color="#fbc02d" fill="#fbc02d" />
+              <StarHalf size={16} color="#fbc02d" fill="#fbc02d" />
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                (212 Reviews)
+              </Typography>
+            </Box>
+            <Typography mt={1.5} fontSize={13} fontWeight="bold" sx={{ color: "#6D295A" }}>
+              OPENING TIMING: 09:00AM TO 07:30PM
             </Typography>
           </Box>
+          <Divider sx={{ my: 1.5 }} />
 
-          <Typography
-            mt={1.5}
-            fontSize={13}
-            fontWeight="bold"
-            sx={{ color: "#6D295A" }}
-          >
-            OPENING TIMING: 09:00AM TO 07:30PM
-          </Typography>
-        </Box>
-
-        <Divider sx={{ my: 1.5 }} />
-
-        {/* Action Items */}
-        <MenuItem onClick={() => navigate("/stylist-profile")}>
-          <SettingsOutlined sx={{ mr: 2, color: "#6D295A" }} /> Settings
-        </MenuItem>
-        <MenuItem onClick={handleLogout}>
-          <LogoutOutlined sx={{ mr: 2, color: "#6D295A" }} /> Log Out
-        </MenuItem>
-      </Menu>
+          {/* Action Items */}
+          {/* <MenuItem onClick={() => navigate("/change-password")}>
+            <Person sx={{ mr: 2, color: "#6D295A" }} /> Change Password
+          </MenuItem> */}
+          <MenuItem onClick={() => navigate("/stylist-profile")}>
+            <Person sx={{ mr: 2, color: "#6D295A" }} /> Profile
+          </MenuItem>
+          <MenuItem onClick={handleLogout}>
+            <LogoutOutlined sx={{ mr: 2, color: "#6D295A" }} /> Log Out
+          </MenuItem>
+        </Menu>
       </FlexBetween>
     </FlexBetween>
   );

@@ -14,74 +14,88 @@ import axios from "axios";
 import CustomTable from "../../custom/Table";
 import { API_BASE_URL } from "../../utils/apiConfig";
 import AddSubCategoryDialog from "../../components/AddSubCategoryDialog";
-import AddCategory from "../../components/AddCategory";
+import EntityDialog from "../../components/EntityDialog";
 import { tokens } from "../../theme";
 import { showErrorToast, showSuccessToast } from "../../Toast";
 import Cookies from "js-cookie";
-import { stylistUserTableColumns } from "../../custom/StylistUserTableColumns";
 import { CustomIconButton } from "../../custom/Button";
+import { serviceTableColumns } from "../../custom/TableColumns";
+import Alert from "../../custom/Alert";
 
 export default function ServiceCategory() {
-    const [allUsers, setAllUsers] = useState([]);
+    const [allServices, setAllServices] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [loading, setLoading] = useState(true);
     const [togglingIds, setTogglingIds] = useState({});
     const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [isViewDialog, setIsViewDialog] = useState(false);
+    const [viewValue, setViewValue] = useState("");
+    const [viewStatus, setViewStatus] = useState(undefined);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const authToken = Cookies.get("token");
 
-    const fetchAllStylistUserDetials = async () => {
+    const fetchAllServices = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/stylist/admin/get-all`, {
+            const response = await axios.get(`${API_BASE_URL}/service/admin/get`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${authToken}`,
                 },
             });
             if (response?.data?.status === 200) {
-                const formattedData = response?.data?.data.map((stylist) => ({
-                    id: stylist._id,
-                    fullName: stylist.fullName || "N/A",
-                    email: stylist.email || "N/A",
-                    phone: stylist.phoneNumber || "N/A",
-                    role: stylist.role || "N/A",
-                    dob: stylist.dob ? new Date(stylist.dob).toLocaleDateString() : "N/A",
-                    gender: stylist.gender || "N/A",
-                    approved: stylist.isApproved ?? false,
-                    createdAt: new Date(stylist.createdAt).toLocaleDateString(),
+                const formattedData = response?.data?.allServices?.map((service) => ({
+                    id: service._id,
+                    name: service.name || "N/A",
+                    approved: !!service.isActive,
+                    createdAt: service.createdAt
+                        ? new Date(service.createdAt).toLocaleDateString()
+                        : "N/A",
                 }));
-                setAllUsers(formattedData); // ✅ Set both states
-                setFilteredUsers(formattedData);
+                setAllServices(formattedData);
             }
         } catch (error) {
-            showErrorToast("Error fetching categories");
+            showErrorToast("Error fetching services");
         } finally {
             setLoading(false);
         }
     };
 
-
     useEffect(() => {
         if (authToken) {
-            fetchAllStylistUserDetials();
+            fetchAllServices();
         }
     }, [authToken]);
+
+    useEffect(() => {
+        if (searchText === "") {
+            setFilteredUsers(allServices);
+        } else {
+            setFilteredUsers(
+                allServices.filter((service) =>
+                    service.name.toLowerCase().includes(searchText)
+                )
+            );
+        }
+    }, [allServices, searchText]);
 
     const handleToggleStatus = async (id) => {
         setTogglingIds((prev) => ({ ...prev, [id]: true }));
         try {
-            const response = await axios.patch(`${API_BASE_URL}/stylist/admin/toggle/${id}`, {}, {
+            const response = await axios.patch(`${API_BASE_URL}/service/admin/toggle/${id}`, {}, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     "Content-Type": "application/json",
                 },
             });
             console.log('Toggle response:', response.data.data);
-            showSuccessToast(response?.data?.message || "Stylist status updated!");
-            await fetchAllStylistUserDetials();
+            showSuccessToast(response?.data?.message || "Service status updated!");
+            await fetchAllServices();
         } catch (error) {
             console.log("Toggle error:", error);
             showErrorToast("An error occurred while toggling approval.");
@@ -101,47 +115,52 @@ export default function ServiceCategory() {
     const handleSearch = (e) => {
         const value = e.target.value.toLowerCase();
         setSearchText(value);
-        if (value === "") {
-            setFilteredUsers(allUsers);
-        } else {
-            const filtered = allUsers.filter(user =>
-                user.fullName.toLowerCase().includes(value) ||
-                user.email.toLowerCase().includes(value) ||
-                user.mobile.toLowerCase().includes(value)
-            );
-            setFilteredUsers(filtered);
-        }
     };
 
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setAlertOpen(true);
+    };
 
-    const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this category?");
-        if (!confirmDelete) return;
+    const handleConfirmDelete = async () => {
+        if (!deleteId) return;
+        setDeleting(true);
         try {
-            const response = await axios.delete(`${API_BASE_URL}/category/admin/delete-category/${id}`, {
+            const response = await axios.delete(`${API_BASE_URL}/service/admin/delete/${deleteId}`, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     "Content-Type": "application/json",
                 },
             });
             if (response?.data?.status === 200) {
-                showSuccessToast(response?.data?.message || "Category deleted successfully");
-                setAllCategoriesList((prevList) => prevList.filter(category => category.id !== id));
-                setFilteredUsers((prevList) => prevList.filter(category => category.id !== id));
-
+                showSuccessToast(response?.data?.message || "Service deleted successfully");
+                setAllServices((prevServices) => prevServices.filter((service) => service.id !== deleteId));
+                setFilteredUsers((prevUsers) => prevUsers.filter((user) => user.id !== deleteId));
             } else {
-                showErrorToast("Failed to delete category.");
+                showErrorToast("Failed to delete service.");
             }
         } catch (error) {
             showErrorToast(error?.response?.data?.message || "An error occurred while deleting.");
+        } finally {
+            setDeleting(false);
+            setAlertOpen(false);
+            setDeleteId(null);
         }
     };
 
     const handleView = (row) => {
-        setOpenCategoryDialog(true);
+        setViewValue(row.name);
+        setViewStatus(row.approved);
+        setIsViewDialog(true);
     };
 
-    const columns = stylistUserTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
+    const handleCloseViewDialog = () => {
+        setIsViewDialog(false);
+        setViewValue("");
+        setViewStatus(undefined);
+    };
+
+    const columns = serviceTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
 
     return (
         <Box className="p-1 mt-4">
@@ -158,10 +177,34 @@ export default function ServiceCategory() {
                 </Box>
                 <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
             </Container>
-            <AddCategory
+            <EntityDialog
                 open={openCategoryDialog}
                 handleClose={handleCloseCategoryDialog}
-                fetchAllStylistUserDetials={fetchAllStylistUserDetials}
+                dialogTitle="Add New Service"
+                apiEndpoint="/service/admin/create"
+                onSuccess={() => {
+                    handleCloseCategoryDialog();
+                    fetchAllServices();
+                }}
+                inputLabel="Service Name"
+                buttonText="Add Service"
+            />
+            <EntityDialog
+                open={isViewDialog}
+                handleClose={handleCloseViewDialog}
+                isView={true}
+                viewValue={viewValue}
+                viewStatus={viewStatus}
+                inputLabel="Service Name"
+            />
+            <Alert
+                open={alertOpen}
+                title="Delete Service"
+                description="Are you sure you want to delete this service? This action cannot be undone."
+                onClose={deleting ? undefined : () => setAlertOpen(false)}
+                onConfirm={handleConfirmDelete}
+                loading={deleting}
+                disableCancel={deleting}
             />
         </Box>
     );

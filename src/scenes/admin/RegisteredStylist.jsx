@@ -3,29 +3,29 @@ import {
   Container,
   IconButton,
   InputBase,
-  Button,
   useTheme,
-  Typography,
 } from "@mui/material";
 import { Header } from "../../components";
-import { SearchOutlined, PersonAdd } from "@mui/icons-material";
+import { SearchOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
 import { API_BASE_URL } from "../../utils/apiConfig";
-import AddSubCategoryDialog from "../../components/AddSubCategoryDialog";
-import AddCategory from "../../components/AddCategory";
 import { tokens } from "../../theme";
 import { showErrorToast, showSuccessToast } from "../../Toast";
 import Cookies from "js-cookie";
 import { stylistUserTableColumns } from "../../custom/StylistUserTableColumns";
+import ShowDetailsDialog from "../../components/ShowDetailsDialog";
 
 export default function RegisteredStylist() {
   const [allUsers, setAllUsers] = useState([]);
+  const [originalStylists, setOriginalStylists] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(true);
   const [togglingIds, setTogglingIds] = useState({});
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [selectedStylistDetails, setSelectedStylistDetails] = useState(null);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -40,6 +40,7 @@ export default function RegisteredStylist() {
         },
       });
       if (response?.data?.status === 200) {
+        setOriginalStylists(response.data.data);
         const formattedData = response?.data?.data.map((stylist) => ({
           id: stylist._id,
           fullName: stylist.fullName || "N/A",
@@ -67,6 +68,12 @@ export default function RegisteredStylist() {
       fetchAllStylistUserDetials();
     }
   }, [authToken]);
+
+  const handleView = (row) => {
+    const fullStylistDetails = originalStylists.find(s => s._id === row.id);
+    setSelectedStylistDetails(fullStylistDetails);
+    setIsDetailsDialogOpen(true);
+  };
 
   const handleToggleStatus = async (id) => {
     setTogglingIds((prev) => ({ ...prev, [id]: true }));
@@ -99,7 +106,7 @@ export default function RegisteredStylist() {
       const filtered = allUsers.filter(user =>
         user.fullName.toLowerCase().includes(value) ||
         user.email.toLowerCase().includes(value) ||
-        user.mobile.toLowerCase().includes(value)
+        user.phone.toLowerCase().includes(value)
       );
       setFilteredUsers(filtered);
     }
@@ -107,30 +114,26 @@ export default function RegisteredStylist() {
 
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this category?");
+    const confirmDelete = window.confirm("Are you sure you want to delete this stylist?");
     if (!confirmDelete) return;
     try {
-      const response = await axios.delete(`${API_BASE_URL}/category/admin/delete-category/${id}`, {
+      const response = await axios.delete(`${API_BASE_URL}/stylist/admin/delete-stylist/${id}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       });
       if (response?.data?.status === 200) {
-        showSuccessToast(response?.data?.message || "Category deleted successfully");
-        setAllCategoriesList((prevList) => prevList.filter(category => category.id !== id));
-        setFilteredUsers((prevList) => prevList.filter(category => category.id !== id));
+        showSuccessToast(response?.data?.message || "Stylist deleted successfully");
+        setAllUsers((prevList) => prevList.filter(user => user.id !== id));
+        setFilteredUsers((prevList) => prevList.filter(user => user.id !== id));
 
       } else {
-        showErrorToast("Failed to delete category.");
+        showErrorToast("Failed to delete stylist.");
       }
     } catch (error) {
       showErrorToast(error?.response?.data?.message || "An error occurred while deleting.");
     }
-  };
-
-  const handleView = (row) => {
-    setOpenCategoryDialog(true);
   };
 
   const columns = stylistUserTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
@@ -149,6 +152,11 @@ export default function RegisteredStylist() {
         </Box>
         <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
       </Container>
+      <ShowDetailsDialog
+        open={isDetailsDialogOpen}
+        onClose={() => setIsDetailsDialogOpen(false)}
+        data={selectedStylistDetails}
+      />
     </Box>
   );
 };

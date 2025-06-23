@@ -18,7 +18,6 @@ export const categoryTableColumns = ({
       headerName: "Status",
       width: 180,
       renderCell: (params) => {
-        // return <Chip label="Active" color="success" size="small" />;
         return  <Button
           variant="contained"
           color={params.row.status === true ? "success" : "error"}
@@ -32,7 +31,6 @@ export const categoryTableColumns = ({
         </Button>
       },
     },
-    // { field: "createdAt", headerName: "Created At", width: 150 },
     {
       field: "actions",
       headerName: "Add Sub Category",
