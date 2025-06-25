@@ -1,5 +1,6 @@
 // src/custom/Button.jsx
 import { Box, CircularProgress } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 export const CustomIconButton = ({
   icon,
@@ -10,8 +11,34 @@ export const CustomIconButton = ({
   disabled = false,
   variant = "contained",
   fontWeight = "500",
+  size = "medium",
 }) => {
+  const theme = useTheme();
   const isOutlined = variant === "outlined";
+  const sizeStyles = {
+    small: {
+      height: "30px",
+      padding: "6px 12px",
+      fontSize: "0.75rem",
+    },
+    medium: {
+      height: "36px",
+      padding: "8px 15px",
+      fontSize: "0.875rem",
+    },
+    large: {
+      height: "44px",
+      padding: "10px 18px",
+      fontSize: "1rem",
+    },
+  };
+  const currentSize = sizeStyles[size] || sizeStyles.medium;
+
+  // Determine text color for outlined variant in dark mode
+  let buttonTextColor = color;
+  if (isOutlined && !color && theme.palette.mode === 'dark') {
+    buttonTextColor = 'white';
+  }
 
   return (
     <Box
@@ -20,9 +47,9 @@ export const CustomIconButton = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: isOutlined ? color : "white",
+        color: isOutlined ? buttonTextColor : "white",
         borderRadius: "5px",
-        border: isOutlined ? `1px solid ${color}` : "none",
+        border: isOutlined ? `1px solid ${buttonTextColor}` : "none",
         backgroundColor: disabled
           ? "#ccc"
           : isOutlined
@@ -31,10 +58,11 @@ export const CustomIconButton = ({
         cursor: disabled ? "not-allowed" : "pointer",
         padding: "12px 15px 12px 15px",
         fontWeight: fontWeight,
+        ...currentSize,
         "&:hover": {
           opacity: disabled ? 1 : 0.8,
           backgroundColor: isOutlined
-            ? `${color}1A`
+            ? `${buttonTextColor}1A`
             : color,
         },
       }}
@@ -44,7 +72,7 @@ export const CustomIconButton = ({
       }}
     >
       {loading ? (
-        <CircularProgress size={20} sx={{ color: isOutlined ? color : "white" }} />
+        <CircularProgress size={20} sx={{ color: isOutlined ? buttonTextColor : "white" }} />
       ) : (
         <>
           {icon}

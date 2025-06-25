@@ -33,8 +33,8 @@ const SideBar = () => {
     admin: [
       { title: "Customers", path: "/customers", icon: <PeopleAltOutlined /> },
       { title: "Stylist", path: "/stylist", icon: <PeopleAltOutlined /> },
-      // { title: "Category", path: "/Category", icon: <PeopleAltOutlined /> },
-      // { title: "Service", path: "/service", icon: <PeopleAltOutlined /> },
+      { title: "Category", path: "/Category", icon: <PeopleAltOutlined /> },
+      { title: "Service", path: "/service", icon: <PeopleAltOutlined /> },
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [

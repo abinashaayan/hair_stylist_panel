@@ -26,13 +26,17 @@ import logo from "../assets/images/logo1.png";
 import { ColorModeContext } from "../theme";
 import { Star, StarHalf } from "lucide-react";
 import { useAuth } from "../utils/context/AuthContext";
+import useStylistProfile from "../hooks/useStylistProfile";
 
 const VendorNavbar = () => {
-  const theme = useTheme();
-  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  const navigate = useNavigate();
+  const theme = useTheme();
   const isOpen = Boolean(anchorEl);
+    const { profile, loading, error } = useStylistProfile();
+
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const isNonMobile = useMediaQuery("(min-width: 768px)");
@@ -67,17 +71,10 @@ const VendorNavbar = () => {
     navigate("/login", { replace: true });
   };
 
+  console.log(profile, 'prifle data')
+
   return (
-    <FlexBetween
-      padding="1rem"
-      backgroundColor="transparent"
-      sx={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"
-      }}
-    >
+    <FlexBetween  padding="1rem"  backgroundColor="transparent"  sx={{position: "sticky",top: 0,zIndex: 100,background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"  }}>
       <FlexBetween gap="1.75rem">
         {!isNonMobile && (
           <IconButton onClick={() => setToggled(!toggled)} sx={{ color: "#FFFFFF" }}>
@@ -85,13 +82,7 @@ const VendorNavbar = () => {
           </IconButton>
         )}
         <Box display="flex" alignItems="center" gap="10px">
-          <Typography
-            fontWeight="bold"
-            fontSize="clamp(1rem, 2rem, 2.25rem)"
-            color="#FFFFFF"
-            onClick={() => navigate("/")}
-            sx={{ "&:hover": { color: "rgba(255, 255, 255, 0.8)", cursor: "pointer", }, }}
-          >
+          <Typography  fontWeight="bold"  fontSize="clamp(1rem, 2rem, 2.25rem)"  color="#FFFFFF"  onClick={() => navigate("/")}  sx={{ "&:hover": { color: "rgba(255, 255, 255, 0.8)", cursor: "pointer", }, }}>
             Stylist
           </Typography>
         </Box>
@@ -109,10 +100,7 @@ const VendorNavbar = () => {
       <FlexBetween gap="2rem">
         <Box display="flex" alignItems="center" gap="0.5rem">
           <AccessTime sx={{ color: "#FFFFFF", fontSize: "1.2rem" }} />
-          <Typography
-            variant="body2"
-            sx={{ color: "#FFFFFF", fontSize: "0.9rem", whiteSpace: "nowrap", }}
-          >
+          <Typography  variant="body2"  sx={{ color: "#FFFFFF", fontSize: "0.9rem", whiteSpace: "nowrap", }}>
             {formatDateTime(currentDateTime)}
           </Typography>
         </Box>
@@ -137,12 +125,12 @@ const VendorNavbar = () => {
           }}
         >
           <Box textAlign="center">
-            <Avatar sx={{ width: 80, height: 80, mx: "auto", border: "2px solid #444", mb: 1, }} />
+            <Avatar src={profile?.profilePicture || "/src/assets/images/avatar.png"} sx={{ width: 80, height: 80, mx: "auto", border: "2px solid #444", mb: 1, }} />
             <Typography variant="h6" fontWeight="bold">
-              Tommy M. Mitchell
+              {profile?.fullName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              BarberMan at Looks Unisex Salon
+              {profile?.about?.shopName || 'Professional Hair Stylist'}
             </Typography>
 
             <Box mt={1} display="flex" justifyContent="center" alignItems="center" gap={0.5}>
@@ -156,7 +144,7 @@ const VendorNavbar = () => {
               </Typography>
             </Box>
             <Typography mt={1.5} fontSize={13} fontWeight="bold" sx={{ color: "#6D295A" }}>
-              OPENING TIMING: 09:00AM TO 07:30PM
+              {profile?.about?.timings?.from} - {profile?.about?.timings?.till}
             </Typography>
           </Box>
           <Divider sx={{ my: 1.5 }} />

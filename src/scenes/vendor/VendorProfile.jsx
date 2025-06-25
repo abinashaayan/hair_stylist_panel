@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
   useTheme,
   Grid,
   Avatar,
-  Paper,
-  Rating,
   Chip,
   Button,
   IconButton,
@@ -14,6 +12,9 @@ import {
   Card,
   CardMedia,
   CardContent,
+  Tooltip,
+  Stack,
+  Paper,
 } from "@mui/material";
 import {
   LocationOn,
@@ -25,175 +26,268 @@ import {
   Edit,
   AccessTime,
   Star,
+  School,
+  Work,
+  Verified,
+  PersonAdd,
 } from "@mui/icons-material";
 import { tokens } from "../../theme";
 import { Header } from '../../components';
-import axios from 'axios';
-import { API_BASE_URL } from '../../utils/apiConfig';
-import Cookies from "js-cookie";
+import LoadingScreen from '../../components/LoadingScreen';
+import bannerImage from '../../assets/images/banner.jpg';
+import useStylistProfile from '../../hooks/useStylistProfile';
+import { showErrorToast } from '../../Toast';
+import { CustomIconButton } from '../../custom/Button';
+import ProfileEntityDialog from './ProfileEntityDialog';
+
+const socialIcons = [
+  { icon: <Instagram />, color: '#E1306C', url: '#' },
+  { icon: <Facebook />, color: '#1877F3', url: '#' },
+  { icon: <Twitter />, color: '#1DA1F2', url: '#' },
+];
 
 const VendorProfile = () => {
-  const [loading, setLoading] = useState(true);
-
+  const { profile, loading, error } = useStylistProfile();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [rating] = useState(4.5);
-  const authToken = Cookies.get("token");
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [dialogType, setDialogType] = React.useState(null);
 
-  const services = [
-    { name: "Haircut", price: "$30", duration: "30 min" },
-    { name: "Hair Coloring", price: "$120", duration: "2 hrs" },
-    { name: "Hair Styling", price: "$50", duration: "45 min" },
-    { name: "Hair Treatment", price: "$80", duration: "1 hr" },
-  ];
-
-  const portfolio = [
-    { image: "/src/assets/images/mostafa-meraji--QcWbgrih1Q-unsplash.jpg", title: "Modern Haircut" },
-    { image: "/src/assets/images/jess-bailey-Bg14l3hSAsA-unsplash.jpg", title: "Hair Styling" },
-  ];
-
-  const businessHours = [
-    { day: "Monday", hours: "9:00 AM - 6:00 PM" },
-    { day: "Tuesday", hours: "9:00 AM - 6:00 PM" },
-    { day: "Wednesday", hours: "9:00 AM - 6:00 PM" },
-    { day: "Thursday", hours: "9:00 AM - 6:00 PM" },
-    { day: "Friday", hours: "9:00 AM - 7:00 PM" },
-    { day: "Saturday", hours: "10:00 AM - 5:00 PM" },
-    { day: "Sunday", hours: "Closed" },
-  ];
-
-  const fetchStylistProfileDetails = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/stylist/get`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      console.log(response?.data, 'Response profile deatils');
-    } catch (error) {
-      showErrorToast("Error fetching product categories");
-    } finally {
-      setLoading(false);
-    }
+  const handleOpenDialog = (type) => {
+    setDialogType(type);
+    setDialogOpen(true);
+  };
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setDialogType(null);
   };
 
-  useEffect(() => {
-    if (authToken) {
-      fetchStylistProfileDetails();
+  React.useEffect(() => {
+    if (error) {
+      showErrorToast(error);
     }
-  }, [authToken])
+  }, [error]);
+
+  if (loading) return <LoadingScreen />;
+  if (!profile) return null;
+
+  console.log(profile?.certificates, 'certificates')
 
   return (
-    <Box m="20px">
+    <Box m={{ xs: 1, md: 4 }}>
       <Header title="My Profile" subtitle="View and manage your profile information" />
-      <Paper
-        sx={{
+      <Box sx={{ position: 'relative', width: '100%', mb: 6, borderRadius: '24px', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)', overflow: 'hidden' }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            height: 200,
+            width: '100%',
+            backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.4), transparent), url(${bannerImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            top: 0, left: 0,
+          }}
+        />
+        <Box sx={{
           position: 'relative',
-          height: '300px',
-          backgroundImage: 'url(/src/assets/images/mostafa-meraji--QcWbgrih1Q-unsplash.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          mb: 4,
-        }}
-      >
-        <Box sx={{ position: 'absolute', bottom: '-50px', left: '50px', display: 'flex', alignItems: 'flex-end', gap: 3, }}>
-          <Avatar src="/src/assets/images/avatar.png" sx={{ width: 150, height: 150, border: `4px solid ${colors.primary[400]}`, }} />
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="h3" color="white" sx={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-              Sarah Johnson
-            </Typography>
-            <Typography variant="h5" color="white" sx={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-              Professional Hair Stylist
-            </Typography>
+          zIndex: 2,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          gap: 4,
+          px: { xs: 2, md: 6 },
+          pt: 6,
+          pb: 3,
+          '@supports (backdrop-filter: blur(8px))': {
+            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          },
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Avatar
+              src={profile?.profilePicture || "/src/assets/images/avatar.png"}
+              sx={{ width: 140, height: 140, border: '6px solid #fff', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', background: '#fff' }}
+            />
+            <Box>
+              <Typography variant="h3" fontWeight={700} color="#fff" sx={{ fontFamily: 'Poppins, sans-serif' }}>
+                {profile?.fullName}
+              </Typography>
+              <Typography variant="h5" color="#fff" fontWeight={500} sx={{ fontFamily: 'Poppins, sans-serif', mb: 1 }}>
+                {profile?.about?.shopName || 'Professional Hair Stylist'}
+              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                <LocationOn sx={{ color: theme.palette.mode === 'dark' ? colors.greenAccent[400] : colors.greenAccent[500] }} />
+                <Typography color="#fff">{profile?.about?.address || profile?.address}</Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                <Email sx={{ color: theme.palette.mode === 'dark' ? colors.blueAccent[400] : colors.blueAccent[500] }} />
+                <Typography color="#fff">{profile?.email}</Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                <Phone sx={{ color: theme.palette.mode === 'dark' ? colors.redAccent[400] : colors.redAccent[500] }} />
+                <Typography color="#fff">{profile?.phoneNumber}</Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                <AccessTime sx={{ color: theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600] }} />
+                <Typography color="#fff">{profile?.about?.timings?.from} - {profile?.about?.timings?.till}</Typography>
+              </Stack>
+            </Box>
+          </Box>
+          <Box>
+            <Stack direction="row" spacing={1}>
+              {socialIcons?.map((item, idx) => (
+                <Tooltip title={item.icon.type.displayName} key={idx}>
+                  <IconButton sx={{ color: item.color, background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                    {item.icon}
+                  </IconButton>
+                </Tooltip>
+              ))}
+              <IconButton sx={{ background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <Edit sx={{ color: '#6D295A' }} />
+              </IconButton>
+            </Stack>
           </Box>
         </Box>
-        <IconButton sx={{ position: 'absolute', top: 20, right: 20, backgroundColor: colors.primary[400], '&:hover': { backgroundColor: colors.primary[300] }, }}>
-          <Edit />
-        </IconButton>
-      </Paper>
+      </Box>
 
-      <Grid container spacing={3} mt={4}>
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, mb: 3, backgroundColor: colors.primary[400] }}>
-            <Typography variant="h5" mb={2}>Contact Information</Typography>
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
-              <LocationOn />
-              <Typography>123 Stylist Street, Beauty City, BC 12345</Typography>
-            </Box>
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
-              <Phone />
-              <Typography>+1 (555) 123-4567</Typography>
-            </Box>
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
-              <Email />
-              <Typography>sarah.johnson@example.com</Typography>
-            </Box>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="h6" mb={1}>Social Media</Typography>
-            <Box display="flex" gap={1}>
-              <IconButton><Instagram /></IconButton>
-              <IconButton><Facebook /></IconButton>
-              <IconButton><Twitter /></IconButton>
-            </Box>
-          </Paper>
-          <Paper sx={{ p: 3, backgroundColor: colors.primary[400] }}>
-            <Typography variant="h5" mb={2}>
-              <AccessTime sx={{ mr: 1, verticalAlign: 'bottom' }} />
-              Business Hours
-            </Typography>
-            {businessHours.map((schedule) => (
-              <Box key={schedule.day} display="flex" justifyContent="space-between" mb={1}>
-                <Typography>{schedule.day}</Typography>
-                <Typography>{schedule.hours}</Typography>
-              </Box>
-            ))}
-          </Paper>
-        </Grid>
+      <Grid container spacing={4}>
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, mb: 3, backgroundColor: colors.primary[400] }}>
-            <Typography variant="h5" mb={3}>Services Offered</Typography>
-            <Grid container spacing={2}>
-              {services.map((service) => (
-                <Grid item xs={12} sm={6} key={service.name}>
-                  <Paper sx={{ p: 2, backgroundColor: colors.primary[300], display: 'flex', justifyContent: 'space-between', alignItems: 'center', }}>
-                    <Box>
-                      <Typography variant="h6">{service.name}</Typography>
-                      <Typography variant="body2" color={colors.greenAccent[500]}>
-                        {service.duration}
-                      </Typography>
-                    </Box>
-                    <Typography variant="h6" color={colors.greenAccent[500]}>
-                      {service.price}
-                    </Typography>
-                  </Paper>
-                </Grid>
+          <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', mb: 3, p: 2, }}>
+            <CardContent>
+              <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>About</Typography>
+              <Typography variant="body1" color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]} gutterBottom>{profile?.about?.about}</Typography>
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Expertise</Typography>
+                <CustomIconButton size="small" icon={<PersonAdd />} text="Add New Expertise" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('expertise')} />
+              </Box>
+              <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
+                {profile?.expertise?.map((exp, idx) => (
+                  <Chip
+                    key={idx}
+                    label={`Service: ${exp.service} | $${exp.price} | ${exp.duration} min`}
+                    color="secondary"
+                    variant="outlined"
+                    sx={{ fontWeight: 500, fontFamily: 'Poppins, sans-serif', borderRadius: 2 }}
+                  />
+                ))}
+              </Box>
+              {/* Subservices as chips */}
+              {profile?.expertise?.map((exp, idx) => (
+                exp.subServices && exp.subServices.length > 0 && (
+                  <Box key={idx} mt={1} display="flex" flexWrap="wrap" gap={1}>
+                    {exp?.subServices?.map((s) => (
+                      <Chip
+                        key={s._id}
+                        label={s.name}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          fontFamily: 'Poppins, sans-serif',
+                          borderRadius: 2,
+                          border: '1px solid orange', 
+                          color: theme.palette.mode === 'dark' ? '#fff' : '#000',
+                          backgroundColor: 'transparent',
+                          '& .MuiChip-label': {
+                            padding: '0 8px',
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+                )
               ))}
-            </Grid>
-          </Paper>
+            </CardContent>
+          </Card>
 
-          <Paper sx={{ p: 3, backgroundColor: colors.primary[400] }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-              <Typography variant="h5">Portfolio</Typography>
-              <Button variant="contained" color="secondary">
-                Add New
-              </Button>
-            </Box>
-            <Grid container spacing={2}>
-              {portfolio.map((item, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card sx={{ backgroundColor: colors.primary[300] }}>
-                    <CardMedia component="img" height="200" image={item.image} alt={item.title} sx={{ objectFit: 'cover' }} />
-                    <CardContent>
-                      <Typography variant="h6">{item.title}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
+          {/* Experience Timeline */}
+          <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', mb: 3, p: 2, }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Experience</Typography>
+                <CustomIconButton size="small" icon={<PersonAdd />} text="Add New Experience" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('experience')} />
+              </Box>
+              <Box>
+                {profile?.experience?.map((exp, idx) => (
+                  <Stack direction="row" alignItems="center" spacing={2} key={exp._id} mb={1}>
+                    <Work sx={{ color: '#6D295A' }} />
+                    <Typography color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}>{exp.role} at {exp.salon} ({exp.duration})</Typography>
+                  </Stack>
+                ))}
+              </Box>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Education</Typography>
+              <Box>
+                {profile?.education?.map((edu, idx) => (
+                  <Stack direction="row" alignItems="center" spacing={2} key={edu._id} mb={1}>
+                    <School sx={{ color: '#6D295A' }} />
+                    <Typography color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}>{edu.degree} - {edu.institute} ({edu.year})</Typography>
+                  </Stack>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Certificates & Photos Gallery */}
+        <Grid item xs={12} md={4}>
+          <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', mb: 3, p: 0, }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Certificates</Typography>
+                <CustomIconButton size="small" icon={<PersonAdd />} text="Add New Certificates" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('certificate')} />
+              </Box>
+              <Grid container spacing={2}>
+                {profile?.certificates?.map((cert) => (
+                  <Grid item xs={4} key={cert._id}>
+                    <Box sx={{ position: 'relative' }}>
+                      <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                        <CardMedia
+                          component="img"
+                          height="90"
+                          image={cert.url}
+                          alt={cert.name}
+                          sx={{ borderRadius: 3, border: cert.verified ? `2px solid ${colors.greenAccent[500]}` : `2px solid ${colors.primary[400]}` }}
+                        />
+                      </a>
+                      {cert.verified && (
+                        <Verified sx={{ position: 'absolute', top: 6, right: 6, color: colors.greenAccent[500], fontSize: 20 }} >sdfsddsfsf</Verified>
+                      )}
+                    </Box>
+                    <Typography variant="caption" display="block" align="center" color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}>{cert.name}</Typography>
+                  </Grid>
+                ))}
+              </Grid>
+            </CardContent>
+          </Card>
+
+          <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', p: 2, }}>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Photos</Typography>
+              <Grid container spacing={2}>
+                {profile?.photos?.map((photo) => (
+                  <Grid item xs={6} key={photo._id}>
+                    <Box sx={{ position: 'relative' }}>
+                      <CardMedia
+                        component="img"
+                        height="90"
+                        image={photo.url}
+                        alt={photo.name}
+                        sx={{ borderRadius: 3, border: photo.verified ? `2px solid ${colors.greenAccent[500]}` : `2px solid ${colors.primary[400]}` }}
+                      />
+                      {photo.verified && (
+                        <Verified sx={{ position: 'absolute', top: 6, right: 6, color: colors.greenAccent[500], fontSize: 20 }} />
+                      )}
+                    </Box>
+                    <Typography variant="caption" display="block" align="center" color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}>{photo.name}</Typography>
+                  </Grid>
+                ))}
+              </Grid>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
+      <ProfileEntityDialog open={dialogOpen} type={dialogType} onClose={handleCloseDialog} />
     </Box>
   );
 };
