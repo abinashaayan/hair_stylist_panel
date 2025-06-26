@@ -35,6 +35,8 @@ export default function ServiceCategory() {
     const [isViewDialog, setIsViewDialog] = useState(false);
     const [viewValue, setViewValue] = useState("");
     const [viewStatus, setViewStatus] = useState(undefined);
+    const [viewMaxPrice, setViewMaxPrice] = useState("");
+    const [viewMinPrice, setViewMinPrice] = useState("");
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -52,6 +54,8 @@ export default function ServiceCategory() {
                 const formattedData = response?.data?.allServices?.map((service) => ({
                     id: service._id,
                     name: service.name || "N/A",
+                    maxPrice: service.maxPrice || "N/A",
+                    minPrice: service.minPrice || "N/A",
                     approved: !!service.isActive,
                     createdAt: service.createdAt
                         ? new Date(service.createdAt).toLocaleDateString()
@@ -151,6 +155,8 @@ export default function ServiceCategory() {
     const handleView = (row) => {
         setViewValue(row.name);
         setViewStatus(row.approved);
+        setViewMaxPrice(row.maxPrice);
+        setViewMinPrice(row.minPrice);
         setIsViewDialog(true);
     };
 
@@ -158,6 +164,8 @@ export default function ServiceCategory() {
         setIsViewDialog(false);
         setViewValue("");
         setViewStatus(undefined);
+        setViewMaxPrice("");
+        setViewMinPrice("");
     };
 
     const columns = serviceTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
@@ -188,6 +196,7 @@ export default function ServiceCategory() {
                 }}
                 inputLabel="Service Name"
                 buttonText="Add Service"
+                showPriceFields={true}
             />
             <EntityDialog
                 open={isViewDialog}
@@ -195,7 +204,10 @@ export default function ServiceCategory() {
                 isView={true}
                 viewValue={viewValue}
                 viewStatus={viewStatus}
+                viewMaxPrice={viewMaxPrice}
+                viewMinPrice={viewMinPrice}
                 inputLabel="Service Name"
+                showPriceFields={true}
             />
             <Alert
                 open={alertOpen}

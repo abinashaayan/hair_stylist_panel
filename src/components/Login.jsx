@@ -89,7 +89,7 @@ const Login = ({ onLoginSuccess }) => {
               Welcome to
             </Typography>
             <Typography variant="h2" sx={{ fontWeight: "bold", color: "white", fontSize: { sm: "2.5rem", md: "3rem" }, }}>
-              Hair Style Saloon
+              Hair Style Salon
             </Typography>
             <Typography variant="body1" sx={{ color: "white", maxWidth: { sm: 600, md: 800 }, mt: 2, fontSize: { sm: "1rem" }, }}>
               Discover the art of transformation with our expert stylists. Whether you're after a bold new look or subtle sophistication, we deliver styles that speak for you. Walk in for a haircut — walk out with confidence.

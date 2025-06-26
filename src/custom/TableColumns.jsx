@@ -83,6 +83,8 @@ export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, 
 
 export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds }) => [
     { field: "name", headerName: "Service Name", flex: 1 },
+    { field: "maxPrice", headerName: "Max Price", flex: 0.8 },
+    { field: "minPrice", headerName: "Min Price", flex: 0.8 },
     {
         field: "approved",
         headerName: "Status",

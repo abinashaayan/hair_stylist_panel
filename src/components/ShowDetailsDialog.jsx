@@ -67,77 +67,114 @@ const CustomerDetailsView = ({ data }) => (
     </Box>
 );
 
-const StylistDetailsView = ({ data }) => (
-    <Box sx={{ backgroundColor: '#f4f6f8', p: { xs: 1, md: 2 } }}>
-        <Grid container spacing={3}>
-            <Grid item xs={12} md={5}>
-                 <Section title="Personal Information" icon={<User size={24}/>}>
-                    <DetailItem icon={<User size={20}/>} label="Full Name" value={data.fullName} />
-                    <DetailItem icon={<Mail size={20}/>} label="Email" value={data.email} />
-                    <DetailItem icon={<Calendar size={20}/>} label="DOB" value={data.dob ? new Date(data.dob).toLocaleDateString() : 'N/A'} />
-                    <DetailItem icon={<Phone size={20}/>} label="Phone" value={data.phoneNumber} />
-                    <DetailItem icon={<MapPin size={20}/>} label="Address" value={data.address} />
-                 </Section>
-                 
-                 {data.about && (
-                    <Section title="Shop Details" icon={<Building2 size={24}/>}>
-                        <DetailItem icon={<Star size={20}/>} label="Shop Name" value={data.about.shopName} />
-                        <DetailItem icon={<Phone size={20}/>} label="Timings" value={data.about.timings ? `${data.about.timings.from} - ${data.about.timings.till}` : 'N/A'} />
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1, p: 1, background: '#fff', borderRadius: 1 }}>{data.about.about}</Typography>
-                    </Section>
-                 )}
-            </Grid>
-
-            <Grid item xs={12} md={7}>
-                {data.expertise?.length > 0 && (
-                    <Section title="Expertise" icon={<Sparkles size={24} />}>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            {data.expertise.map((exp, i) => <Chip key={i} label={exp} color="primary" variant="outlined" />)}
+const StylistDetailsView = ({ data }) => {
+    const isAllEmpty = [
+        data.expertise,
+        data.education,
+        data.experience,
+        data.certificates,
+        data.portfolio,
+        data.photos
+    ].every(arr => !arr || arr.length === 0);
+    return (
+        <Box sx={{ backgroundColor: '#f4f6f8', p: { xs: 1, md: 2 } }}>
+            <Grid container spacing={3}>
+                <Grid item xs={12} md={5}>
+                     <Section title="Personal Information" icon={<User size={24}/>}> 
+                        <DetailItem icon={<User size={20}/>} label="Full Name" value={data.fullName} />
+                        <DetailItem icon={<Mail size={20}/>} label="Email" value={data.email} />
+                        <DetailItem icon={<Calendar size={20}/>} label="DOB" value={data.dob ? new Date(data.dob).toLocaleDateString() : 'N/A'} />
+                        <DetailItem icon={<Phone size={20}/>} label="Phone" value={data.phoneNumber} />
+                        <DetailItem icon={<MapPin size={20}/>} label="Address" value={data.address} />
+                     </Section>
+                     {data.about && (
+                        <Section title="Shop Details" icon={<Building2 size={24}/>}> 
+                            <DetailItem icon={<Star size={20}/>} label="Shop Name" value={data.about.shopName} />
+                            <DetailItem icon={<Phone size={20}/>} label="Timings" value={data.about.timings ? `${data.about.timings.from} - ${data.about.timings.till}` : 'N/A'} />
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, p: 1, background: '#fff', borderRadius: 1 }}>{data.about.about}</Typography>
+                        </Section>
+                     )}
+                </Grid>
+                <Grid item xs={12} md={7}>
+                    {isAllEmpty ? (
+                        <Box sx={{ p: 4, textAlign: 'center' }}>
+                            <Typography variant="h6" color="text.secondary">
+                                No additional details available for this stylist.
+                            </Typography>
                         </Box>
-                    </Section>
-                )}
-
-                {data.education?.length > 0 && (
-                    <Section title="Education" icon={<GraduationCap size={24}/>}>
-                        <Stack spacing={2}>
-                            {data.education.map((edu, index) => (
-                                <Box key={index} sx={{p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5}}>
-                                    <Typography sx={{ fontWeight: 'bold' }}>{edu.degree}</Typography>
-                                    <Typography variant="body2">{edu.institute}, {edu.year}</Typography>
-                                </Box>
-                            ))}
-                        </Stack>
-                    </Section>
-                )}
-                
-                {data.experience?.length > 0 && (
-                     <Section title="Experience" icon={<Briefcase size={24}/>}>
-                        <Stack spacing={2}>
-                            {data.experience.map((exp, index) => (
-                                <Box key={index} sx={{p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5}}>
-                                    <Typography sx={{ fontWeight: 'bold' }}>{exp.role} at {exp.salon}</Typography>
-                                    <Typography variant="body2">Duration: {exp.duration}</Typography>
-                                </Box>
-                            ))}
-                        </Stack>
-                    </Section>
-                )}
-
-                {data.certificates?.length > 0 && (
-                    <Section title="Certificates & Portfolio" icon={<Award size={24} />}>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
-                            {data.certificates.map((cert, index) => (
-                                <Link href={cert.url} target="_blank" rel="noopener noreferrer" key={index}>
-                                    <Avatar variant="rounded" src={cert.url} alt={cert.name} sx={{ width: 120, height: 120, border: '2px solid', borderColor: 'primary.main', transition: 'transform 0.2s ease-in-out', '&:hover': { transform: 'scale(1.05)' } }} />
-                                </Link>
-                            ))}
-                        </Box>
-                    </Section>
-                )}
+                    ) : (
+                        <>
+                            {data.expertise?.length > 0 && (
+                                <Section title="Expertise" icon={<Sparkles size={24} />}>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                        {data.expertise.map((exp, i) => {
+                                            let label = '';
+                                            if (typeof exp === 'string') {
+                                                label = exp;
+                                            } else if (exp && typeof exp === 'object') {
+                                                label = [
+                                                    exp.service ? `Service: ${exp.service}` : null,
+                                                    exp.price !== undefined ? `Price: ₹${exp.price}` : null,
+                                                    exp.duration !== undefined ? `Duration: ${exp.duration} min` : null,
+                                                    exp.isActive !== undefined ? (exp.isActive ? 'Active' : 'Inactive') : null
+                                                ].filter(Boolean).join(' | ');
+                                            } else {
+                                                label = 'N/A';
+                                            }
+                                            return (
+                                                <Chip
+                                                    key={i}
+                                                    label={label}
+                                                    color="primary"
+                                                    variant="outlined"
+                                                />
+                                            );
+                                        })}
+                                    </Box>
+                                </Section>
+                            )}
+                            {data.education?.length > 0 && (
+                                <Section title="Education" icon={<GraduationCap size={24}/>}> 
+                                    <Stack spacing={2}>
+                                        {data.education.map((edu, index) => (
+                                            <Box key={index} sx={{p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5}}>
+                                                <Typography sx={{ fontWeight: 'bold' }}>{edu.degree}</Typography>
+                                                <Typography variant="body2">{edu.institute}, {edu.year}</Typography>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Section>
+                            )}
+                            {data.experience?.length > 0 && (
+                                 <Section title="Experience" icon={<Briefcase size={24}/>}> 
+                                    <Stack spacing={2}>
+                                        {data.experience.map((exp, index) => (
+                                            <Box key={index} sx={{p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5}}>
+                                                <Typography sx={{ fontWeight: 'bold' }}>{exp.role} at {exp.salon}</Typography>
+                                                <Typography variant="body2">Duration: {exp.duration}</Typography>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Section>
+                            )}
+                            {data.certificates?.length > 0 && (
+                                <Section title="Certificates & Portfolio" icon={<Award size={24} />}> 
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
+                                        {data.certificates.map((cert, index) => (
+                                            <Link href={cert.url} target="_blank" rel="noopener noreferrer" key={index}>
+                                                <Avatar variant="rounded" src={cert.url} alt={cert.name} sx={{ width: 120, height: 120, border: '2px solid', borderColor: 'primary.main', transition: 'transform 0.2s ease-in-out', '&:hover': { transform: 'scale(1.05)' } }} />
+                                            </Link>
+                                        ))}
+                                    </Box>
+                                </Section>
+                            )}
+                        </>
+                    )}
+                </Grid>
             </Grid>
-        </Grid>
-    </Box>
-);
+        </Box>
+    );
+};
 
 const ShowDetailsDialog = ({ open, onClose, data }) => {
     if (!data) {
