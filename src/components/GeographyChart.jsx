@@ -1,16 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useTheme } from "@mui/material";
 import { ResponsiveChoropleth } from "@nivo/geo";
-import { geoFeatures } from "../data/mockGeoFeatures";
 import { tokens } from "../theme";
-import { mockGeographyData as data } from "../data/mockData";
 
 const GeographyChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   return (
     <ResponsiveChoropleth
-      data={data}
       theme={{
         axis: {
           domain: {
@@ -39,7 +36,6 @@ const GeographyChart = ({ isDashboard = false }) => {
           },
         },
       }}
-      features={geoFeatures.features}
       margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
       domain={[0, 1000000]}
       unknownColor="#666666"

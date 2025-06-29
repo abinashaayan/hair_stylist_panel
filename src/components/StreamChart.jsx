@@ -1,5 +1,4 @@
 import { ResponsiveStream } from "@nivo/stream";
-import { mockStreamData as data } from "../data/mockData";
 import { tokens } from "../theme";
 import { useTheme } from "@mui/material";
 const StreamChart = () => {

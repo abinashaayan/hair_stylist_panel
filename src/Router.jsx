@@ -19,12 +19,13 @@ import RegisteredStylist from "./scenes/admin/RegisteredStylist";
 import Category from "./scenes/admin/Category";
 import ServiceCategory from "./scenes/admin/ServiceCategory";
 import ChangePassword from "./scenes/vendor/ChangePassword";
+import LoadingScreen from "./components/LoadingScreen";
 
 const AppRouter = () => {
   const { isAuthenticated, panelType, token, stylistId, login } = useAuth();
   
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return <div><LoadingScreen/></div>;
   }
 
   return (

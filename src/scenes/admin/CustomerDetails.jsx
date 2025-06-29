@@ -83,7 +83,7 @@ export default function CustomerDetails() {
     const columns = userTableColumns({ handleDelete, handleView });
 
     return (
-        <Box className="p-1 mt-4">
+        <Box className="p-1">
             <Container maxWidth={false}>
                 <Header title="All Customers" />
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>

@@ -1,3 +1,4 @@
+import React, { useState, useContext, useEffect } from "react";
 import {
   Box,
   IconButton,
@@ -8,10 +9,12 @@ import {
   Menu,
   MenuItem,
   Avatar,
+  Typography,
+  Divider,
 } from "@mui/material";
 
 import { tokens, ColorModeContext } from "../../../theme";
-import { useContext, useState } from "react";
+import { useContext as useContextHook, useState as useStateHook } from "react";
 import {
   DarkModeOutlined,
   LightModeOutlined,
@@ -19,22 +22,33 @@ import {
   Logout,
   Settings,
   Notifications,
+  PersonOutlined,
+  AccessTime,
 } from "@mui/icons-material";
 import { ToggledContext } from "../../../App";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../utils/context/AuthContext";
+import FlexBetween from "../../../components/FlexBetween";
+import useStylistProfile from "../../../hooks/useStylistProfile";
 
 const Navbar = () => {
   const theme = useTheme();
-  const colorMode = useContext(ColorModeContext);
-  const { toggled, setToggled } = useContext(ToggledContext);
+  const colorMode = useContextHook(ColorModeContext);
+  const { toggled, setToggled } = useContextHook(ToggledContext);
   const isMdDevices = useMediaQuery("(max-width:768px)");
+  const isMobile = useMediaQuery("(max-width:480px)");
+  const isNonMobile = useMediaQuery("(min-width: 768px)");
   const colors = tokens(theme.palette.mode);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const open = Boolean(anchorEl);
-  
+  const panelType = localStorage.getItem("panelType");
+  const { profile, loading, error } = panelType === "vendor" ? useStylistProfile() : { profile: null, loading: false, error: null };
+  //  const { profile, loading, error } = useStylistProfile();
+  console.log(profile, "profile")
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -44,7 +58,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    logout(); 
+    logout();
     navigate("/login", { replace: true });
   };
 
@@ -59,28 +73,158 @@ const Navbar = () => {
     }
   };
 
-  return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" p={2} sx={{ position: "sticky", top: 0, zIndex: 100, background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)" }}>
-      <Box display="flex" alignItems="center" gap={2}>
-        <IconButton sx={{ display: `${isMdDevices ? "flex" : "none"}`, color: "#FFFFFF" }} onClick={handleMobileToggle}>
-          <MenuOutlined />
-        </IconButton>
-      </Box>
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
 
-      <Box>
-        <IconButton onClick={colorMode.toggleColorMode} sx={{ color: "#FFFFFF" }}>
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatDateTime = (date) => {
+    const options = {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    };
+    return date.toLocaleString('en-US', options);
+  };
+
+  return (
+    <FlexBetween
+      padding={{ xs: "0.5rem", sm: "1rem" }}
+      backgroundColor="transparent"
+      sx={{
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
+        minHeight: { xs: "60px", sm: "70px" }
+      }}
+    >
+      <FlexBetween gap={{ xs: "0.5rem", sm: "1.75rem" }}>
+        {!isNonMobile && (
+          <IconButton
+            onClick={handleMobileToggle}
+            sx={{
+              color: "#FFFFFF",
+              padding: { xs: "8px", sm: "12px" }
+            }}
+          >
+            <MenuOutlined sx={{ fontSize: { xs: "20px", sm: "24px" } }} />
+          </IconButton>
+        )}
+
+        {panelType === "vendor" && (
+          <Box display="flex" alignItems="center" gap={{ xs: "5px", sm: "10px" }}>
+            <Typography
+              fontWeight="bold"
+              fontSize={{ xs: "1rem", sm: "1.5rem", md: "2rem" }}
+              color="#FFFFFF"
+              onClick={() => navigate("/")}
+              sx={{
+                "&:hover": {
+                  color: "rgba(255, 255, 255, 0.8)",
+                  cursor: "pointer"
+                },
+                whiteSpace: "nowrap"
+              }}
+            >
+              Stylist
+            </Typography>
+          </Box>
+        )}
+
+        {panelType === "vendor" && !isMobile && (
+          <Box display="flex" gap={{ xs: "10px", sm: "15px" }} ml={{ xs: "10px", sm: "20px" }}>
+            <Typography
+              variant="body2"
+              sx={{
+                cursor: "pointer",
+                color: "#FFFFFF",
+                "&:hover": { textDecoration: "underline" },
+                fontSize: { xs: "12px", sm: "14px" }
+              }}
+            >
+              Edit Salon Page
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                cursor: "pointer",
+                color: "#FFFFFF",
+                "&:hover": { textDecoration: "underline" },
+                fontSize: { xs: "12px", sm: "14px" }
+              }}
+            >
+              Headcase Salon
+            </Typography>
+          </Box>
+        )}
+      </FlexBetween>
+
+      <FlexBetween gap={{ xs: "0.5rem", sm: "2rem" }}>
+        {panelType === "vendor" && !isMobile && (
+          <Box display="flex" alignItems="center" gap="0.5rem">
+            <AccessTime sx={{
+              color: "#FFFFFF",
+              fontSize: { xs: "1rem", sm: "1.2rem" }
+            }} />
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#FFFFFF",
+                fontSize: { xs: "0.7rem", sm: "0.9rem" },
+                whiteSpace: "nowrap",
+                display: { xs: "none", sm: "block" }
+              }}
+            >
+              {formatDateTime(currentDateTime)}
+            </Typography>
+          </Box>
+        )}
+
+        <IconButton
+          onClick={colorMode.toggleColorMode}
+          sx={{
+            color: "#FFFFFF",
+            padding: { xs: "8px", sm: "12px" }
+          }}
+        >
           {theme.palette.mode === "dark" ? (
-            <LightModeOutlined />
+            <LightModeOutlined sx={{ fontSize: { xs: "18px", sm: "20px" } }} />
           ) : (
-            <DarkModeOutlined />
+            <DarkModeOutlined sx={{ fontSize: { xs: "18px", sm: "20px" } }} />
           )}
         </IconButton>
+
         <Tooltip title="Profile">
-          <IconButton onClick={handleClick} sx={{ color: "#FFFFFF" }}>
-            <Avatar sx={{ width: 25, height: 25, backgroundColor: "hsl(0 84.2% 60.2%)" }} />
+          <IconButton
+            onClick={handleClick}
+            sx={{
+              color: "#FFFFFF",
+              padding: { xs: "8px", sm: "12px" }
+            }}
+          >
+            {panelType === "vendor" ? (
+              <PersonOutlined sx={{ fontSize: { xs: "20px", sm: "25px" } }} />
+            ) : (
+              <Avatar
+                sx={{
+                  width: { xs: 25, sm: 32 },
+                  height: { xs: 25, sm: 32 },
+                  backgroundColor: "hsl(0 84.2% 60.2%)"
+                }}
+              />
+            )}
           </IconButton>
         </Tooltip>
-      </Box>
+      </FlexBetween>
+
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -91,9 +235,12 @@ const Navbar = () => {
         }}
         sx={{
           "& .MuiPaper-root": {
-            width: 200,
-            maxHeight: 300,
-            borderRadius: 2,
+            width: 300,
+            maxWidth: "90vw",
+            borderRadius: 4,
+            p: 0,
+            overflow: "visible",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
           },
         }}
         transformOrigin={{
@@ -101,24 +248,67 @@ const Navbar = () => {
           horizontal: "right",
         }}
       >
-        <MenuItem onClick={handleClose}>
-          <Settings fontSize="small" sx={{ mr: 1 }} />
-          Settings
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Settings fontSize="small" sx={{ mr: 1 }} />
-          Explore More
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Notifications fontSize="small" sx={{ mr: 1 }} />
-          Notifications
-        </MenuItem>
-        <MenuItem onClick={handleLogout}>
-          <Logout fontSize="small" sx={{ mr: 1 }} />
-          Logout
-        </MenuItem>
+        {panelType === "vendor" && (
+          <>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2, pt: 3 }}>
+              <Avatar
+                src={profile?.profilePicture || undefined}
+                sx={{ width: 70, height: 70, mb: 1, border: "3px solid #6D295A" }}
+              >
+                {profile?.name ? profile.name[0] : "S"}
+              </Avatar>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "#222", mb: 0.2 }}>
+                {profile?.fullName || "Stylist Name"}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#7b7b7b", mb: 1 }}>
+                {profile?.role || "Urban Braids"}
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <span key={i} style={{ color: i <= 4 ? "#FFD700" : "#FFD70099", fontSize: 20, marginRight: 1 }}>
+                    {i < 5 ? "★" : "☆"}
+                  </span>
+                ))}
+                <Typography variant="caption" sx={{ color: "#7b7b7b", ml: 1 }}>
+                  (212 Reviews)
+                </Typography>
+              </Box>
+              <Typography variant="subtitle2" sx={{ color: "#6D295A", fontWeight: 700, mb: 1 }}>
+                09:00 - 18:00
+              </Typography>
+            </Box>
+            <Divider sx={{ my: 0, borderColor: "#eee" }} />
+          </>
+        )}
+        {/* Menu Options */}
+        <Box sx={{ p: 1 }}>
+          {panelType === "vendor" && (
+            <Link to="/stylist-profile" style={{ textDecoration: "none", color: "inherit" }}>
+              <MenuItem onClick={handleClose} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
+                <PersonOutlined fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
+                Profile
+              </MenuItem>
+            </Link>
+          )}
+          {/* <MenuItem onClick={handleClose} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
+            <Settings fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
+            Settings
+          </MenuItem>
+          <MenuItem onClick={handleClose} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
+            <Settings fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
+            Explore More
+          </MenuItem>
+          <MenuItem onClick={handleClose} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
+            <Notifications fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
+            Notifications
+          </MenuItem> */}
+          <MenuItem onClick={handleLogout} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
+            <Logout fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
+            Log Out
+          </MenuItem>
+        </Box>
       </Menu>
-    </Box>
+    </FlexBetween>
   );
 };
 

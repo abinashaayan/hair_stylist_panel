@@ -19,6 +19,11 @@ import {
   MenuOutlined,
   PeopleAltOutlined,
   PersonOutlined,
+  CalendarMonthOutlined,
+  HistoryOutlined,
+  InventoryOutlined,
+  AccessTimeOutlined,
+  AddCircleOutline,
 } from "@mui/icons-material";
 import Item from "./Item";
 import { ToggledContext } from "../../../App";
@@ -30,6 +35,7 @@ const SideBar = () => {
   const colors = tokens(theme.palette.mode);
   const panelType = localStorage.getItem("panelType");
   const isMdDevices = useMediaQuery("(max-width:768px)");
+  const isMobile = useMediaQuery("(max-width:480px)");
 
   // Update the main content margin when sidebar state changes (desktop only)
   useEffect(() => {
@@ -46,13 +52,20 @@ const SideBar = () => {
     admin: [
       { title: "Customers", path: "/customers", icon: <PeopleAltOutlined /> },
       { title: "Stylist", path: "/stylist", icon: <PeopleAltOutlined /> },
-      { title: "Category", path: "/Category", icon: <PeopleAltOutlined /> },
+      { title: "Category", path: "/category", icon: <PeopleAltOutlined /> },
       { title: "Service", path: "/service", icon: <PeopleAltOutlined /> },
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [
-      { title: "Appointments", path: "/stylist-appointments", icon: <CalendarTodayOutlined /> },
-      { title: "Profile", path: "/stylist-profile", icon: <PersonOutlined /> },
+      { title: "All Users", path: "/users", icon: <PersonOutlined /> },
+      { title: "Calendar", path: "/calendar", icon: <CalendarMonthOutlined /> },
+      { title: "Appointment Requests", path: "/appointment-requests", icon: <AddCircleOutline /> },
+      { title: "History", path: "/history", icon: <HistoryOutlined /> },
+      { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
+      { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
+      { title: "Create Appointment", path: "/create-appointment", icon: <AddCircleOutline /> },
+      { title: "Stylist Profile", path: "/stylist-profile", icon: <PersonOutlined /> },
+      { title: "Change Password", path: "/change-password", icon: <PersonOutlined /> },
     ],
   };
 
@@ -73,7 +86,11 @@ const SideBar = () => {
         width: collapsed ? "80px" : "250px",
         minWidth: collapsed ? "80px" : "250px",
         border: 0,
-        background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"
+        background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
+        "@media (max-width: 768px)": {
+          width: toggled ? "250px" : "0px",
+          minWidth: toggled ? "250px" : "0px",
+        }
       }}
       collapsed={collapsed}
       onBackdropClick={() => setToggled(false)}
@@ -88,27 +105,46 @@ const SideBar = () => {
             color: "#FFFFFF",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", }}>
+          <Box sx={{ 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "space-between",
+            padding: { xs: "0 10px", sm: "0 15px" }
+          }}>
             {!collapsed && (
               <Box display="flex" alignItems="center" gap="12px" sx={{ transition: ".3s ease" }}>
-                <img alt="avatar" src={logo} className="mt-3" height="50" />
+                <img 
+                  alt="avatar" 
+                  src={logo} 
+                  className="mt-3" 
+                  height={isMobile ? "40" : "50"} 
+                  style={{ maxWidth: "100%" }}
+                />
               </Box>
             )}
-            <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: "#FFFFFF" }}>
-              <MenuOutlined />
+            <IconButton 
+              onClick={() => setCollapsed(!collapsed)} 
+              sx={{ 
+                color: "#FFFFFF",
+                padding: { xs: "8px", sm: "12px" }
+              }}
+            >
+              <MenuOutlined sx={{ fontSize: { xs: "18px", sm: "20px" } }} />
             </IconButton>
           </Box>
         </MenuItem>
       </Menu>
       <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.2)" }} />
 
-      <Box mb={5} pl={collapsed ? undefined : "5%"}>
+      <Box mb={5} pl={collapsed ? undefined : { xs: "3%", sm: "5%" }}>
         <Menu
           menuItemStyles={{
             button: {
               transition: "all 0.4s ease",
               fontWeight: "bold",
               color: "#FFFFFF",
+              fontSize: { xs: "14px", sm: "16px" },
+              padding: { xs: "8px 12px", sm: "12px 16px" },
               ":hover": {
                 color: "#FFFFFF",
                 background: "rgba(255,255,255,0.1)",
@@ -127,6 +163,8 @@ const SideBar = () => {
               transition: "all 0.4s ease",
               fontWeight: "bold",
               color: "#FFFFFF",
+              fontSize: { xs: "14px", sm: "16px" },
+              padding: { xs: "8px 12px", sm: "12px 16px" },
               ":hover": {
                 color: "#FFFFFF",
                 background: "rgba(255,255,255,0.1)",

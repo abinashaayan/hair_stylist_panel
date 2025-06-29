@@ -13,11 +13,38 @@ body,
   width: 100vw;
   /* background-color: gray; */
   font-family: 'Poppins', sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 .sidebar-container {
   background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1));
   /* box-shadow: 0 19px 38px rgb(116 116 116 / 30%), 0 15px 12px rgb(104 103 103 / 22%) */
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  html, body, #root {
+    font-size: 14px;
+  }
+  
+  .sidebar-container {
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 480px) {
+  html, body, #root {
+    font-size: 13px;
+  }
+}
+
+/* Ensure proper touch targets on mobile */
+@media (max-width: 768px) {
+  button, [role="button"], .MuiButtonBase-root {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -32,4 +59,26 @@ body,
 ::-webkit-scrollbar-thumb {
   background: rgb(199, 198, 198);
   border-radius: 10px;
+}
+
+/* Improve table responsiveness */
+.MuiDataGrid-root {
+  font-size: inherit !important;
+}
+
+/* Ensure proper text wrapping */
+.MuiTypography-root {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Improve form elements on mobile */
+@media (max-width: 768px) {
+  .MuiTextField-root {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .MuiInputBase-input {
+    font-size: 16px !important;
+  }
 }

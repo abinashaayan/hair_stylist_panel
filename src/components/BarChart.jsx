@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import { ResponsiveBar } from "@nivo/bar";
-import { mockBarData as data } from "../data/mockData";
 import { tokens } from "../theme";
 import { useTheme } from "@mui/material";
 
@@ -10,7 +9,6 @@ const BarChart = ({ isDashboard = false }) => {
 
   return (
     <ResponsiveBar
-      data={data}
       theme={{
         axis: {
           domain: {

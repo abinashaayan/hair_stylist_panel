@@ -7,31 +7,64 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Avatar,
+  Stack,
+  Grid,
 } from "@mui/material";
 import {
   Header,
-  StatBox,
-  LineChart,
-  ProgressCircle,
-  BarChart,
-  GeographyChart,
 } from "../../components";
 import {
-  DownloadOutlined,
-  Email,
   PersonAdd,
   PointOfSale,
-  Traffic,
+  Group,
+  MonetizationOn,
+  PendingActions,
+  Event,
+  Category,
+  ShoppingCart,
+  LocalOffer,
+  RateReview,
+  CheckCircle,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockData";
 import { useState } from "react";
-import { CustomIconButton } from "../../custom/Button";
 
 const statData = [
   { title: "User Management", subtitle: "Add, Edit, Delete User", icon: <PersonAdd sx={{ fontSize: "26px" }} /> },
   { title: "Category Management", subtitle: "Add, Edit, Delete Category, Subcategory and more", icon: <PointOfSale sx={{ fontSize: "26px" }} /> },
+];
+
+// Mock statistics data
+const overviewStats = [
+  { title: "Total Users", value: 1240, icon: <Group sx={{ fontSize: 32, color: '#6D295A' }} />, color: '#F3E8F1' },
+  { title: "Active Bookings", value: 87, icon: <Event sx={{ fontSize: 32, color: '#6D295A' }} />, color: '#E8F3F1' },
+  { title: "Completed Services", value: 320, icon: <CheckCircle sx={{ fontSize: 32, color: '#6D295A' }} />, color: '#F1F3E8' },
+  { title: "Revenue", value: "$12,400", icon: <MonetizationOn sx={{ fontSize: 32, color: '#6D295A' }} />, color: '#F3F1E8' },
+  { title: "Pending Approvals", value: 5, icon: <PendingActions sx={{ fontSize: 32, color: '#6D295A' }} />, color: '#F1E8F3' },
+];
+
+// Quick actions
+const quickActions = [
+  { label: "User Management", icon: <Group /> },
+  { label: "Category Management", icon: <Category />, },
+  { label: "Appointment Management", icon: <Event /> },
+  { label: "Product Management", icon: <ShoppingCart /> },
+  { label: "Promotions", icon: <LocalOffer /> },
+];
+
+// Mock recent activity
+const recentActivity = [
+  { type: "booking", text: "New booking by Jane Doe", time: "2 min ago", icon: <Event sx={{ color: '#6D295A' }} /> },
+  { type: "review", text: "Client review added for stylist John", time: "10 min ago", icon: <RateReview sx={{ color: '#6D295A' }} /> },
+  { type: "stylist", text: "Stylist Anna updated her profile", time: "30 min ago", icon: <PersonAdd sx={{ color: '#6D295A' }} /> },
+  { type: "approval", text: "New stylist sign-up pending approval", time: "1 hr ago", icon: <PendingActions sx={{ color: '#6D295A' }} /> },
+  { type: "product", text: "Product listing updated", time: "2 hr ago", icon: <ShoppingCart sx={{ color: '#6D295A' }} /> },
 ];
 
 function Dashboard() {
@@ -40,6 +73,7 @@ function Dashboard() {
   const isXlDevices = useMediaQuery("(min-width: 1260px)");
   const isMdDevices = useMediaQuery("(min-width: 724px)");
   const isXsDevices = useMediaQuery("(max-width: 436px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [selectedStat, setSelectedStat] = useState(null);
   const navigate = useNavigate();
 
@@ -58,198 +92,64 @@ function Dashboard() {
   };
 
   return (
-    <Box m="15px">
+    <Box sx={{ width: "100%", maxWidth: "100%" }}>
       <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-      <Box display="grid" gridTemplateColumns={isXlDevices ? "repeat(12, 1fr)" : isMdDevices ? "repeat(6, 1fr)" : "repeat(3, 1fr)"} gridAutoRows="140px" gap="20px">
-        {statData.map((stat, index) => (
-
-          <Box key={index} gridColumn="span 5" bgcolor={colors.primary[400]} display="flex" alignItems="center" justifyContent="center" onClick={() => handleStatClick(stat)}>
-            <StatBox {...stat} />
-          </Box>
+      {/* Overview Statistics */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        {overviewStats.map((stat, idx) => (
+          <Grid item xs={12} sm={6} md={4} lg={2.4} key={stat.title}>
+            <Card sx={{ background: stat.color, borderRadius: 2, boxShadow: 4, border: '0.5px solid #6d295a' }}>
+              <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+                {stat.icon}
+                <Typography variant="subtitle2" sx={{ mt: 1, color: '#6D295A', fontWeight: 700 }}>{stat.title}</Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#222' }}>{stat.value}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
+      </Grid>
 
-        {/* ---------------- Row 2 ---------------- */}
-
-        {/* Line Chart */}
-        {/* <Box
-          gridColumn={
-            isXlDevices ? "span 8" : isMdDevices ? "span 6" : "span 3"
-          }
-          gridRow="span 2"
-          bgcolor={colors.primary[400]}
-        >
-          <Box
-            mt="25px"
-            px="30px"
-            display="flex"
-            justifyContent="space-between"
-          >
-            <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.gray[100]}
-              >
-                Revenue Generated
-              </Typography>
-              <Typography
-                variant="h5"
-                fontWeight="bold"
-                color={colors.greenAccent[500]}
-              >
-                $59,342.32
-              </Typography>
-            </Box>
-            <IconButton>
-              <DownloadOutlined
-                sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-              />
-            </IconButton>
-          </Box>
-          <Box height="250px" mt="-20px">
-            <LineChart isDashboard={true} />
-          </Box>
-        </Box> */}
-
-        {/* Transaction Data */}
-        {/* <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
-          gridRow="span 2"
-          bgcolor={colors.primary[400]}
-          overflow="auto"
-        >
-          <Box borderBottom={`4px solid ${colors.primary[500]}`} p="15px">
-            <Typography color={colors.gray[100]} variant="h5" fontWeight="600">
-              Recent Transactions
-            </Typography>
-          </Box>
-
-          {mockTransactions.map((transaction, index) => (
-            <Box
-              key={`${transaction.txId}-${index}`}
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              borderBottom={`4px solid ${colors.primary[500]}`}
-              p="15px"
+      {/* Quick Actions */}
+      <Card sx={{ mb: 3, borderRadius: 3, p: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>Quick Actions</Typography>
+        <Stack direction="row" spacing={2} flexWrap="wrap">
+          {quickActions.map((action) => (
+            <Button
+              key={action.label}
+              variant="contained"
+              color="secondary"
+              startIcon={action.icon}
+              sx={{ minWidth: 180, mb: 1, borderRadius: 2, fontWeight: 600, background: '#6D295A', color: 'white', '&:hover': { background: '#420C36' } }}
+              onClick={() => navigate(action.to)}
             >
-              <Box>
-                <Typography
-                  color={colors.greenAccent[500]}
-                  variant="h5"
-                  fontWeight="600"
-                >
-                  {transaction.txId}
-                </Typography>
-                <Typography color={colors.gray[100]}>
-                  {transaction.user}
-                </Typography>
-              </Box>
-              <Typography color={colors.gray[100]}>
-                {transaction.date}
-              </Typography>
-              <Box
-                bgcolor={colors.greenAccent[500]}
-                p="5px 10px"
-                borderRadius="4px"
-              >
-                ${transaction.cost}
-              </Box>
-            </Box>
+              {action.label}
+            </Button>
           ))}
-        </Box> */}
+        </Stack>
+      </Card>
 
-        {/* Revenue Details */}
-        {/* <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          p="30px"
-        >
-          <Typography variant="h5" fontWeight="600">
-            Campaign
-          </Typography>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            mt="25px"
-          >
-            <ProgressCircle size="125" />
-            <Typography
-              textAlign="center"
-              variant="h5"
-              color={colors.greenAccent[500]}
-              sx={{ mt: "15px" }}
-            >
-              $48,352 revenue generated
-            </Typography>
-            <Typography textAlign="center">
-              Includes extra misc expenditures and costs
-            </Typography>
-          </Box>
-        </Box> */}
-
-        {/* Bar Chart */}
-        {/* <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ p: "30px 30px 0 30px" }}
-          >
-            Sales Quantity
-          </Typography>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            height="250px"
-            mt="-20px"
-          >
-            <BarChart isDashboard={true} />
-          </Box>
-        </Box> */}
-
-        {/* Geography Chart */}
-        {/* <Box
-          gridColumn={isXlDevices ? "span 4" : "span 3"}
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          padding="30px"
-        >
-          <Typography variant="h5" fontWeight="600" mb="15px">
-            Geography Based Traffic
-          </Typography>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            height="200px"
-          >
-            <GeographyChart isDashboard={true} />
-          </Box>
-        </Box> */}
-
-      </Box>
-      <Box>
-        {selectedStat && (
-          <Card sx={{ mt: "18px", borderRadius: "15px", backgroundColor: colors.primary[400] }}>
-            <CardContent>
-              <Box p={2} borderRadius="10px">
-                <Typography variant="h5">{selectedStat.title}</Typography>
-                <Typography variant="subtitle1">{selectedStat.subtitle}</Typography>
-                <Typography variant="body1">Progress: {selectedStat.progress}</Typography>
-                <Typography variant="body1">Increase: {selectedStat.increase}</Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        )}
-      </Box>
-    </Box >
+      {/* Recent Activity Feed */}
+      <Card sx={{ borderRadius: 3 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>Recent Activity</Typography>
+          <List>
+            {recentActivity?.map((activity, idx) => (
+              <ListItem button key={idx} sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}>
+                <ListItemAvatar>
+                  <Avatar sx={{ bgcolor: '#fff', border: '2px solid #6D295A' }}>
+                    {activity.icon}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={<Typography sx={{ fontWeight: 600 }}>{activity.text}</Typography>}
+                  secondary={<Typography variant="caption" sx={{ color: '#7b7b7b' }}>{activity.time}</Typography>}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 

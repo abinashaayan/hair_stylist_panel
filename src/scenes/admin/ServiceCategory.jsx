@@ -171,7 +171,7 @@ export default function ServiceCategory() {
     const columns = serviceTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
 
     return (
-        <Box className="p-1 mt-4">
+        <Box className="p-1">
             <Container maxWidth={false}>
                 <Header title="Create Service" />
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
