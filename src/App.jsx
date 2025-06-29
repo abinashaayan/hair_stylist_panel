@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo } from "react";
+import React, { createContext, useState, useMemo, useContext } from "react";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import { Navbar, SideBar } from "./scenes";
@@ -24,11 +24,36 @@ function App({ panelType }) {
         <CssBaseline />
         <ToggledContext.Provider value={values}>
           <ToastNotification />
-          <Box sx={{ display: "flex", height: "100vh", width: "100vw", overflowX: "hidden" }}>
+          <Box sx={{ 
+            display: "flex", 
+            height: "100vh", 
+            width: "100vw", 
+            overflowX: "hidden",
+            position: "relative"
+          }}>
             {panelType === "admin" ? <SideBar /> : <VendorSidebar />}
-            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+            <Box 
+              data-main-content
+              sx={{ 
+                flexGrow: 1, 
+                display: "flex", 
+                flexDirection: "column",
+                minWidth: 0, // Prevent flex item from overflowing
+                position: "relative",
+                marginLeft: "250px", // Initial margin for sidebar
+                transition: "margin-left 300ms ease",
+                "@media (max-width: 768px)": {
+                  marginLeft: 0, // On mobile, no margin needed
+                }
+              }}
+            >
               {panelType === "admin" ? <Navbar /> : <VendorNavbar />}
-              <Box sx={{ overflowY: "auto", flex: 1 }}>
+              <Box sx={{ 
+                overflowY: "auto", 
+                flex: 1,
+                width: "100%",
+                position: "relative"
+              }}>
                 <Outlet />
               </Box>
             </Box>

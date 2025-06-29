@@ -34,6 +34,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -47,11 +48,21 @@ const Navbar = () => {
     navigate("/login", { replace: true });
   };
 
+  const handleMobileToggle = () => {
+    setToggled(!toggled);
+    // On mobile, we don't need to adjust margins since the sidebar overlays
+    if (isMdDevices) {
+      const mainContent = document.querySelector('[data-main-content]');
+      if (mainContent) {
+        mainContent.style.marginLeft = "0px";
+      }
+    }
+  };
 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" p={2} sx={{ position: "sticky", top: 0, zIndex: 100, background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)" }}>
       <Box display="flex" alignItems="center" gap={2}>
-        <IconButton sx={{ display: `${isMdDevices ? "flex" : "none"}`, color: "#FFFFFF" }} onClick={() => setToggled(!toggled)}>
+        <IconButton sx={{ display: `${isMdDevices ? "flex" : "none"}`, color: "#FFFFFF" }} onClick={handleMobileToggle}>
           <MenuOutlined />
         </IconButton>
       </Box>

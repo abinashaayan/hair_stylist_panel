@@ -7,8 +7,9 @@ import {
   IconButton,
   Typography,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import logo from "../../../assets/images/LOGO2.png";
 import { tokens } from "../../../theme";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
@@ -28,6 +29,18 @@ const SideBar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const panelType = localStorage.getItem("panelType");
+  const isMdDevices = useMediaQuery("(max-width:768px)");
+
+  // Update the main content margin when sidebar state changes (desktop only)
+  useEffect(() => {
+    if (!isMdDevices) {
+      const mainContent = document.querySelector('[data-main-content]');
+      if (mainContent) {
+        const sidebarWidth = collapsed ? 80 : 250;
+        mainContent.style.marginLeft = `${sidebarWidth}px`;
+      }
+    }
+  }, [collapsed, isMdDevices]);
 
   const navSections = {
     admin: [
@@ -47,16 +60,19 @@ const SideBar = () => {
     <Sidebar
       backgroundColor="transparent"
       rootStyles={{
-        position: "relative",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        height: "100vh",
+        zIndex: 1000,
         borderRightWidth: "1px",
         borderRightStyle: "solid",
         borderColor: "#efefef",
         WebkitTransition: "width, left, right, 300ms",
         transition: "width, left, right, 300ms",
-        width: "250px",
-        minWidth: "250px",
+        width: collapsed ? "80px" : "250px",
+        minWidth: collapsed ? "80px" : "250px",
         border: 0,
-        height: "100%",
         background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"
       }}
       collapsed={collapsed}

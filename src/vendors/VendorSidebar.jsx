@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import { Box, Divider, IconButton, useTheme, } from "@mui/material";
-import { useContext, useState } from "react";
+import { Box, Divider, IconButton, useTheme, useMediaQuery } from "@mui/material";
+import { useContext, useState, useEffect } from "react";
 import logo from "../assets/images/LOGO2.png"
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import {
@@ -23,6 +23,18 @@ const VendorSidebar = () => {
   const { toggled, setToggled } = useContext(ToggledContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isMdDevices = useMediaQuery("(max-width:768px)");
+
+  // Update the main content margin when sidebar state changes (desktop only)
+  useEffect(() => {
+    if (!isMdDevices) {
+      const mainContent = document.querySelector('[data-main-content]');
+      if (mainContent) {
+        const sidebarWidth = collapsed ? 80 : 250;
+        mainContent.style.marginLeft = `${sidebarWidth}px`;
+      }
+    }
+  }, [collapsed, isMdDevices]);
 
   const navSections = [
     {
@@ -30,11 +42,11 @@ const VendorSidebar = () => {
       icon: <PersonOutline />,
       path: "/users",
     },
-    {
-      text: "Calendar",
-      icon: <CalendarMonthOutlined />,
-      path: "/calendar",
-    },
+    // {
+    //   text: "Calendar",
+    //   icon: <CalendarMonthOutlined />,
+    //   path: "/calendar",
+    // },
     {
       text: "Appointment Requests",
       icon: <AddCircleOutline />,
@@ -66,16 +78,19 @@ const VendorSidebar = () => {
     <Sidebar
       backgroundColor="transparent"
       rootStyles={{
-        position: "relative",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        height: "100vh",
+        zIndex: 1000,
         borderRightWidth: "1px",
         borderRightStyle: "solid",
         borderColor: "#efefef",
         WebkitTransition: "width, left, right, 300ms",
         transition: "width, left, right, 300ms",
-        width: "250px",
-        minWidth: "250px",
+        width: collapsed ? "80px" : "250px",
+        minWidth: collapsed ? "80px" : "250px",
         border: 0,
-        height: "100%",
         background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)"
       }}
       collapsed={collapsed}

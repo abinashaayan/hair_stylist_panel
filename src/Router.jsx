@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, } from "react-router-dom";
 import App from "./App";
-import { Dashboard, Contacts, Calendar, } from "./scenes";
+import { Dashboard, Calendar, } from "./scenes";
 import Login from "./components/Login";
 import PrivateRoute from "./utils/PrivateRoute";
 import VendorDashboard from "./vendors/VendorDashboard";
@@ -41,7 +41,6 @@ const AppRouter = () => {
                 <Route path="category" element={<Category />} />
                 <Route path="service" element={<ServiceCategory />} />
                 <Route path="order-details" element={<OrderDetails />} />
-                <Route path="contacts" element={<Contacts />} />
               </>
             ) : panelType === "vendor" ? (
               <>
