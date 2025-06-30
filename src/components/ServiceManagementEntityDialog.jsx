@@ -8,7 +8,8 @@ import { CustomIconButton } from '../custom/Button';
 import axios from 'axios';
 import { API_BASE_URL } from '../utils/apiConfig';
 import Cookies from 'js-cookie';
-import { MenuItem, Select, FormControl, InputLabel, CircularProgress, Box } from '@mui/material';
+import { MenuItem, Select, FormControl, InputLabel, CircularProgress, Box, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 export default function ServiceManagementEntityDialog({ open, handleClose, onSuccess, viewMode = false, rowData = null }) {
   const [services, setServices] = useState([]);
@@ -22,12 +23,13 @@ export default function ServiceManagementEntityDialog({ open, handleClose, onSuc
       if (viewMode && rowData) {
         setFields({
           serviceId: rowData.serviceId || '',
+          serviceName: rowData.serviceName || '', 
           subServiceName: rowData.subServiceName || '',
           price: rowData.price || '',
           duration: rowData.duration || '',
         });
       } else {
-        setFields({ serviceId: '', subServiceName: '', price: '', duration: '' });
+        setFields({ serviceId: '', serviceName: '', subServiceName: '', price: '', duration: '' });
       }
       setError(null);
       fetchServices();
@@ -90,32 +92,55 @@ export default function ServiceManagementEntityDialog({ open, handleClose, onSuc
     <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
       <DialogTitle>{viewMode ? 'View Service Management' : 'Add New Service Management'}</DialogTitle>
       <DialogContent>
-        <FormControl fullWidth margin="normal">
-          <InputLabel id="service-select-label">Service</InputLabel>
-          <Select
-            labelId="service-select-label"
-            name="serviceId"
-            value={fields.serviceId}
-            label="Service"
-            onChange={handleChange}
-            disabled={fetchingServices || viewMode}
-          >
-            {fetchingServices ? (
-              <MenuItem value=""><Box display="flex" alignItems="center"><CircularProgress size={18} sx={{ mr: 1 }} />Loading...</Box></MenuItem>
-            ) : (
-              services.map((service) => (
-                <MenuItem key={service._id} value={service._id}>{service.name}</MenuItem>
-              ))
-            )}
-          </Select>
-        </FormControl>
-        <Input placeholder="Sub Service Name" name="subServiceName" value={fields.subServiceName} onChange={handleChange} fullWidth margin="normal" disabled={viewMode} />
-        <Input placeholder="Price" name="price" type="number" value={fields.price} onChange={handleChange} fullWidth margin="normal" disabled={viewMode} />
-        <Input placeholder="Duration (min)" name="duration" type="number" value={fields.duration} onChange={handleChange} fullWidth margin="normal" disabled={viewMode} />
+        {viewMode ? (
+          <Box>
+            <Box mb={2}>
+              <Typography variant="subtitle2" color="text.secondary">Service</Typography>
+             <Typography variant="body1">{fields.serviceName || 'N/A'}</Typography>
+            </Box>
+            <Box mb={2}>
+              <Typography variant="subtitle2" color="text.secondary">Sub Service Name</Typography>
+              <Typography variant="body1">{fields.subServiceName || 'N/A'}</Typography>
+            </Box>
+            <Box mb={2}>
+              <Typography variant="subtitle2" color="text.secondary">Price</Typography>
+              <Typography variant="body1">{fields.price !== '' ? fields.price : 'N/A'}</Typography>
+            </Box>
+            <Box mb={2}>
+              <Typography variant="subtitle2" color="text.secondary">Duration (min)</Typography>
+              <Typography variant="body1">{fields.duration !== '' ? fields.duration : 'N/A'}</Typography>
+            </Box>
+          </Box>
+        ) : (
+          <>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="service-select-label">Service</InputLabel>
+              <Select
+                labelId="service-select-label"
+                name="serviceId"
+                value={fields.serviceId}
+                label="Service"
+                onChange={handleChange}
+                disabled={fetchingServices}
+              >
+                {fetchingServices ? (
+                  <MenuItem value=""><Box display="flex" alignItems="center"><CircularProgress size={18} sx={{ mr: 1 }} />Loading...</Box></MenuItem>
+                ) : (
+                  services.map((service) => (
+                    <MenuItem key={service._id} value={service._id}>{service.name}</MenuItem>
+                  ))
+                )}
+              </Select>
+            </FormControl>
+            <Input placeholder="Sub Service Name" name="subServiceName" value={fields.subServiceName} onChange={handleChange} fullWidth margin="normal" />
+            <Input placeholder="Price" name="price" type="number" value={fields.price} onChange={handleChange} fullWidth margin="normal" />
+            <Input placeholder="Duration (min)" name="duration" type="number" value={fields.duration} onChange={handleChange} fullWidth margin="normal" />
+          </>
+        )}
         {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
       </DialogContent>
       <DialogActions>
-        <CustomIconButton text="Close" color="#bdbdbd" variant="outlined" onClick={handleClose} />
+        <CustomIconButton icon={<Close />} color="red" text="Close" onClick={handleClose} />
         {!viewMode && <CustomIconButton text="Add" color="#6d295a" onClick={handleSubmit} loading={loading} />}
       </DialogActions>
     </Dialog>

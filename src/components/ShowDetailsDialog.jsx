@@ -16,6 +16,8 @@ import {
     Stack
 } from '@mui/material';
 import { Briefcase, Building2, Calendar, CheckCircle2, GraduationCap, Mail, Phone, Sparkles, Star, User, Award, MapPin } from 'lucide-react';
+import { CustomIconButton } from '../custom/Button';
+import { Close } from '@mui/icons-material';
 
 const DetailItem = ({ icon, label, value, fullWidth = false }) => (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, borderBottom: '1px solid #f0f0f0' }}>
@@ -191,9 +193,10 @@ const ShowDetailsDialog = ({ open, onClose, data }) => {
                 }
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary">
+                <CustomIconButton icon={<Close />} color="red" text="Close" onClick={onClose} />
+                {/* <Button onClick={onClose} color="primary">
                     Close
-                </Button>
+                </Button> */}
             </DialogActions>
         </Dialog>
     );

@@ -196,8 +196,8 @@ export default function Product() {
 
         <Alert
           open={alertOpen}
-          handleClose={() => setAlertOpen(false)}
-          handleConfirm={handleConfirmDelete}
+          onClose={() => setAlertOpen(false)}
+          onConfirm={handleConfirmDelete}
           loading={deleting}
           title="Delete Product"
           description="Are you sure you want to delete this product? This action cannot be undone."

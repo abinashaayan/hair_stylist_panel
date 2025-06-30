@@ -45,7 +45,7 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
                                 backgroundColor: colors.gray[900], 
                                 borderBottom: "none",
                                 fontSize: { xs: "12px", sm: "14px" },
-                                padding: { xs: "8px 4px", sm: "8px 12px" }
+                                // padding: { xs: "8px 4px", sm: "8px 12px" }
                             },
                             "& .MuiDataGrid-virtualScroller": {
                                 backgroundColor: colors.primary[400],

@@ -3,9 +3,7 @@ import {
   Container,
   IconButton,
   InputBase,
-  Button,
   useTheme,
-  Typography,
 } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined, PersonAdd } from "@mui/icons-material";
@@ -13,8 +11,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
 import { API_BASE_URL } from "../../utils/apiConfig";
-import AddSubCategoryDialog from "../../components/AddSubCategoryDialog";
-import EntityDialog from "../../components/EntityDialog";
 import { tokens } from "../../theme";
 import { showErrorToast, showSuccessToast } from "../../Toast";
 import Cookies from "js-cookie";
@@ -49,7 +45,6 @@ export default function ServiceManagement() {
           Authorization: `Bearer ${authToken}`,
         },
       });
-
       if (response?.data?.status === 200 && response?.data?.success) {
         const formattedData = response?.data?.data?.map((item, index) => ({
           id: index, 
@@ -202,7 +197,7 @@ export default function ServiceManagement() {
         open={alertOpen}
         title="Delete Service"
         description="Are you sure you want to delete this service? This action cannot be undone."
-        handleClose={() => setAlertOpen(false)}
+        onClose={() => setAlertOpen(false)}
         handleConfirm={handleConfirmDelete}
         loading={deleting}
         disableCancel={deleting}
