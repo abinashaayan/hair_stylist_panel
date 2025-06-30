@@ -1,8 +1,8 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Card, CardContent, LinearProgress, useTheme, useMediaQuery } from "@mui/material";
+import { Box, Card, CardContent, LinearProgress, useTheme, useMediaQuery, Typography } from "@mui/material";
 import { tokens } from "../theme";
 
-const CustomTable = ({ columns, rows, loading, checkboxSelection = false }) => {
+const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRowsMessage = "No data to show" }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isMobile = useMediaQuery("(max-width: 768px)");
@@ -11,18 +11,28 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false }) => {
         <Card sx={{
             backgroundColor: colors.primary[400],
             width: "100%",
-            overflow: "hidden"
+            height: "100%",
+            display: "flex",
+            flexDirection: "column"
         }}>
-            <CardContent sx={{ padding: { xs: "8px", sm: "16px" } }}>
+            <CardContent sx={{ 
+                padding: { xs: "8px", sm: "16px" },
+                flex: 1,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column"
+            }}>
                 {loading ? (
                     <Box display="flex" flexDirection="column" gap={2} p={2}>
                         <LinearProgress />
                     </Box>
                 ) : (
                     <Box
-                        width="100%"
-                        height={{ xs: "60vh", sm: "70vh", md: "75vh" }}
                         sx={{
+                            flex: 1,
+                            width: "100%",
+                            height: "100%",
+                            overflow: "hidden",
                             "& .MuiDataGrid-root": { 
                                 border: "none",
                                 fontSize: { xs: "12px", sm: "14px" }
@@ -37,14 +47,27 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false }) => {
                                 fontSize: { xs: "12px", sm: "14px" },
                                 padding: { xs: "8px 4px", sm: "8px 12px" }
                             },
-                            "& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within": { 
-                                outline: "none !important" 
+                            "& .MuiDataGrid-virtualScroller": {
+                                backgroundColor: colors.primary[400],
+                                overflow: "auto !important",
+                                "&::-webkit-scrollbar": {
+                                    width: "8px",
+                                    height: "8px"
+                                },
+                                "&::-webkit-scrollbar-track": {
+                                    background: "transparent"
+                                },
+                                "&::-webkit-scrollbar-thumb": {
+                                    background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
+                                    borderRadius: "4px"
+                                },
+                                "scrollbarWidth": "thin",
+                                "scrollbarColor": "#6D295A transparent"
                             },
-                            "& .MuiCheckbox-root": { 
-                                color: `${colors.gray[200]} !important` 
-                            },
-                            "& .MuiDataGrid-iconSeparator": { 
-                                color: colors.gray[100] 
+                            "& .MuiDataGrid-footerContainer": { 
+                                borderTop: "none", 
+                                backgroundColor: colors.gray[900],
+                                fontSize: { xs: "12px", sm: "14px" }
                             },
                             "& .MuiDataGrid-toolbarContainer": {
                                 color: colors.primary[100], 
@@ -53,23 +76,8 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false }) => {
                                 flexDirection: { xs: "column", sm: "row" },
                                 gap: { xs: 1, sm: 2 }
                             },
-                            "& .MuiSvgIcon-root": {
-                                color: colors.primary[100],
-                                fontSize: { xs: "16px", sm: "20px" }
-                            },
-                            "& .MuiButtonBase-root": {
-                                color: colors.primary[100],
-                                fontSize: { xs: "12px", sm: "14px" }
-                            },
-                            "& .MuiDataGrid-footerContainer": {
-                                fontSize: { xs: "12px", sm: "14px" }
-                            },
-                            "& .MuiDataGrid-virtualScroller": {
-                                backgroundColor: colors.primary[400]
-                            },
-                            "& .MuiDataGrid-footerContainer": { 
-                                borderTop: "none", 
-                                backgroundColor: colors.gray[900] 
+                            "& .MuiDataGrid-row:hover": {
+                                backgroundColor: colors.primary[500]
                             }
                         }}
                     >
@@ -86,16 +94,26 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false }) => {
                             }}
                             checkboxSelection={checkboxSelection}
                             density={isMobile ? "compact" : "standard"}
+                            autoHeight={false}
+                            disableColumnMenu={isMobile}
+                            disableColumnSelector={isMobile}
+                            disableDensitySelector={isMobile}
+                            getRowHeight={() => (isMobile ? 52 : "auto")}
+                            slots={{
+                                noRowsOverlay: () => (
+                                  <Box
+                                    height="100%"
+                                    display="flex"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                  >
+                                    <Typography>{noRowsMessage}</Typography>
+                                  </Box>
+                                ),
+                              }}
                             sx={{
-                                "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within": {
-                                    outline: "none",
-                                },
-                                "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                                    outline: "none !important",
-                                },
-                                "& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within": {
-                                    outline: "none !important",
-                                },
+                                height: { xs: "60vh", sm: "70vh", md: "75vh" },
+                                width: "100%"
                             }}
                         />
                     </Box>

@@ -46,8 +46,6 @@ const Navbar = () => {
   const open = Boolean(anchorEl);
   const panelType = localStorage.getItem("panelType");
   const { profile, loading, error } = panelType === "vendor" ? useStylistProfile() : { profile: null, loading: false, error: null };
-  //  const { profile, loading, error } = useStylistProfile();
-  console.log(profile, "profile")
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -108,13 +106,7 @@ const Navbar = () => {
     >
       <FlexBetween gap={{ xs: "0.5rem", sm: "1.75rem" }}>
         {!isNonMobile && (
-          <IconButton
-            onClick={handleMobileToggle}
-            sx={{
-              color: "#FFFFFF",
-              padding: { xs: "8px", sm: "12px" }
-            }}
-          >
+          <IconButton onClick={handleMobileToggle} sx={{ color: "#FFFFFF", padding: { xs: "8px", sm: "12px" } }}>
             <MenuOutlined sx={{ fontSize: { xs: "20px", sm: "24px" } }} />
           </IconButton>
         )}
@@ -126,20 +118,14 @@ const Navbar = () => {
               fontSize={{ xs: "1rem", sm: "1.5rem", md: "2rem" }}
               color="#FFFFFF"
               onClick={() => navigate("/")}
-              sx={{
-                "&:hover": {
-                  color: "rgba(255, 255, 255, 0.8)",
-                  cursor: "pointer"
-                },
-                whiteSpace: "nowrap"
-              }}
+              sx={{ "&:hover": { color: "rgba(255, 255, 255, 0.8)", cursor: "pointer" }, whiteSpace: "nowrap" }}
             >
-              Stylist
+              STYLIST
             </Typography>
           </Box>
         )}
 
-        {panelType === "vendor" && !isMobile && (
+        {/* {panelType === "vendor" && !isMobile && (
           <Box display="flex" gap={{ xs: "10px", sm: "15px" }} ml={{ xs: "10px", sm: "20px" }}>
             <Typography
               variant="body2"
@@ -164,7 +150,7 @@ const Navbar = () => {
               Headcase Salon
             </Typography>
           </Box>
-        )}
+        )} */}
       </FlexBetween>
 
       <FlexBetween gap={{ xs: "0.5rem", sm: "2rem" }}>
@@ -248,38 +234,36 @@ const Navbar = () => {
           horizontal: "right",
         }}
       >
-        {panelType === "vendor" && (
-          <>
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2, pt: 3 }}>
-              <Avatar
-                src={profile?.profilePicture || undefined}
-                sx={{ width: 70, height: 70, mb: 1, border: "3px solid #6D295A" }}
-              >
-                {profile?.name ? profile.name[0] : "S"}
-              </Avatar>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "#222", mb: 0.2 }}>
-                {profile?.fullName || "Stylist Name"}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#7b7b7b", mb: 1 }}>
-                {profile?.role || "Urban Braids"}
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <span key={i} style={{ color: i <= 4 ? "#FFD700" : "#FFD70099", fontSize: 20, marginRight: 1 }}>
-                    {i < 5 ? "★" : "☆"}
-                  </span>
-                ))}
-                <Typography variant="caption" sx={{ color: "#7b7b7b", ml: 1 }}>
-                  (212 Reviews)
-                </Typography>
-              </Box>
-              <Typography variant="subtitle2" sx={{ color: "#6D295A", fontWeight: 700, mb: 1 }}>
-                09:00 - 18:00
+        {panelType === "vendor" && [
+          <Box key="profile-box" sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2, pt: 3 }}>
+            <Avatar
+              src={profile?.profilePicture || undefined}
+              sx={{ width: 70, height: 70, mb: 1, border: "3px solid #6D295A" }}
+            >
+              {profile?.name ? profile.name[0] : "S"}
+            </Avatar>
+            <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "#222", mb: 0.2 }}>
+              {profile?.fullName || "Stylist Name"}
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#7b7b7b", mb: 1 }}>
+              {profile?.role || "Urban Braids"}
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <span key={i} style={{ color: i <= 4 ? "#FFD700" : "#FFD70099", fontSize: 20, marginRight: 1 }}>
+                  {i < 5 ? "★" : "☆"}
+                </span>
+              ))}
+              <Typography variant="caption" sx={{ color: "#7b7b7b", ml: 1 }}>
+                (212 Reviews)
               </Typography>
             </Box>
-            <Divider sx={{ my: 0, borderColor: "#eee" }} />
-          </>
-        )}
+            <Typography variant="subtitle2" sx={{ color: "#6D295A", fontWeight: 700, mb: 1 }}>
+              09:00 - 18:00
+            </Typography>
+          </Box>,
+          <Divider key="profile-divider" sx={{ my: 0, borderColor: "#eee" }} />
+        ]}
         {/* Menu Options */}
         <Box sx={{ p: 1 }}>
           {panelType === "vendor" && (

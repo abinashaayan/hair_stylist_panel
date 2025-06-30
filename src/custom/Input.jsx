@@ -1,6 +1,6 @@
 import { TextField, InputAdornment, IconButton } from "@mui/material";
 
-const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconClick, height = 40 }) => {
+const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconClick, height = 40, name }) => {
     return (
         <TextField
             fullWidth
@@ -8,6 +8,7 @@ const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconCli
             type={type}
             value={value}
             onChange={onChange}
+            name={name}
             margin="normal"
             InputProps={{
                 startAdornment: icon && (

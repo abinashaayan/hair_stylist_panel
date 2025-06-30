@@ -71,8 +71,6 @@ const VendorProfile = () => {
   if (loading) return <LoadingScreen />;
   if (!profile) return null;
 
-  console.log(profile?.certificates, 'certificates')
-
   return (
     <Box m={{ xs: 1, md: 4 }}>
       <Header title="My Profile" subtitle="View and manage your profile information" />

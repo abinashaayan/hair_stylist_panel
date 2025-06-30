@@ -51,15 +51,12 @@ const VendorDashboard = () => {
   ];
 
   return (
-    <Box sx={{ 
-      // m: { xs: "10px", sm: "15px", md: "1.5rem 2.5rem" },
-      width: "100%",
-      maxWidth: "100%"
-    }}>
+    // m: { xs: "10px", sm: "15px", md: "1.5rem 2.5rem" },
+    <Box sx={{ width: "100%", maxWidth: "100%" }}>
       <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-      <Box 
-        mt="20px" 
-        display="grid" 
+      <Box
+        mt="20px"
+        display="grid"
         gridTemplateColumns={{
           xs: "repeat(2, 1fr)",
           sm: "repeat(3, 1fr)",
@@ -67,11 +64,11 @@ const VendorDashboard = () => {
           lg: "repeat(4, 1fr)",
           xl: "repeat(8, 1fr)"
         }}
-        gridAutoRows="140px" 
+        gridAutoRows="140px"
         gap={{ xs: "15px", sm: "20px" }}
         sx={{ width: "100%" }}
       >
-        {statData.map((stat, index) => (
+        {statData?.map((stat, index) => (
           <Box
             key={index}
             display="flex"
@@ -98,18 +95,18 @@ const VendorDashboard = () => {
           >
             {stat.icon &&
               React.cloneElement(stat.icon, {
-                sx: { 
-                  fontSize: { xs: "32px", sm: "40px", md: "48px" }, 
-                  color: "#FFFFFF", 
-                  mb: 1 
+                sx: {
+                  fontSize: { xs: "32px", sm: "40px", md: "48px" },
+                  color: "#FFFFFF",
+                  mb: 1
                 },
               })}
             {stat.value && (
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  color: "#FFFFFF", 
-                  fontWeight: "bold", 
+              <Typography
+                variant="h4"
+                sx={{
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
                   mb: 0.5,
                   fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" }
                 }}
@@ -118,10 +115,10 @@ const VendorDashboard = () => {
               </Typography>
             )}
             <Link to={stat?.path} className="text-decoration-none">
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  color: "#FFFFFF", 
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "#FFFFFF",
                   textAlign: "center",
                   fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
                   lineHeight: { xs: 1.2, sm: 1.3, md: 1.4 }
@@ -135,36 +132,36 @@ const VendorDashboard = () => {
       </Box>
 
       <Box mt={2}>
-        <Typography 
-          variant="h4" 
-          fontWeight="bold" 
-          sx={{ 
-            mb: "15px", 
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{
+            mb: "15px",
             textTransform: "uppercase",
-            fontSize: { xs: "1.25rem", sm: "1.5rem", md: "2rem" }
+            fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1rem" }
           }}
         >
           Top Performing Services
         </Typography>
-        <Box 
-          display="flex" 
-          flexWrap="wrap" 
+        <Box
+          display="flex"
+          flexWrap="wrap"
           gap={{ xs: 2, sm: 3, md: 4 }}
           justifyContent={{ xs: "center", sm: "flex-start" }}
         >
           {[{ color: "red" }, { color: "gold" }, { color: "blue" }, { color: "green" }].map((item, idx) => (
             <Box key={idx} textAlign="center">
-              <Box sx={{ 
-                width: { xs: 60, sm: 70, md: 80 }, 
-                height: { xs: 60, sm: 70, md: 80 }, 
-                borderRadius: "50%", 
-                border: `4px solid ${item.color}`, 
-                padding: "5px", 
-                backgroundColor: "transparent", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center", 
-                margin: "auto" 
+              <Box sx={{
+                width: { xs: 60, sm: 70, md: 80 },
+                height: { xs: 60, sm: 70, md: 80 },
+                borderRadius: "50%",
+                border: `4px solid ${item.color}`,
+                padding: "5px",
+                backgroundColor: "transparent",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "auto"
               }}>
                 <Box sx={{ width: "100%", height: "100%", borderRadius: "50%", backgroundColor: "black" }} />
               </Box>
@@ -175,7 +172,7 @@ const VendorDashboard = () => {
       </Box>
 
       {/* Appointments Table */}
-      <Box sx={{ 
+      <Box sx={{
         display: "grid",
         gridTemplateColumns: {
           xs: "1fr",
@@ -185,13 +182,13 @@ const VendorDashboard = () => {
         mt: 3
       }}>
         <Box>
-          <Typography 
-            variant="h4" 
-            fontWeight="bold" 
-            sx={{ 
-              mb: "15px", 
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            sx={{
+              mb: "15px",
               textTransform: "uppercase",
-              fontSize: { xs: "1.25rem", sm: "1.5rem", md: "2rem" }
+              fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1rem" }
             }}
           >
             Upcoming Appointments
@@ -199,7 +196,7 @@ const VendorDashboard = () => {
           <CustomCalendar year={year} month={month} appointments={appointments} />
         </Box>
         <Box sx={{ minHeight: "100vh" }}>
-          <Box sx={{ 
+          <Box sx={{
             display: "grid",
             gridTemplateColumns: {
               xs: "1fr",
@@ -208,9 +205,9 @@ const VendorDashboard = () => {
             },
             gap: { xs: 2, sm: 3, md: 4 }
           }}>
-            <Box className="p-4" sx={{ 
-              background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)", 
-              borderRadius: 2, 
+            <Box className="p-4" sx={{
+              background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
+              borderRadius: 2,
               color: "white",
               padding: { xs: "1rem", sm: "1.5rem" }
             }}>
@@ -226,7 +223,7 @@ const VendorDashboard = () => {
               >
                 <Box display="flex" alignItems="center">
                   <Banknote size={24} style={{ marginRight: 10 }} />
-                  <Typography sx={{ 
+                  <Typography sx={{
                     textAlign: { xs: "center", sm: "left" },
                     fontSize: { xs: "0.75rem", sm: "0.875rem" }
                   }}>
@@ -247,9 +244,9 @@ const VendorDashboard = () => {
                 </Button>
               </Box>
             </Box>
-            <Box className="p-4 h-100" sx={{ 
-              background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)", 
-              color: "white", 
+            <Box className="p-4 h-100" sx={{
+              background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
+              color: "white",
               borderRadius: 2,
               padding: { xs: "1rem", sm: "1.5rem" }
             }}>
@@ -257,9 +254,9 @@ const VendorDashboard = () => {
               <Typography variant="h6" sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}>$680.86</Typography>
               <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>After tax</Typography>
             </Box>
-            <Box className="p-4 h-100" sx={{ 
-              background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)", 
-              color: "white", 
+            <Box className="p-4 h-100" sx={{
+              background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
+              color: "white",
               borderRadius: 2,
               padding: { xs: "1rem", sm: "1.5rem" }
             }}>
@@ -267,21 +264,21 @@ const VendorDashboard = () => {
               <Typography variant="h5" sx={{ fontSize: { xs: "1.5rem", sm: "1.75rem" } }}>$11,890.86</Typography>
             </Box>
           </Box>
-          <Box mt={4} className="p-4" sx={{ 
-            background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)", 
-            color: "white", 
+          <Box mt={4} className="p-4" sx={{
+            background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
+            color: "white",
             borderRadius: 2,
             padding: { xs: "1rem", sm: "1.5rem" }
           }}>
-            <Box display="flex" 
+            <Box display="flex"
               flexDirection={{ xs: "column", sm: "row" }}
-              justifyContent="space-between" 
+              justifyContent="space-between"
               alignItems={{ xs: "flex-start", sm: "center" }}
               gap={{ xs: 1, sm: 0 }}
             >
               <Typography variant="h6" sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}>Total Earnings</Typography>
-              <Select defaultValue={"2023"} size="small" sx={{ 
-                backgroundColor: "white", 
+              <Select defaultValue={"2023"} size="small" sx={{
+                backgroundColor: "white",
                 borderRadius: 1,
                 minWidth: { xs: "100%", sm: "auto" }
               }}>
@@ -332,35 +329,35 @@ const VendorDashboard = () => {
                 options={{
                   maintainAspectRatio: false,
                   responsive: true,
-                  plugins: { 
-                    legend: { 
-                      labels: { 
+                  plugins: {
+                    legend: {
+                      labels: {
                         color: "white",
                         font: {
                           size: isMobile ? 10 : 12
                         }
-                      } 
-                    }, 
+                      }
+                    },
                   },
-                  scales: { 
-                    x: { 
-                      ticks: { 
+                  scales: {
+                    x: {
+                      ticks: {
                         color: "white",
                         font: {
                           size: isMobile ? 10 : 12
                         }
-                      }, 
-                      grid: { color: "rgba(255, 255, 255, 0.1)" } 
-                    }, 
-                    y: { 
-                      ticks: { 
+                      },
+                      grid: { color: "rgba(255, 255, 255, 0.1)" }
+                    },
+                    y: {
+                      ticks: {
                         color: "white",
                         font: {
                           size: isMobile ? 10 : 12
                         }
-                      }, 
-                      grid: { color: "rgba(255, 255, 255, 0.1)" } 
-                    } 
+                      },
+                      grid: { color: "rgba(255, 255, 255, 0.1)" }
+                    }
                   }
                 }}
               />

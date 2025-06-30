@@ -6,12 +6,12 @@ import Login from "./components/Login";
 import PrivateRoute from "./utils/PrivateRoute";
 import VendorDashboard from "./vendors/VendorDashboard";
 import VendorProfile from "./scenes/vendor/VendorProfile";
-import AppointmentRequests from "./scenes/vendor/AppointmentRequests";
+import ServiceManagement from "./scenes/vendor/ServiceManagement";
 import History from "./scenes/vendor/History";
 import Packages from "./scenes/vendor/Packages";
 import Availability from "./scenes/vendor/Availability";
 import CreateAppointment from "./scenes/vendor/CreateAppointment";
-import StylistUsers from "./scenes/vendor/StylistUsers";
+import Product from "./scenes/vendor/Product";
 import { useAuth } from "./utils/context/AuthContext";
 import OrderDetails from "./scenes/admin/OrderDetails";
 import CustomerDetails from "./scenes/admin/CustomerDetails";
@@ -46,9 +46,9 @@ const AppRouter = () => {
             ) : panelType === "vendor" ? (
               <>
                 <Route index element={<VendorDashboard />} />
-                <Route path="users" element={<StylistUsers />} />
+                <Route path="product" element={<Product />} />
                 <Route path="calendar" element={<Calendar />} />
-                <Route path="appointment-requests" element={<AppointmentRequests />} />
+                <Route path="service-management" element={<ServiceManagement />} />
                 <Route path="history" element={<History />} />
                 <Route path="packages" element={<Packages />} />
                 <Route path="availability" element={<Availability />} />
