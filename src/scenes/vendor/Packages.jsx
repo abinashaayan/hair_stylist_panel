@@ -1,30 +1,213 @@
-import React from 'react';
-import { Box, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Container,
+  IconButton,
+  InputBase,
+  useTheme,
+} from "@mui/material";
+import { Header } from "../../components";
+import { SearchOutlined, PersonAdd } from "@mui/icons-material";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import CustomTable from "../../custom/Table";
+import { API_BASE_URL } from "../../utils/apiConfig";
 import { tokens } from "../../theme";
+import { showErrorToast, showSuccessToast } from "../../Toast";
+import Cookies from "js-cookie";
+import { CustomIconButton } from "../../custom/Button";
+import { packageTableColumns } from "../../custom/TableColumns";
+import Alert from "../../custom/Alert";
+import PackageEntityDialog from '../../components/PackageEntityDialog';
 
-const Packages = () => {
+export default function Packages() {
+  const [allServices, setAllServices] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState(null);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isViewDialog, setIsViewDialog] = useState(false);
+  const [openPackageDialog, setOpenPackageDialog] = useState(false);
+  const [viewRow, setViewRow] = useState(null);
+  const [editRow, setEditRow] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const authToken = Cookies.get("token");
+
+  const fetchAllPackage = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/package/get`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      console.log("Response from fetchAllPackage:", response?.data);
+      if (response?.data?.status === 200 && response?.data?.success) {
+        const fullData = (response?.data?.data || []).map((item) => ({ ...item, id: item._id }));
+        setAllServices(fullData);
+      } else {
+        showErrorToast(response?.data?.message || "Failed to fetch packages");
+      }
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+      showErrorToast("Error fetching packages");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchAllPackage();
+    }
+  }, [authToken]);
+
+  useEffect(() => {
+    if (searchText === "") {
+      setFilteredUsers(allServices);
+    } else {
+      setFilteredUsers(
+        allServices.filter((pkg) =>
+          (pkg.title || pkg.name || "").toLowerCase().includes(searchText)
+        )
+      );
+    }
+  }, [allServices, searchText]);
+
+  const handleOpenCategory = () => {
+    setEditRow(null);
+    setEditMode(false);
+    setOpenPackageDialog(true);
+  };
+
+  const handleCloseCategoryDialog = () => {
+    setOpenPackageDialog(false);
+  };
+
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchText(value);
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setAlertOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    setDeleting(true);
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/package/delete/${deleteId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response?.data?.status === 200) {
+        showSuccessToast(response?.data?.message || "Package deleted successfully");
+        setAllServices((prevServices) => prevServices.filter((service) => service.id !== deleteId));
+        setFilteredUsers((prevUsers) => prevUsers.filter((user) => user.id !== deleteId));
+        await fetchAllPackage();
+      } else {
+        showErrorToast("Failed to delete package.");
+      }
+    } catch (error) {
+      showErrorToast(error?.response?.data?.message || "An error occurred while deleting.");
+    } finally {
+      setDeleting(false);
+      setAlertOpen(false);
+      setDeleteId(null);
+    }
+  };
+
+  const handleEdit = (row) => {
+    setEditRow({
+      ...row,
+      service: { _id: row.serviceId, name: row.serviceName },
+      subService: { _id: row.subServiceId, name: row.subServiceName }
+    });
+    setEditMode(true);
+    setOpenPackageDialog(true);
+  };
+
+  const handleView = (row) => {
+    setViewRow(row);
+    setIsViewDialog(true);
+  };
+
+  const handleCloseViewDialog = () => {
+    setIsViewDialog(false);
+    setViewRow(null);
+  };
+
+  const columns = packageTableColumns({ handleDelete, handleView, handleEdit });
 
   return (
-    <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h2" color={colors.gray[100]} fontWeight="bold" mb="5px">
-          Service Packages
-        </Typography>
-      </Box>
-      <Box
-        backgroundColor={colors.primary[400]}
-        p="30px"
-        borderRadius="4px"
-      >
-        {/* Add your packages content here */}
-        <Typography variant="h5" color={colors.gray[100]}>
-          Service Packages Content
-        </Typography>
-      </Box>
+    <Box className="p-1">
+      <Container maxWidth={false}>
+        <Header title="Create Package" />
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
+          <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' }, }}>
+            <InputBase placeholder="Search Package" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+            <IconButton type="button" sx={{ p: 1 }}>
+              <SearchOutlined />
+            </IconButton>
+          </Box>
+          <CustomIconButton icon={<PersonAdd />} text="Add New Package" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
+        </Box>
+        <CustomTable columns={columns}
+          rows={filteredUsers.map(pkg => ({
+            id: pkg._id,
+            title: pkg.title || pkg.name || 'N/A',
+            about: pkg.about || 'N/A',
+            serviceName: pkg.service?.name || 'N/A',
+            serviceId: pkg.service?._id || '',
+            subServiceName: pkg.subService?.name || 'N/A',
+            subServiceId: pkg.subService?._id || '',
+            date: pkg.date ? new Date(pkg.date).toLocaleDateString() : 'N/A',
+            duration: pkg.duration ?? 'N/A',
+            price: pkg.price ?? 'N/A',
+            createdAt: pkg.createdAt ? new Date(pkg.createdAt).toLocaleDateString() : 'N/A',
+          }))} loading={loading} />
+      </Container>
+
+      <PackageEntityDialog
+        open={openPackageDialog}
+        handleClose={() => {
+          setOpenPackageDialog(false);
+          setEditMode(false);
+          setEditRow(null);
+        }}
+        onSuccess={() => {
+          setOpenPackageDialog(false);
+          setEditMode(false);
+          setEditRow(null);
+          fetchAllPackage();
+        }}
+        editMode={editMode}
+        rowData={editRow}
+      />
+      <PackageEntityDialog
+        open={isViewDialog}
+        handleClose={handleCloseViewDialog}
+        viewMode={true}
+        rowData={viewRow}
+      />
+      <Alert
+        open={alertOpen}
+        title="Delete Service"
+        description="Are you sure you want to delete this service? This action cannot be undone."
+        onClose={() => setAlertOpen(false)}
+        handleConfirm={handleConfirmDelete}
+        loading={deleting}
+        disableCancel={deleting}
+      />
     </Box>
   );
 };
-
-export default Packages; 

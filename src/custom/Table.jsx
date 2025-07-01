@@ -2,7 +2,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { Box, Card, CardContent, LinearProgress, useTheme, useMediaQuery, Typography } from "@mui/material";
 import { tokens } from "../theme";
 
-const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRowsMessage = "No data to show" }) => {
+const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRowsMessage = "No data to show", onSelectionModelChange, selectionModel }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isMobile = useMediaQuery("(max-width: 768px)");
@@ -115,6 +115,11 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
                                 height: { xs: "60vh", sm: "70vh", md: "75vh" },
                                 width: "100%"
                             }}
+                            onRowSelectionModelChange={(model) => {
+                              console.log('DataGrid selection changed:', model);
+                              if (onSelectionModelChange) onSelectionModelChange(model);
+                            }}
+                            rowSelectionModel={selectionModel}
                         />
                     </Box>
                 )}

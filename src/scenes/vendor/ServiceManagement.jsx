@@ -47,7 +47,7 @@ export default function ServiceManagement() {
       });
       if (response?.data?.status === 200 && response?.data?.success) {
         const formattedData = response?.data?.data?.map((item, index) => ({
-          id: index, 
+          id: item.subService?._id, 
           serviceName: item.service?.name || 'N/A',
           subServiceName: item.subService?.name || 'N/A',
           price: item.price ?? 'N/A',
@@ -88,9 +88,10 @@ export default function ServiceManagement() {
   }, [allServices, searchText]);
 
   const handleToggleStatus = async (id) => {
+    console.log("Toggling status for ID:", id);
     setTogglingIds((prev) => ({ ...prev, [id]: true }));
     try {
-      const response = await axios.patch(`${API_BASE_URL}/service/admin/toggle/${id}`, {}, {
+      const response = await axios.patch(`${API_BASE_URL}/stylist/toggle/${id}`, {}, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",

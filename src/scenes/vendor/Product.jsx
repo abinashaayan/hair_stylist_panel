@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Header } from "../../components";
-import { SearchOutlined, PersonAdd } from "@mui/icons-material";
+import { SearchOutlined, PersonAdd, Delete as DeleteIcon } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
@@ -33,7 +33,10 @@ export default function Product() {
   const [deleting, setDeleting] = useState(false);
   const [openProductDialog, setOpenProductDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [dialogMode, setDialogMode] = useState('create'); 
+  const [dialogMode, setDialogMode] = useState('create');
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [multiDeleteOpen, setMultiDeleteOpen] = useState(false);
+  const [multiDeleting, setMultiDeleting] = useState(false);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -85,17 +88,23 @@ export default function Product() {
     }
   }, [authToken]);
 
+  console.log(selectedRows, 'selectedRows')
   useEffect(() => {
-    if (searchText === "") {
-      setFilteredUsers(allServices);
-    } else {
-      setFilteredUsers(
-        allServices.filter((service) =>
-          service.name.toLowerCase().includes(searchText)
-        )
-      );
+    const filteredIds = filteredUsers.map((row) => row.id);
+    const stillVisible = selectedRows.filter((id) => filteredIds.includes(id));
+    if (stillVisible.length !== selectedRows.length) {
+      setSelectedRows(stillVisible);
     }
-  }, [allServices, searchText]);
+    // if (searchText === "") {
+    //   setFilteredUsers(allServices);
+    // } else {
+    //   setFilteredUsers(
+    //     allServices.filter((service) =>
+    //       service.name.toLowerCase().includes(searchText)
+    //     )
+    //   );
+    // }
+  }, [filteredUsers]);
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
@@ -156,6 +165,44 @@ export default function Product() {
     setSelectedProduct(null);
   };
 
+  const handleSelectionModelChange = (ids) => {
+    console.log(ids, 'rresponse ids');
+    const selected = Array.isArray(ids) ? ids : Array.from(ids || []);
+    setSelectedRows(selected);
+    console.log('Selected Rows:', selected);
+  };
+
+  const handleMultiDelete = () => {
+    setMultiDeleteOpen(true);
+  };
+
+  const handleConfirmMultiDelete = async () => {
+    if (!selectedRows.length) return;
+    setMultiDeleting(true);
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/product/delete`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        data: { productsIds: selectedRows },
+      });
+      if (response?.data?.success) {
+        showSuccessToast(response?.data?.message || "Products deleted successfully");
+        setAllServices((prev) => prev.filter((product) => !selectedRows.includes(product.id)));
+        setFilteredUsers((prev) => prev.filter((product) => !selectedRows.includes(product.id)));
+        setSelectedRows([]);
+      } else {
+        showErrorToast(response?.data?.message || "Failed to delete products");
+      }
+    } catch (error) {
+      showErrorToast(error?.response?.data?.message || "An error occurred while deleting");
+    } finally {
+      setMultiDeleting(false);
+      setMultiDeleteOpen(false);
+    }
+  };
+
   const columns = ProductTableColumns({
     handleDelete,
     handleView,
@@ -173,7 +220,25 @@ export default function Product() {
               <SearchOutlined />
             </IconButton>
           </Box>
-          <CustomIconButton icon={<PersonAdd />} text="Add New Product" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenProduct} />
+          <Box display="flex" alignItems="center" gap={2}>
+            {selectedRows.length >= 1 && (
+              <CustomIconButton
+                icon={<DeleteIcon />}
+                text={selectedRows.length === 1 ? "Delete" : `Delete (${selectedRows.length})`}
+                color="#d32f2f"
+                variant="outlined"
+                onClick={() => {
+                  if (selectedRows.length === 1) {
+                    handleDelete(selectedRows[0]);
+                  } else {
+                    handleMultiDelete();
+                  }
+                }}
+                fontWeight="bold"
+              />
+            )}
+            <CustomIconButton icon={<PersonAdd />} text="Add New Product" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenProduct} />
+          </Box>
         </Box>
 
         <CustomTable
@@ -182,6 +247,8 @@ export default function Product() {
           loading={loading}
           checkboxSelection
           noRowsMessage="No products found"
+          onSelectionModelChange={handleSelectionModelChange}
+          selectionModel={selectedRows}
         />
 
         <ProductEntityDialog
@@ -201,6 +268,14 @@ export default function Product() {
           loading={deleting}
           title="Delete Product"
           description="Are you sure you want to delete this product? This action cannot be undone."
+        />
+        <Alert
+          open={multiDeleteOpen}
+          onClose={() => setMultiDeleteOpen(false)}
+          onConfirm={handleConfirmMultiDelete}
+          loading={multiDeleting}
+          title="Delete Products"
+          description={`Are you sure you want to delete these ${selectedRows.length} products? This action cannot be undone.`}
         />
       </Container>
     </Box>
