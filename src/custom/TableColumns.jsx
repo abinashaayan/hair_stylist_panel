@@ -138,7 +138,7 @@ export const ProductTableColumns = ({ handleDelete, handleView, handleEdit }) =>
         renderCell: (params) => {
             const photoUrl = params.row.photos && params.row.photos.length > 0 ? params.row.photos[0] : null;
             if (!photoUrl) {
-                return <span>N/A</span>;
+                return <span><img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} /></span>;
             }
             return (
                 <ImageWithLoader src={photoUrl} alt={params.row.name} />
@@ -318,6 +318,20 @@ export const serviceManagementTableColumns = ({ handleToggleStatus, handleDelete
 ];
 
 export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) => [
+    {
+        field: "photo",
+        headerName: "Image",
+        width: 80,
+        renderCell: (params) => {
+            const photoUrl = params.row.photos && params.row.photos.length > 0 ? params.row.photos[0] : null;
+            if (!photoUrl) {
+                return <span><img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} /></span>;
+            }
+            return (
+                <ImageWithLoader src={photoUrl} alt={params.row.name} />
+            );
+        },
+    },
     { field: "title", headerName: "Title", flex: 1 },
     { field: "about", headerName: "About", flex: 2 },
     { field: "serviceName", headerName: "Service", flex: 1, renderCell: (params) => params.row.service?.name || params.row.serviceName || 'N/A' },

@@ -46,7 +46,6 @@ export default function Packages() {
           Authorization: `Bearer ${authToken}`,
         },
       });
-      console.log("Response from fetchAllPackage:", response?.data);
       if (response?.data?.status === 200 && response?.data?.success) {
         const fullData = (response?.data?.data || []).map((item) => ({ ...item, id: item._id }));
         setAllServices(fullData);
@@ -95,6 +94,7 @@ export default function Packages() {
   };
 
   const handleDelete = (id) => {
+     console.log("Delete ID:", id);
     setDeleteId(id);
     setAlertOpen(true);
   };
@@ -109,6 +109,7 @@ export default function Packages() {
           "Content-Type": "application/json",
         },
       });
+          console.log("Delete ID:", response);
       if (response?.data?.status === 200) {
         showSuccessToast(response?.data?.message || "Package deleted successfully");
         setAllServices((prevServices) => prevServices.filter((service) => service.id !== deleteId));
@@ -127,11 +128,7 @@ export default function Packages() {
   };
 
   const handleEdit = (row) => {
-    setEditRow({
-      ...row,
-      service: { _id: row.serviceId, name: row.serviceName },
-      subService: { _id: row.subServiceId, name: row.subServiceName }
-    });
+    setEditRow(row);
     setEditMode(true);
     setOpenPackageDialog(true);
   };
@@ -161,20 +158,7 @@ export default function Packages() {
           </Box>
           <CustomIconButton icon={<PersonAdd />} text="Add New Package" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
         </Box>
-        <CustomTable columns={columns}
-          rows={filteredUsers.map(pkg => ({
-            id: pkg._id,
-            title: pkg.title || pkg.name || 'N/A',
-            about: pkg.about || 'N/A',
-            serviceName: pkg.service?.name || 'N/A',
-            serviceId: pkg.service?._id || '',
-            subServiceName: pkg.subService?.name || 'N/A',
-            subServiceId: pkg.subService?._id || '',
-            date: pkg.date ? new Date(pkg.date).toLocaleDateString() : 'N/A',
-            duration: pkg.duration ?? 'N/A',
-            price: pkg.price ?? 'N/A',
-            createdAt: pkg.createdAt ? new Date(pkg.createdAt).toLocaleDateString() : 'N/A',
-          }))} loading={loading} />
+        <CustomTable columns={columns} rows={filteredUsers} loading={loading} noRowsMessage="No products found" />
       </Container>
 
       <PackageEntityDialog
@@ -204,7 +188,7 @@ export default function Packages() {
         title="Delete Service"
         description="Are you sure you want to delete this service? This action cannot be undone."
         onClose={() => setAlertOpen(false)}
-        handleConfirm={handleConfirmDelete}
+        onConfirm={handleConfirmDelete}
         loading={deleting}
         disableCancel={deleting}
       />

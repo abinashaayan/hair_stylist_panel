@@ -43,7 +43,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                     title: rowData.title || rowData.name || '',
                     about: rowData.about || '',
                     serviceId: rowData.service?._id || '',
-                    subServiceId: rowData.subService?._id || '',
+                    subServiceId: rowData.subService?._id || '', // keep this
                     date: rowData.date ? (typeof rowData.date === 'string' ? rowData.date.slice(0, 10) : new Date(rowData.date).toISOString().slice(0, 10)) : '',
                     duration: rowData.duration || '',
                     price: rowData.price || ''
@@ -61,6 +61,8 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
             }
         }
     }, [open, viewMode, editMode, rowData, allServicesAndSubServicesName]);
+
+
     useEffect(() => {
         if (
             open &&
@@ -87,29 +89,32 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                     Authorization: `Bearer ${token}`,
                 },
             });
+            console.log("Response from fetchAllServicesAndSubServicesName:", response?.data);
             if (response?.data?.status === 200) {
                 const grouped = {};
                 (response.data.data || []).forEach(item => {
                     const service = item.service;
                     const subService = item.subService;
-                    if (!grouped[service.name]) {
-                        grouped[service.name] = {
+                    if (!grouped[service._id]) { // ✅ Group by service._id
+                        grouped[service._id] = {
                             ...service,
                             subServices: [],
                         };
                     }
-                    grouped[service.name].subServices.push(subService);
+                    grouped[service._id].subServices.push(subService);
                 });
                 setAllServicesAndSubServicesName(Object.values(grouped));
             } else {
                 setAllServicesAndSubServicesName([]);
             }
         } catch (err) {
+            console.error("Error fetching services:", err);
             setAllServicesAndSubServicesName([]);
         } finally {
             setServicesLoading(false);
         }
     };
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -206,9 +211,15 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                     </Box>
                 ) : (
                     <>
-                        <Input placeholder="Title" name="title" value={fields.title} onChange={handleChange} fullWidth margin="normal" />
-                        <Input placeholder="About" name="about" value={fields.about} onChange={handleChange} fullWidth margin="normal" />
-                        <Box mt={2} mb={2}>
+                        <Box mb={1}>
+                            <label style={{ fontWeight: 500 }}>Title</label>
+                            <Input placeholder="Title" name="title" value={fields.title} onChange={handleChange} fullWidth margin="normal" />
+                        </Box>
+                        <Box mb={1}>
+                            <label style={{ fontWeight: 500 }}>About</label>
+                            <Input placeholder="About" name="about" value={fields.about} onChange={handleChange} fullWidth margin="normal" />
+                        </Box>
+                        <Box mb={1}>
                             <label style={{ fontWeight: 500 }}>Service Name</label>
                             <select
                                 name="serviceId"
@@ -225,7 +236,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                                 ))}
                             </select>
                         </Box>
-                        <Box mt={2} mb={2}>
+                        <Box mb={1}>
                             <label style={{ fontWeight: 500 }}>Sub Service Name</label>
                             <select
                                 name="subServiceId"
@@ -234,21 +245,49 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                                 style={{ width: '100%', padding: '8px', marginTop: 4 }}
                                 disabled={servicesLoading || !fields.serviceId}
                             >
-                                <option value="">{
-                                    servicesLoading ? 'Loading sub-services...' :
-                                        !fields.serviceId ? 'Select a service first' :
-                                            'Select Sub Service'
-                                }</option>
+                                <option value="">
+                                    {servicesLoading
+                                        ? 'Loading sub-services...'
+                                        : !fields.serviceId
+                                            ? 'Select a service first'
+                                            : 'Select Sub Service'}
+                                </option>
+                                {(() => {
+                                    const currentService = allServicesAndSubServicesName.find(s => s._id === fields.serviceId);
+                                    const fetchedSubs = currentService?.subServices || [];
+                                    const subServiceExists = fetchedSubs.some(s => s._id === fields.subServiceId);
+
+                                    return !subServiceExists && editMode && rowData?.subService?._id ? (
+                                        <option key={rowData.subService._id} value={rowData.subService._id}>
+                                            {rowData.subService.name} (no longer available)
+                                        </option>
+                                    ) : null;
+                                })()}
                                 {(allServicesAndSubServicesName.find(s => s._id === fields.serviceId)?.subServices || []).map(sub => (
                                     <option key={sub._id} value={sub._id}>{sub.name}</option>
                                 ))}
                             </select>
                         </Box>
-                        <Input placeholder="Date" name="date" type="date" value={fields.date} onChange={handleChange} fullWidth margin="normal" />
-                        <Input placeholder="Duration (min)" name="duration" type="number" value={fields.duration} onChange={handleChange} fullWidth margin="normal" />
-                        <Input placeholder="Price" name="price" type="number" value={fields.price} onChange={handleChange} fullWidth margin="normal" />
-                        <Box mt={2} mb={2}>
-                            <input type="file" accept="image/*" onChange={handleFileChange} />
+                        <Box mb={1}>
+                            <label style={{ fontWeight: 500 }}>Date</label>
+                            <Input placeholder="Date" name="date" type="date" value={fields.date} onChange={handleChange} fullWidth margin="normal" />
+                        </Box>
+
+                        <Box mb={1}>
+                            <label style={{ fontWeight: 500 }}>Duration (min)</label>
+                            <Input placeholder="Duration (min)" name="duration" type="number" value={fields.duration} onChange={handleChange} fullWidth margin="normal" />
+                        </Box>
+
+                        <Box mb={1}>
+                            <label style={{ fontWeight: 500 }}>Price</label>
+                            <Input placeholder="Price" name="price" type="number" value={fields.price} onChange={handleChange} fullWidth margin="normal" />
+                        </Box>
+
+                        <Box mb={1}>
+                            <label style={{ fontWeight: 500 }}>Image</label>
+                            <Box mt={2} mb={2}>
+                                <input type="file" accept="image/*" onChange={handleFileChange} />
+                            </Box>
                         </Box>
                     </>
                 )}

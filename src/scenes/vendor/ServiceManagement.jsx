@@ -199,7 +199,7 @@ export default function ServiceManagement() {
         title="Delete Service"
         description="Are you sure you want to delete this service? This action cannot be undone."
         onClose={() => setAlertOpen(false)}
-        handleConfirm={handleConfirmDelete}
+        onConfirm={handleConfirmDelete}
         loading={deleting}
         disableCancel={deleting}
       />
