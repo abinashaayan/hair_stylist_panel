@@ -1,32 +1,80 @@
-import { Trash2, Eye, Pencil } from "lucide-react";
+import { Trash2, Eye, Pencil, TransgenderIcon } from "lucide-react";
 import { CustomIconButton } from "./Button";
 import { Box, Chip, CircularProgress, Switch } from "@mui/material";
 import ImageWithLoader from "./ImageWithLoader";
+import PersonIcon from "@mui/icons-material/Person";
 
 export const userTableColumns = ({ handleDelete, handleView }) => [
     { field: "fullName", headerName: "Full Name", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
-    { field: "role", headerName: "Role", flex: 0.6 },
-    { field: "city", headerName: "City", flex: 0.6 },
-    { field: "gender", headerName: "Gender", flex: 0.6 },
-    { field: "createdAt", headerName: "Created", flex: 0.8 },
     {
-        field: "view",
-        headerName: "View",
-        flex: 0.3,
-        sortable: false,
+        field: "role",
+        headerName: "Role",
+        flex: 0.6,
         renderCell: (params) => (
-            <CustomIconButton icon={<Eye />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+            <Chip
+                icon={<PersonIcon sx={{ color: "white" }} />}
+                label={params.row.role || "N/A"}
+                size="small"
+                variant="filled"
+                sx={{
+                    bgcolor: 'primary.main', 
+                    color: "white",
+                    fontWeight: "bold",
+                    textTransform: "capitalize",
+                }}
+            />
         ),
     },
+    { field: "city", headerName: "City", flex: 0.6 },
     {
-        field: "delete",
-        headerName: "Delete",
-        flex: 0.3,
+        field: "gender",
+        headerName: "Gender",
+        flex: 0.6,
+        renderCell: (params) => {
+            const gender = params.row.gender?.toLowerCase();
+            let chipColor = "default";
+            if (gender === "male") chipColor = "info.main"; // 🔵
+            else if (gender === "female") chipColor = "pink"; // 🎀
+            else if (gender === "other") chipColor = "warning.main"; // 🟠
+            return (
+                <Chip
+                    icon={<TransgenderIcon sx={{ color: "white" }} />}
+                    label={params.row.gender || "N/A"}
+                    size="small"
+                    variant="filled"
+                    sx={{
+                        bgcolor: chipColor,
+                        color: "white",
+                        fontWeight: "bold",
+                        textTransform: "capitalize",
+                    }}
+                />
+            );
+        },
+    },
+    { field: "createdAt", headerName: "Created", flex: 0.8 },
+    {
+        field: "action",
+        headerName: "Action",
+        width: 180,
         sortable: false,
         renderCell: (params) => (
-            <CustomIconButton icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+            <Box sx={{ display: "flex", gap: 0.5 }}>
+                <CustomIconButton
+                    size="small"
+                    icon={<Eye size={16} />}
+                    color="rgb(77 141 225)"
+                    onClick={() => handleView(params.row)}
+                />
+                <CustomIconButton
+                    size="small"
+                    icon={<Trash2 size={16} />}
+                    color="hsl(0 84.2% 60.2%)"
+                    onClick={() => handleDelete(params.row.id)}
+                />
+            </Box>
         ),
     },
 ];
@@ -57,27 +105,16 @@ export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, 
         },
     },
     {
-        field: "view",
-        headerName: "View",
-        width: 100,
+        field: "action",
+        headerName: "Action",
+        width: 180,
+        sortable: false,
         renderCell: (params) => (
-            <CustomIconButton icon={<Eye />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
-        ),
-    },
-    {
-        field: "edit",
-        headerName: "Edit",
-        width: 100,
-        renderCell: (params) => (
-            <CustomIconButton icon={<Pencil />} color="green" onClick={() => handleEdit(params.row)} />
-        ),
-    },
-    {
-        field: "delete",
-        headerName: "Delete",
-        width: 100,
-        renderCell: (params) => (
-            <CustomIconButton icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} />
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+            </Box>
         ),
     },
 ];
@@ -111,21 +148,15 @@ export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleVi
     },
     { field: "createdAt", headerName: "Created At", flex: 0.8 },
     {
-        field: "view",
-        headerName: "View",
-        flex: 0.3,
+        field: "action",
+        headerName: "Action",
+        width: 180,
         sortable: false,
         renderCell: (params) => (
-            <CustomIconButton icon={<Eye />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
-        ),
-    },
-    {
-        field: "delete",
-        headerName: "Delete",
-        flex: 0.3,
-        sortable: false,
-        renderCell: (params) => (
-            <CustomIconButton icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+            </Box>
         ),
     },
 ];
@@ -236,22 +267,21 @@ export const serviceManagementTableColumns = ({ handleToggleStatus, handleDelete
         headerName: "Price",
         flex: 0.7,
         renderCell: (params) => {
-            // console.log('Switch render params.row:', params.row);
-            const isLoading = togglingIds?.[params.row.id];
+            const duration = Number(params.row.price || 0);
+            let chipColor = 'success.main';
+            if (duration > 120) chipColor = 'error.main';
+            else if (duration > 60) chipColor = 'warning.main';
             return (
-                <Box display="flex" alignItems="center" justifyContent="center" width="100%">
-                    {isLoading ? (
-                        <CircularProgress size={20} color="success" />
-                    ) : (
-                        <Switch
-                            checked={params.row.approved}
-                            onChange={() => handleToggleStatus(params.row.id)}
-                            onClick={(e) => e.stopPropagation()}
-                            color="success"
-                            size="medium"
-                        />
-                    )}
-                </Box>
+                <Chip
+                    label={`$ ${duration}`}
+                    size="small"
+                    variant="filled"
+                    sx={{
+                        bgcolor: chipColor,
+                        color: 'white',
+                        fontWeight: 'bold',
+                    }}
+                />
             );
         },
     },
@@ -262,9 +292,8 @@ export const serviceManagementTableColumns = ({ handleToggleStatus, handleDelete
         renderCell: (params) => {
             const duration = Number(params.row.duration || 0);
             let chipColor = 'success.main';
-            if (duration > 120) chipColor = 'error.main'; 
+            if (duration > 120) chipColor = 'error.main';
             else if (duration > 60) chipColor = 'warning.main';
-
             return (
                 <Chip
                     label={`${duration} min`}
@@ -284,7 +313,6 @@ export const serviceManagementTableColumns = ({ handleToggleStatus, handleDelete
         headerName: "Status",
         width: 120,
         renderCell: (params) => {
-            // console.log('Switch render params.row:', params.row);
             const isLoading = togglingIds?.[params.row.id];
             return (
                 <Box display="flex" alignItems="center" justifyContent="center" width="100%">
@@ -311,7 +339,7 @@ export const serviceManagementTableColumns = ({ handleToggleStatus, handleDelete
         renderCell: (params) => (
             <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
-                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+                {/* <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} /> */}
             </Box>
         ),
     },

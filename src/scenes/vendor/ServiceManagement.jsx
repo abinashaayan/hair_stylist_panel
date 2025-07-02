@@ -167,7 +167,7 @@ export default function ServiceManagement() {
   return (
     <Box className="p-1">
       <Container maxWidth={false}>
-        <Header title="Create Service" />
+        <Header title="Create Sub Service" />
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
           <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' }, }}>
             <InputBase placeholder="Search Service" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
@@ -175,7 +175,7 @@ export default function ServiceManagement() {
               <SearchOutlined />
             </IconButton>
           </Box>
-          <CustomIconButton icon={<PersonAdd />} text="Add New Service Management" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
+          <CustomIconButton icon={<PersonAdd />} text="Add New SUb Service" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
         </Box>
         <CustomTable columns={columns} rows={filteredUsers || []} loading={loading} checkboxSelection />
       </Container>

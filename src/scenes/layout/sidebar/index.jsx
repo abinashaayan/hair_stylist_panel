@@ -60,12 +60,12 @@ const SideBar = () => {
       { title: "Products", path: "/product", icon: <PersonOutlined /> },
       { title: "Calendar", path: "/calendar", icon: <CalendarMonthOutlined /> },
       { title: "Service Management", path: "/service-management", icon: <AddCircleOutline /> },
-      { title: "History", path: "/history", icon: <HistoryOutlined /> },
+      // { title: "History", path: "/history", icon: <HistoryOutlined /> },
       { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
-      { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
-      { title: "Create Appointment", path: "/create-appointment", icon: <AddCircleOutline /> },
-      { title: "Stylist Profile", path: "/stylist-profile", icon: <PersonOutlined /> },
-      { title: "Change Password", path: "/change-password", icon: <PersonOutlined /> },
+      // { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
+      // { title: "Create Appointment", path: "/create-appointment", icon: <AddCircleOutline /> },
+      // { title: "Stylist Profile", path: "/stylist-profile", icon: <PersonOutlined /> },
+      // { title: "Change Password", path: "/change-password", icon: <PersonOutlined /> },
     ],
   };
 

@@ -229,10 +229,7 @@ const Navbar = () => {
             boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
           },
         }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
+        transformOrigin={{ vertical: "top", horizontal: "right", }}
       >
         {panelType === "vendor" && [
           <Box key="profile-box" sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2, pt: 3 }}>
@@ -274,18 +271,6 @@ const Navbar = () => {
               </MenuItem>
             </Link>
           )}
-          {/* <MenuItem onClick={handleClose} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
-            <Settings fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
-            Settings
-          </MenuItem>
-          <MenuItem onClick={handleClose} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
-            <Settings fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
-            Explore More
-          </MenuItem>
-          <MenuItem onClick={handleClose} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
-            <Notifications fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
-            Notifications
-          </MenuItem> */}
           <MenuItem onClick={handleLogout} sx={{ fontSize: 15, py: 1.2, borderRadius: 2 }}>
             <Logout fontSize="small" sx={{ mr: 1, color: "#6D295A" }} />
             Log Out

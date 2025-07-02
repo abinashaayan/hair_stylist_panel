@@ -131,18 +131,18 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
         try {
             const token = Cookies.get('token');
             if (editMode && rowData && rowData._id) {
-                const patchData = {
-                    title: fields.title,
-                    about: fields.about,
-                    serviceId: fields.serviceId,
-                    subServiceId: fields.subServiceId,
-                    date: fields.date,
-                    duration: fields.duration,
-                    price: fields.price,
-                };
-                await axios.patch(`${API_BASE_URL}/package/update/${rowData._id}`, patchData, {
+                const formData = new FormData();
+                formData.append('title', fields.title);
+                formData.append('about', fields.about);
+                formData.append('serviceId', fields.serviceId);
+                formData.append('subServiceId', fields.subServiceId);
+                formData.append('date', fields.date);
+                formData.append('duration', fields.duration);
+                formData.append('price', fields.price);
+                if (file) formData.append('files', file); 
+                await axios.patch(`${API_BASE_URL}/package/update/${rowData._id}`, formData, {
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'multipart/form-data',
                         Authorization: `Bearer ${token}`,
                     },
                 });
@@ -171,6 +171,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
             setError(err.response?.data?.message || 'Failed to add package');
         }
     };
+
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
