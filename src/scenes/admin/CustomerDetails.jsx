@@ -9,6 +9,8 @@ import { API_BASE_URL } from "../../utils/apiConfig";
 import { tokens } from "../../theme";
 import Cookies from "js-cookie";
 import ShowDetailsDialog from "../../components/ShowDetailsDialog";
+import Alert from "../../custom/Alert";
+import { showSuccessToast, showErrorToast } from "../../Toast";
 
 export default function CustomerDetails() {
     const [allUsers, setAllUsers] = useState([]);
@@ -18,6 +20,10 @@ export default function CustomerDetails() {
     const [searchText, setSearchText] = useState("");
     const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
     const [selectedUserDetails, setSelectedUserDetails] = useState(null);
+    const [deleteId, setDeleteId] = useState(null);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const authToken = Cookies.get("token");
@@ -71,7 +77,46 @@ export default function CustomerDetails() {
     };
 
     const handleDelete = (id) => {
-        setFilteredUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+        setDeleteId(id);
+        setAlertOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteId) return;
+        setDeleting(true);
+        try {
+            const response = await axios.delete(`${API_BASE_URL}/user/admin/delete/${deleteId}`, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response?.data?.status === 200) {
+                showSuccessToast(response?.data?.message || "Service deleted successfully");
+                const updatedAllUsers = allUsers.filter((user) => user.id !== deleteId);
+                const updatedOriginalUsers = originalUsers.filter((user) => user._id !== deleteId);
+                setAllUsers(updatedAllUsers);
+                setOriginalUsers(updatedOriginalUsers);
+                if (searchText) {
+                    const filtered = updatedAllUsers.filter(user =>
+                        user.fullName.toLowerCase().includes(searchText) ||
+                        user.email.toLowerCase().includes(searchText) ||
+                        user.mobile.toLowerCase().includes(searchText)
+                    );
+                    setFilteredUsers(filtered);
+                } else {
+                    setFilteredUsers(updatedAllUsers);
+                }
+            } else {
+                showErrorToast("Failed to delete service.");
+            }
+        } catch (error) {
+            showErrorToast(error?.response?.data?.message || "An error occurred while deleting.");
+        } finally {
+            setDeleting(false);
+            setAlertOpen(false);
+            setDeleteId(null);
+        }
     };
 
     const handleView = (user) => {
@@ -100,6 +145,15 @@ export default function CustomerDetails() {
                 open={isDetailsDialogOpen}
                 onClose={() => setIsDetailsDialogOpen(false)}
                 data={selectedUserDetails}
+            />
+            <Alert
+                open={alertOpen}
+                title="Delete Service"
+                description="Are you sure you want to delete this service? This action cannot be undone."
+                onClose={deleting ? undefined : () => setAlertOpen(false)}
+                onConfirm={handleConfirmDelete}
+                loading={deleting}
+                disableCancel={deleting}
             />
         </Box>
     );
