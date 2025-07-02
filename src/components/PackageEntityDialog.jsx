@@ -95,7 +95,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                 (response.data.data || []).forEach(item => {
                     const service = item.service;
                     const subService = item.subService;
-                    if (!grouped[service._id]) { // ✅ Group by service._id
+                    if (!grouped[service._id]) { 
                         grouped[service._id] = {
                             ...service,
                             subServices: [],
