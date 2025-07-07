@@ -45,7 +45,7 @@ export default function Product() {
   const fetchAllProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/product/stylist/get-all`, {
+      const response = await axios.get(`${API_BASE_URL}/product/admin/total-products`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
@@ -60,7 +60,7 @@ export default function Product() {
           price: typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : "N/A",
           stockQuantity: product.stockQuantity ?? 0,
           inStock: product.inStock ?? false,
-          manufacturer: product.manufacturer || {},
+          manufacturer: product.manufacturer?.name || {},
           photos: Array.isArray(product.photos) ? product.photos : [],
           goodToKnow: (Array.isArray(product.goodToKnow) ? product.goodToKnow.join(", ") : product.goodToKnow) || "N/A",
           approved: true,
@@ -69,6 +69,7 @@ export default function Product() {
             ? new Date(product.createdAt).toLocaleDateString()
             : "N/A",
         }));
+        console.log("Formatted Data:", formattedData);
         setAllServices(formattedData);
         setFilteredUsers(formattedData);
       } else {
@@ -88,7 +89,6 @@ export default function Product() {
     }
   }, [authToken]);
 
-  console.log(selectedRows, 'selectedRows')
   useEffect(() => {
     const filteredIds = filteredUsers.map((row) => row.id);
     const stillVisible = selectedRows.filter((id) => filteredIds.includes(id));

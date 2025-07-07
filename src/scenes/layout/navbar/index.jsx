@@ -110,7 +110,6 @@ const Navbar = () => {
             <MenuOutlined sx={{ fontSize: { xs: "20px", sm: "24px" } }} />
           </IconButton>
         )}
-
         {panelType === "vendor" && (
           <Box display="flex" alignItems="center" gap={{ xs: "5px", sm: "10px" }}>
             <Typography
@@ -124,63 +123,18 @@ const Navbar = () => {
             </Typography>
           </Box>
         )}
-
-        {/* {panelType === "vendor" && !isMobile && (
-          <Box display="flex" gap={{ xs: "10px", sm: "15px" }} ml={{ xs: "10px", sm: "20px" }}>
-            <Typography
-              variant="body2"
-              sx={{
-                cursor: "pointer",
-                color: "#FFFFFF",
-                "&:hover": { textDecoration: "underline" },
-                fontSize: { xs: "12px", sm: "14px" }
-              }}
-            >
-              Edit Salon Page
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                cursor: "pointer",
-                color: "#FFFFFF",
-                "&:hover": { textDecoration: "underline" },
-                fontSize: { xs: "12px", sm: "14px" }
-              }}
-            >
-              Headcase Salon
-            </Typography>
-          </Box>
-        )} */}
       </FlexBetween>
-
       <FlexBetween gap={{ xs: "0.5rem", sm: "2rem" }}>
         {panelType === "vendor" && !isMobile && (
           <Box display="flex" alignItems="center" gap="0.5rem">
-            <AccessTime sx={{
-              color: "#FFFFFF",
-              fontSize: { xs: "1rem", sm: "1.2rem" }
-            }} />
-            <Typography
-              variant="body2"
-              sx={{
-                color: "#FFFFFF",
-                fontSize: { xs: "0.7rem", sm: "0.9rem" },
-                whiteSpace: "nowrap",
-                display: { xs: "none", sm: "block" }
-              }}
-            >
+            <AccessTime sx={{ color: "#FFFFFF", fontSize: { xs: "1rem", sm: "1.2rem" } }} />
+            <Typography variant="body2" sx={{ color: "#FFFFFF", fontSize: { xs: "0.7rem", sm: "0.9rem" }, whiteSpace: "nowrap", display: { xs: "none", sm: "block" } }}>
               {formatDateTime(currentDateTime)}
             </Typography>
           </Box>
         )}
 
-        <IconButton
-          onClick={colorMode.toggleColorMode}
-          sx={{
-            color: "#FFFFFF",
-            padding: { xs: "8px", sm: "12px" }
-          }}
-        >
+        <IconButton onClick={colorMode.toggleColorMode} sx={{ color: "#FFFFFF", padding: { xs: "8px", sm: "12px" } }}>
           {theme.palette.mode === "dark" ? (
             <LightModeOutlined sx={{ fontSize: { xs: "18px", sm: "20px" } }} />
           ) : (
@@ -189,23 +143,11 @@ const Navbar = () => {
         </IconButton>
 
         <Tooltip title="Profile">
-          <IconButton
-            onClick={handleClick}
-            sx={{
-              color: "#FFFFFF",
-              padding: { xs: "8px", sm: "12px" }
-            }}
-          >
+          <IconButton onClick={handleClick} sx={{ color: "#FFFFFF", padding: { xs: "8px", sm: "12px" } }}>
             {panelType === "vendor" ? (
               <PersonOutlined sx={{ fontSize: { xs: "20px", sm: "25px" } }} />
             ) : (
-              <Avatar
-                sx={{
-                  width: { xs: 25, sm: 32 },
-                  height: { xs: 25, sm: 32 },
-                  backgroundColor: "hsl(0 84.2% 60.2%)"
-                }}
-              />
+              <Avatar sx={{ width: { xs: 25, sm: 32 }, height: { xs: 25, sm: 32 }, backgroundColor: "hsl(0 84.2% 60.2%)" }} />
             )}
           </IconButton>
         </Tooltip>
@@ -233,10 +175,7 @@ const Navbar = () => {
       >
         {panelType === "vendor" && [
           <Box key="profile-box" sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2, pt: 3 }}>
-            <Avatar
-              src={profile?.profilePicture || undefined}
-              sx={{ width: 70, height: 70, mb: 1, border: "3px solid #6D295A" }}
-            >
+            <Avatar src={profile?.profilePicture || undefined} sx={{ width: 70, height: 70, mb: 1, border: "3px solid #6D295A" }}>
               {profile?.name ? profile.name[0] : "S"}
             </Avatar>
             <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "#222", mb: 0.2 }}>

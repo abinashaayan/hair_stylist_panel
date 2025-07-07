@@ -11,7 +11,7 @@ function App({ panelType }) {
   const [theme, colorMode] = useMode();
   const [toggled, setToggled] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  
+
   const values = useMemo(() => ({
     toggled,
     setToggled,
@@ -23,39 +23,11 @@ function App({ panelType }) {
         <CssBaseline />
         <ToggledContext.Provider value={values}>
           <ToastNotification />
-          <Box sx={{ 
-            display: "flex", 
-            height: "100vh", 
-            width: "100vw", 
-            overflowX: "hidden",
-            position: "relative"
-          }}>
+          <Box sx={{ display: "flex", height: "100vh", width: "100vw", overflowX: "hidden", position: "relative" }}>
             <SideBar />
-            <Box 
-              data-main-content
-              sx={{ 
-                flexGrow: 1, 
-                display: "flex", 
-                flexDirection: "column",
-                minWidth: 0, // Prevent flex item from overflowing
-                position: "relative",
-                marginLeft: { xs: 0, md: "250px" }, // Responsive margin
-                transition: "margin-left 300ms ease",
-                width: { xs: "100%", md: "calc(100% - 250px)" }, // Responsive width
-                "@media (max-width: 768px)": {
-                  marginLeft: 0,
-                  width: "100%"
-                }
-              }}
-            >
+            <Box data-main-content sx={{ flexGrow: 1, display: "flex", flexDirection: "column", minWidth: 0, position: "relative", marginLeft: { xs: 0, md: "250px" }, transition: "margin-left 300ms ease", width: { xs: "100%", md: "calc(100% - 250px)" }, "@media (max-width: 768px)": { marginLeft: 0, width: "100%" } }}>
               <Navbar />
-              <Box sx={{ 
-                overflowY: "auto", 
-                flex: 1,
-                width: "100%",
-                position: "relative",
-                padding: { xs: "10px", sm: "15px", md: "20px" } // Responsive padding
-              }}>
+              <Box sx={{ overflowY: "auto", flex: 1, width: "100%", position: "relative", padding: { xs: "10px", sm: "15px", md: "20px" } }}>
                 <Outlet />
               </Box>
             </Box>

@@ -24,6 +24,7 @@ import {
   InventoryOutlined,
   AccessTimeOutlined,
   AddCircleOutline,
+  Close,
 } from "@mui/icons-material";
 import Item from "./Item";
 import { ToggledContext } from "../../../App";
@@ -38,6 +39,16 @@ const SideBar = () => {
   const isMobile = useMediaQuery("(max-width:480px)");
 
   // Update the main content margin when sidebar state changes (desktop only)
+  // useEffect(() => {
+  //   if (!isMdDevices) {
+  //     const mainContent = document.querySelector('[data-main-content]');
+  //     if (mainContent) {
+  //       const sidebarWidth = collapsed ? 80 : 250;
+  //       mainContent.style.marginLeft = `${sidebarWidth}px`;
+  //     }
+  //   }
+  // }, [collapsed, isMdDevices]);
+  // Desktop: update marginLeft based on collapsed state
   useEffect(() => {
     if (!isMdDevices) {
       const mainContent = document.querySelector('[data-main-content]');
@@ -48,16 +59,27 @@ const SideBar = () => {
     }
   }, [collapsed, isMdDevices]);
 
+  // Mobile: update marginLeft based on toggled state
+  useEffect(() => {
+    if (isMdDevices) {
+      const mainContent = document.querySelector('[data-main-content]');
+      if (mainContent) {
+        mainContent.style.marginLeft = toggled ? "250px" : "0px";
+      }
+    }
+  }, [toggled, isMdDevices]);
+
+
   const navSections = {
     admin: [
       { title: "Customers", path: "/customers", icon: <PeopleAltOutlined /> },
       { title: "Stylist", path: "/stylist", icon: <PeopleAltOutlined /> },
+      { title: "Products", path: "/product", icon: <PersonOutlined /> },
       { title: "Category", path: "/category", icon: <PeopleAltOutlined /> },
       { title: "Service", path: "/service", icon: <PeopleAltOutlined /> },
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [
-      { title: "Products", path: "/product", icon: <PersonOutlined /> },
       { title: "Calendar", path: "/calendar", icon: <CalendarMonthOutlined /> },
       { title: "Service Management", path: "/service-management", icon: <AddCircleOutline /> },
       // { title: "History", path: "/history", icon: <HistoryOutlined /> },
@@ -74,8 +96,8 @@ const SideBar = () => {
       backgroundColor="transparent"
       rootStyles={{
         position: "fixed",
-        left: 0,
         top: 0,
+        left: 0,
         height: "100vh",
         zIndex: 1000,
         borderRightWidth: "1px",
@@ -84,6 +106,7 @@ const SideBar = () => {
         WebkitTransition: "width, left, right, 300ms",
         transition: "width, left, right, 300ms",
         width: collapsed ? "80px" : "250px",
+        zIndex: 1000,
         minWidth: collapsed ? "80px" : "250px",
         border: 0,
         background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
@@ -99,38 +122,30 @@ const SideBar = () => {
       className="sidebar-container"
     >
       <Menu menuItemStyles={{ button: { ":hover": { background: "transparent" } }, }}>
-        <MenuItem
-          rootStyles={{
-            margin: "10px 0 20px 0",
-            color: "#FFFFFF",
-          }}
-        >
-          <Box sx={{ 
-            display: "flex", 
-            alignItems: "center", 
+        <MenuItem rootStyles={{ margin: "10px 0 20px 0", color: "#FFFFFF", }}>
+          <Box sx={{
+            display: "flex",
+            alignItems: "center",
             justifyContent: "space-between",
-            padding: { xs: "0 10px", sm: "0 15px" }
+            padding: { xs: "0 10px", sm: "0 1px" }
           }}>
             {!collapsed && (
               <Box display="flex" alignItems="center" gap="12px" sx={{ transition: ".3s ease" }}>
-                <img 
-                  alt="avatar" 
-                  src={logo} 
-                  className="mt-3" 
-                  height={isMobile ? "40" : "50"} 
-                  style={{ maxWidth: "100%" }}
-                />
+                <img alt="avatar" src={logo} className="mt-3" height={isMobile ? "40" : "50"} style={{ maxWidth: "100%" }} />
               </Box>
             )}
-            <IconButton 
-              onClick={() => setCollapsed(!collapsed)} 
-              sx={{ 
-                color: "#FFFFFF",
-                padding: { xs: "8px", sm: "12px" }
-              }}
-            >
-              <MenuOutlined sx={{ fontSize: { xs: "18px", sm: "20px" } }} />
-            </IconButton>
+            {isMdDevices && toggled && (
+              <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+                <IconButton onClick={() => setToggled(false)} sx={{ color: "#FFFFFF" }}>
+                  <Close sx={{ fontSize: 24 }} />
+                </IconButton>
+              </Box>
+            )}
+            {!isMdDevices && (
+              <IconButton onClick={() => setCollapsed(!collapsed)} sx={{ color: "#FFFFFF", padding: { xs: "8px", sm: "12px" } }}>
+                <MenuOutlined sx={{ fontSize: { xs: "18px", sm: "20px" } }} />
+              </IconButton>
+            )}
           </Box>
         </MenuItem>
       </Menu>

@@ -224,7 +224,7 @@ export const ProductTableColumns = ({ handleDelete, handleView, handleEdit }) =>
             );
         },
     },
-    { field: "manufacturer", headerName: "Manufacturer", flex: 1, renderCell: (params) => params.row.manufacturer?.name || 'N/A' },
+    { field: "manufacturer", headerName: "Manufacturer", flex: 1 },
     { field: "goodToKnow", headerName: "Good To Know", flex: 1 },
     {
         field: "inStock",
