@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
 import { API_BASE_URL } from "../../utils/apiConfig";
-import AddSubCategoryDialog from "../../components/AddSubCategoryDialog";
 import EntityDialog from "../../components/EntityDialog";
 import { tokens } from "../../theme";
 import { showErrorToast, showSuccessToast } from "../../Toast";

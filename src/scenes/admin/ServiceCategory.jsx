@@ -3,9 +3,7 @@ import {
     Container,
     IconButton,
     InputBase,
-    Button,
     useTheme,
-    Typography,
 } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined, PersonAdd } from "@mui/icons-material";
@@ -151,8 +149,8 @@ export default function ServiceCategory() {
     };
 
     const handleView = (row) => {
-        setViewValue(row.name);
-        setViewStatus(row.approved);
+        setViewValue(row);
+        // setViewStatus(row.approved);
         setIsViewDialog(true);
     };
 
@@ -211,6 +209,8 @@ export default function ServiceCategory() {
             <CreateSubservices
                 open={openSubCategoryDialog}
                 handleClose={() => setOpenSubCategoryDialog(false)}
+                serviceId={selectedServiceId}
+                onSuccess={fetchAllServices}
             />
 
             <Alert
