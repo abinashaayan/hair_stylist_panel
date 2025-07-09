@@ -77,11 +77,11 @@ const SideBar = () => {
       { title: "Products", path: "/product", icon: <PersonOutlined /> },
       { title: "Category", path: "/category", icon: <PeopleAltOutlined /> },
       { title: "Service", path: "/service", icon: <PeopleAltOutlined /> },
+       { title: "Service Management", path: "/service-management", icon: <AddCircleOutline /> },
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [
       { title: "Calendar", path: "/calendar", icon: <CalendarMonthOutlined /> },
-      { title: "Service Management", path: "/service-management", icon: <AddCircleOutline /> },
       // { title: "History", path: "/history", icon: <HistoryOutlined /> },
       { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
       // { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },

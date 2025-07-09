@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
 import { API_BASE_URL } from "../../utils/apiConfig";
-import AddSubCategoryDialog from "../../components/AddSubCategoryDialog";
+import CreateSubservices from "../../components/CreateSubservices";
 import EntityDialog from "../../components/EntityDialog";
 import { tokens } from "../../theme";
 import { showErrorToast, showSuccessToast } from "../../Toast";
@@ -35,8 +35,8 @@ export default function ServiceCategory() {
     const [isViewDialog, setIsViewDialog] = useState(false);
     const [viewValue, setViewValue] = useState("");
     const [viewStatus, setViewStatus] = useState(undefined);
-    const [viewMaxPrice, setViewMaxPrice] = useState("");
-    const [viewMinPrice, setViewMinPrice] = useState("");
+    const [openSubCategoryDialog, setOpenSubCategoryDialog] = useState(false);
+    const [selectedServiceId, setSelectedServiceId] = useState(null);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -54,8 +54,6 @@ export default function ServiceCategory() {
                 const formattedData = response?.data?.allServices?.map((service) => ({
                     id: service._id,
                     name: service.name || "N/A",
-                    maxPrice: service.maxPrice || "N/A",
-                    minPrice: service.minPrice || "N/A",
                     approved: !!service.isActive,
                     createdAt: service.createdAt
                         ? new Date(service.createdAt).toLocaleDateString()
@@ -155,8 +153,6 @@ export default function ServiceCategory() {
     const handleView = (row) => {
         setViewValue(row.name);
         setViewStatus(row.approved);
-        setViewMaxPrice(row.maxPrice);
-        setViewMinPrice(row.minPrice);
         setIsViewDialog(true);
     };
 
@@ -164,11 +160,14 @@ export default function ServiceCategory() {
         setIsViewDialog(false);
         setViewValue("");
         setViewStatus(undefined);
-        setViewMaxPrice("");
-        setViewMinPrice("");
     };
 
-    const columns = serviceTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
+    const handleAddSubService = (serviceId) => {
+        setSelectedServiceId(serviceId);
+        setOpenSubCategoryDialog(true);
+    };
+
+    const columns = serviceTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService });
 
     return (
         <Box className="p-1">
@@ -205,11 +204,15 @@ export default function ServiceCategory() {
                 isView={true}
                 viewValue={viewValue}
                 viewStatus={viewStatus}
-                viewMaxPrice={viewMaxPrice}
-                viewMinPrice={viewMinPrice}
                 inputLabel="Service Name"
                 showPriceFields={true}
             />
+
+            <CreateSubservices
+                open={openSubCategoryDialog}
+                handleClose={() => setOpenSubCategoryDialog(false)}
+            />
+
             <Alert
                 open={alertOpen}
                 title="Delete Service"

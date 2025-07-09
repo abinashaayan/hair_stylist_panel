@@ -1,12 +1,14 @@
 import React from "react";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField } from "@mui/material";
+import { Close, PersonAdd } from "@mui/icons-material";
+import { CustomIconButton } from "../custom/Button";
 
 const AddSubCategoryDialog = ({ open, handleClose }) => {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add Sub Category</DialogTitle>
+      <DialogTitle>Create Sub Services</DialogTitle>
       <DialogContent>
-        <TextField 
+        <TextField
           autoFocus
           margin="dense"
           label="Sub Category Name"
@@ -15,8 +17,8 @@ const AddSubCategoryDialog = ({ open, handleClose }) => {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="error">Cancel</Button>
-        <Button onClick={handleClose} color="primary">Add</Button>
+        <CustomIconButton icon={<Close />} color="red" text="Close" />
+        <CustomIconButton icon={<PersonAdd />} color="black" text="Add" />
       </DialogActions>
     </Dialog>
   );

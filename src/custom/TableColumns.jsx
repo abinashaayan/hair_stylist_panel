@@ -1,4 +1,4 @@
-import { Trash2, Eye, Pencil, TransgenderIcon } from "lucide-react";
+import { Trash2, Eye, Pencil, TransgenderIcon, Plus } from "lucide-react";
 import { CustomIconButton } from "./Button";
 import { Box, Chip, CircularProgress, Switch } from "@mui/material";
 import ImageWithLoader from "./ImageWithLoader";
@@ -19,7 +19,7 @@ export const userTableColumns = ({ handleDelete, handleView }) => [
                 size="small"
                 variant="filled"
                 sx={{
-                    bgcolor: 'primary.main', 
+                    bgcolor: 'primary.main',
                     color: "white",
                     fontWeight: "bold",
                     textTransform: "capitalize",
@@ -119,10 +119,26 @@ export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, 
     },
 ];
 
-export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds }) => [
+export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService }) => [
     { field: "name", headerName: "Service Name", flex: 1 },
-    { field: "maxPrice", headerName: "Max Price", flex: 0.8 },
-    { field: "minPrice", headerName: "Min Price", flex: 0.8 },
+    {
+        field: "addSubService",
+        headerName: "Add Sub Services",
+        flex: 0.8,
+        sortable: false,
+        renderCell: (params) => (
+            <CustomIconButton
+                size="small"
+                icon={<Plus size={16} />}
+                color="rgb(34, 197, 94)"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddSubService(params.row);
+                }}
+                text="Add"
+            />
+        ),
+    },
     {
         field: "approved",
         headerName: "Status",
@@ -224,7 +240,18 @@ export const ProductTableColumns = ({ handleDelete, handleView, handleEdit }) =>
             );
         },
     },
-    { field: "manufacturer", headerName: "Manufacturer", flex: 1 },
+    {
+        field: "manufacturer",
+        headerName: "Manufacturer",
+        flex: 1,
+        renderCell: (params) => {
+            const manufacturer = params.row.manufacturer;
+            const name = typeof manufacturer === "object" && manufacturer?.name
+                ? manufacturer.name
+                : "N/A";
+            return <span>{name}</span>;
+        },
+    },
     { field: "goodToKnow", headerName: "Good To Know", flex: 1 },
     {
         field: "inStock",

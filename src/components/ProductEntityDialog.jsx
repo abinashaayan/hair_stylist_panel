@@ -45,6 +45,7 @@ const ProductEntityDialog = ({
 
   useEffect(() => {
     if (initialData && (mode === 'edit' || mode === 'view')) {
+      console.log("Initial Data:", initialData);
       setFields({
         name: initialData.name || "",
         subtitle: initialData.subtitle || "",
@@ -54,7 +55,11 @@ const ProductEntityDialog = ({
         goodToKnow: Array.isArray(initialData.goodToKnow) ? initialData.goodToKnow.join(", ") : initialData.goodToKnow || "",
         quickTips: initialData.quickTips || "",
       });
-      setManufacturer(initialData.manufacturer || initialManufacturer);
+      setManufacturer({
+        name: initialData.manufacturer?.name || "",
+        address: initialData.manufacturer?.address || "",
+        contact: initialData.manufacturer?.contact || "",
+      });
       if (initialData.photos && initialData.photos.length > 0) {
         setImageUrls(initialData.photos);
       } else {
@@ -115,11 +120,11 @@ const ProductEntityDialog = ({
       handleDialogClose();
       return;
     }
-    if (!fields.name.trim()) return showCustomMessage("Product name is required!");
-    if (!fields.price.trim()) return showCustomMessage("Price is required!");
-    if (!fields.stockQuantity.trim()) return showCustomMessage("Stock quantity is required!");
-    if (!manufacturer.name.trim()) return showCustomMessage("Manufacturer name is required!");
-    if (!manufacturer.contact.trim() || !/^\d{10}$/.test(manufacturer.contact)) return showCustomMessage("Contact must be exactly 10 digits!");
+    if (!(fields.name || "").trim()) return showCustomMessage("Product name is required!");
+    if (!(fields.price || "").trim()) return showCustomMessage("Price is required!");
+    if (!(fields.stockQuantity || "").trim()) return showCustomMessage("Stock quantity is required!");
+    if (!(manufacturer.name || "").trim()) return showCustomMessage("Manufacturer name is required!");
+    if (!(manufacturer.contact || "").trim() || !/^\d{10}$/.test(manufacturer.contact || "")) return showCustomMessage("Contact must be exactly 10 digits!");
     if (files.length === 0 && mode === 'create') return showCustomMessage("Product image is required!");
 
     setLoading(true);

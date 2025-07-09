@@ -42,13 +42,13 @@ const AppRouter = () => {
                 <Route path="stylist" element={<RegisteredStylist />} />
                 <Route path="category" element={<Category />} />
                 <Route path="service" element={<ServiceCategory />} />
+                <Route path="service-management" element={<ServiceManagement />} />
                 <Route path="order-details" element={<OrderDetails />} />
               </>
             ) : panelType === "vendor" ? (
               <>
                 <Route index element={<VendorDashboard />} />
                 <Route path="calendar" element={<Calendar />} />
-                <Route path="service-management" element={<ServiceManagement />} />
                 <Route path="history" element={<History />} />
                 <Route path="packages" element={<Packages />} />
                 <Route path="availability" element={<Availability />} />

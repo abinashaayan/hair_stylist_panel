@@ -58,9 +58,10 @@ export default function Product() {
           subtitle: product.subtitle || "N/A",
           about: product.about || "N/A",
           price: typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : "N/A",
+          quickTips: product.quickTips || "N/A",
           stockQuantity: product.stockQuantity ?? 0,
           inStock: product.inStock ?? false,
-          manufacturer: product.manufacturer?.name || {},
+          manufacturer: product.manufacturer || {},
           photos: Array.isArray(product.photos) ? product.photos : [],
           goodToKnow: (Array.isArray(product.goodToKnow) ? product.goodToKnow.join(", ") : product.goodToKnow) || "N/A",
           approved: true,
@@ -69,14 +70,12 @@ export default function Product() {
             ? new Date(product.createdAt).toLocaleDateString()
             : "N/A",
         }));
-        console.log("Formatted Data:", formattedData);
         setAllServices(formattedData);
         setFilteredUsers(formattedData);
       } else {
         showErrorToast(response?.data?.message || "Failed to fetch products");
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
       showErrorToast(error?.response?.data?.message || "Error fetching products");
     } finally {
       setLoading(false);
@@ -166,10 +165,8 @@ export default function Product() {
   };
 
   const handleSelectionModelChange = (ids) => {
-    console.log(ids, 'rresponse ids');
     const selected = Array.isArray(ids) ? ids : Array.from(ids || []);
     setSelectedRows(selected);
-    console.log('Selected Rows:', selected);
   };
 
   const handleMultiDelete = () => {
