@@ -77,7 +77,7 @@ const SideBar = () => {
       { title: "Products", path: "/product", icon: <PersonOutlined /> },
       { title: "Category", path: "/category", icon: <PeopleAltOutlined /> },
       { title: "Service", path: "/service", icon: <PeopleAltOutlined /> },
-       { title: "Service Management", path: "/service-management", icon: <AddCircleOutline /> },
+      //  { title: "Service Management", path: "/service-management", icon: <AddCircleOutline /> },
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [

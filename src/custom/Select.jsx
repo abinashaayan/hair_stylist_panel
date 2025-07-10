@@ -57,12 +57,16 @@ const SelectInput = ({
           if (!selected || (Array.isArray(selected) && selected.length === 0)) {
             return <span style={{ color: "#9e9e9e" }}>{placeholder}</span>;
           }
-
           if (multiple && Array.isArray(selected)) {
-            return selected.join(", ");
+            return selected
+              .map((val) => {
+                const opt = options.find((o) => o.value === val);
+                return opt?.label || val;
+              })
+              .join(", ");
           }
-
-          return selected;
+          const selectedOption = options.find((opt) => opt.value === selected);
+          return selectedOption ? selectedOption.label : selected;
         }}
       >
         {!multiple && (

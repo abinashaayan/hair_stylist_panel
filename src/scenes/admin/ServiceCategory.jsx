@@ -150,7 +150,6 @@ export default function ServiceCategory() {
 
     const handleView = (row) => {
         setViewValue(row);
-        // setViewStatus(row.approved);
         setIsViewDialog(true);
     };
 
