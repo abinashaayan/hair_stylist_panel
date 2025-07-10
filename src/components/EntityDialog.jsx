@@ -19,6 +19,8 @@ import { CustomIconButton } from "../custom/Button";
 import { Close, PersonAdd } from "@mui/icons-material";
 import Cookies from "js-cookie";
 import { Trash } from "lucide-react";
+import SelectInput from "../custom/Select";
+import serviceOptions from "../json/serviceOptions";
 
 const EntityDialog = ({
   open,
@@ -40,6 +42,7 @@ const EntityDialog = ({
   const [subServices, setSubServices] = useState([]);
   const [subServicesLoading, setSubServicesLoading] = useState(false);
   const [deletingSubId, setDeletingSubId] = useState(null);
+  const [customOtherValue, setCustomOtherValue] = useState("");
 
   const authToken = Cookies.get("token");
 
@@ -54,14 +57,15 @@ const EntityDialog = ({
   }, [open, isEdit, editValue, isView, viewValue]);
 
   const handleAddOrUpdate = async () => {
-    if (!inputValue.trim()) {
+    const selectedValue = inputValue === "other" ? customOtherValue : inputValue;
+    if (!selectedValue.trim()) {
       showCustomMessage(`${inputLabel} is required!`);
       return;
     }
 
     setLoading(true);
     try {
-      const requestData = { name: inputValue };
+      const requestData = { name: selectedValue };
       const token = Cookies.get("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       if (isEdit && editId) {
@@ -240,14 +244,40 @@ const EntityDialog = ({
         ) : (
           <>
             <InputLabel sx={{ color: "black" }}>{inputLabel}</InputLabel>
-            <Input
-              placeholder={`Write ${inputLabel.toLowerCase()}`}
-              type="text"
-              height={50}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              disabled={isView}
-            />
+            {(!isEdit && !isView) ? (
+              <>
+                <SelectInput
+                  value={inputValue}
+                  onChange={e => {
+                    setInputValue(e.target.value);
+                    if (e.target.value !== "other") setCustomOtherValue("");
+                  }}
+                  options={serviceOptions}
+                  placeholder={`Select ${inputLabel.toLowerCase()}`}
+                  height={50}
+                  disabled={isView}
+                />
+                {inputValue === "other" && (
+                  <Input
+                    placeholder={`Enter custom ${inputLabel.toLowerCase()}`}
+                    type="text"
+                    height={50}
+                    value={customOtherValue}
+                    onChange={e => setCustomOtherValue(e.target.value)}
+                    sx={{ mt: 2 }}
+                  />
+                )}
+              </>
+            ) : (
+              <Input
+                placeholder={`Write ${inputLabel.toLowerCase()}`}
+                type="text"
+                height={50}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                disabled={isView}
+              />
+            )}
           </>
         )}
       </DialogContent>
