@@ -1,8 +1,7 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   IconButton,
-  InputBase,
   useMediaQuery,
   useTheme,
   Tooltip,
@@ -38,7 +37,6 @@ const Navbar = () => {
   const isMdDevices = useMediaQuery("(max-width:768px)");
   const isMobile = useMediaQuery("(max-width:480px)");
   const isNonMobile = useMediaQuery("(min-width: 768px)");
-  const colors = tokens(theme.palette.mode);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -62,7 +60,6 @@ const Navbar = () => {
 
   const handleMobileToggle = () => {
     setToggled(!toggled);
-    // On mobile, we don't need to adjust margins since the sidebar overlays
     if (isMdDevices) {
       const mainContent = document.querySelector('[data-main-content]');
       if (mainContent) {

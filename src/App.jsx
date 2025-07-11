@@ -3,7 +3,8 @@ import { Box, CssBaseline, ThemeProvider, useMediaQuery } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import { Navbar, SideBar } from "./scenes";
 import { Outlet } from "react-router-dom";
-import ToastNotification from "./Toast";
+import ToastNotification, { showErrorToast } from "./Toast";
+import { useAuth } from "./utils/context/AuthContext";
 
 export const ToggledContext = createContext(null);
 
@@ -11,6 +12,14 @@ function App({ panelType }) {
   const [theme, colorMode] = useMode();
   const [toggled, setToggled] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { logoutReason, clearLogoutReason } = useAuth();
+
+  React.useEffect(() => {
+    if (logoutReason === "expired") {
+      showErrorToast("Session expired. Please log in again.");
+      clearLogoutReason();
+    }
+  }, [logoutReason, clearLogoutReason]);
 
   const values = useMemo(() => ({
     toggled,

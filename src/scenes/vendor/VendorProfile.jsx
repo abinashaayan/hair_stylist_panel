@@ -6,7 +6,6 @@ import {
   Grid,
   Avatar,
   Chip,
-  Button,
   IconButton,
   Divider,
   Card,
@@ -15,6 +14,7 @@ import {
   Tooltip,
   Stack,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import {
   LocationOn,
@@ -25,11 +25,11 @@ import {
   Twitter,
   Edit,
   AccessTime,
-  Star,
   School,
   Work,
   Verified,
   PersonAdd,
+  PhotoCamera,
 } from "@mui/icons-material";
 import { tokens } from "../../theme";
 import { Header } from '../../components';
@@ -39,6 +39,12 @@ import useStylistProfile from '../../hooks/useStylistProfile';
 import { showErrorToast } from '../../Toast';
 import { CustomIconButton } from '../../custom/Button';
 import ProfileEntityDialog from './ProfileEntityDialog';
+import { API_BASE_URL } from '../../utils/apiConfig';
+import { useDispatch } from 'react-redux';
+import { fetchStylistProfile } from '../../hooks/stylistProfileSlice';
+
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 const socialIcons = [
   { icon: <Instagram />, color: '#E1306C', url: '#' },
@@ -52,6 +58,11 @@ const VendorProfile = () => {
   const colors = tokens(theme.palette.mode);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [dialogType, setDialogType] = React.useState(null);
+  const [uploading, setUploading] = React.useState(false);
+
+  const fileInputRef = React.useRef();
+  const authToken = Cookies.get("token");
+  const dispatch = useDispatch();
 
   const handleOpenDialog = (type) => {
     setDialogType(type);
@@ -62,13 +73,46 @@ const VendorProfile = () => {
     setDialogType(null);
   };
 
+  const handleUploadClick = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('files', file);
+      const response = await axios.post(
+        `${API_BASE_URL}/stylist/profile-image`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      if (response?.data?.status === 200 && response?.data?.success === true) {
+        dispatch(fetchStylistProfile());
+        showSuccessToast(response?.data?.data?.message || "Profile image updated!");
+      }
+    } catch (err) {
+      console.log(error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+
   React.useEffect(() => {
     if (error) {
       showErrorToast(error);
     }
   }, [error]);
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <CircularProgress />;
   if (!profile) return null;
 
   return (
@@ -101,11 +145,56 @@ const VendorProfile = () => {
             backgroundColor: 'rgba(255, 255, 255, 0.1)',
           },
         }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Avatar
-              src={profile?.profilePicture || "/src/assets/images/avatar.png"}
-              sx={{ width: 140, height: 140, border: '6px solid #fff', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', background: '#fff' }}
-            />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }}>
+            <Box sx={{ position: 'relative', width: 140, height: 140 }}>
+              <Avatar
+                src={profile?.profilePicture || "/src/assets/images/avatar.png"}
+                sx={{ width: 140, height: 140, border: '6px solid #fff', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', background: '#fff' }}
+              />
+              {/* Upload Icon Overlay */}
+              <IconButton
+                sx={{
+                  position: 'absolute',
+                  bottom: 8,
+                  right: 8,
+                  background: '#fff',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  p: 1,
+                  zIndex: 3,
+                }}
+                onClick={handleUploadClick}
+                disabled={uploading}
+              >
+                <PhotoCamera sx={{ color: uploading ? '#aaa' : '#6D295A' }} />
+              </IconButton>
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+              {/* Loading overlay */}
+              {uploading && (
+                <Box sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  bgcolor: 'rgba(255,255,255,0.6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  zIndex: 4,
+                }}>
+                  <CircularProgress />
+                </Box>
+              )}
+            </Box>
             <Box>
               <Typography variant="h3" fontWeight={700} color="#fff" sx={{ fontFamily: 'Poppins, sans-serif' }}>
                 {profile?.fullName}
@@ -183,7 +272,7 @@ const VendorProfile = () => {
                         sx={{
                           fontFamily: 'Poppins, sans-serif',
                           borderRadius: 2,
-                          border: '1px solid orange', 
+                          border: '1px solid orange',
                           color: theme.palette.mode === 'dark' ? '#fff' : '#000',
                           backgroundColor: 'transparent',
                           '& .MuiChip-label': {
