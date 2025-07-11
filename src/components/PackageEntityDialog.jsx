@@ -8,7 +8,7 @@ import { CustomIconButton } from '../custom/Button';
 import axios from 'axios';
 import { API_BASE_URL } from '../utils/apiConfig';
 import Cookies from 'js-cookie';
-import { Box, Typography } from '@mui/material';
+import { Box, Chip, Stack, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import useStylistProfile from '../hooks/useStylistProfile';
 import SelectInput from '../custom/Select';
@@ -198,7 +198,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                     <Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">Title</Typography>
-                            <Typography variant="body1">{rowData?.title || rowData?.name || 'N/A'}</Typography>
+                            <Typography variant="body1" fontWeight="500">{rowData?.title || rowData?.name || 'N/A'}</Typography>
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">About</Typography>
@@ -206,19 +206,50 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">Service</Typography>
-                            <Typography variant="body1">{rowData?.serviceId?.name || 'N/A'}</Typography>
+                            {rowData?.serviceId?.name ? (
+                                <Chip
+                                    label={rowData.serviceId.name}
+                                    sx={{
+                                        backgroundColor: '#6d295a',
+                                        color: '#fff',
+                                         fontWeight: 'bold',
+                                        borderRadius: '8px'
+                                    }}
+                                />
+                            ) : (
+                                <Typography variant="body2" color="text.secondary">N/A</Typography>
+                            )}
                         </Box>
                         <Box mb={2}>
-                            <Typography variant="subtitle2" color="text.secondary">Sub Service</Typography>
-                            <Typography variant="body1">
-                                {Array.isArray(rowData?.subService)
-                                    ? rowData.subService.map(s => s.name).join(', ')
-                                    : 'N/A'}
-                            </Typography>
+                            <Typography variant="subtitle2" color="text.secondary">Sub Services</Typography>
+                            {Array.isArray(rowData?.subService) && rowData.subService.length > 0 ? (
+                                <Stack direction="row" spacing={1} flexWrap="wrap">
+                                    {rowData?.subService?.map((s, i) => (
+                                        <Chip
+                                            key={s._id || i}
+                                            label={s.name}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: 'info.main',
+                                                color: 'white',
+                                                fontWeight: 'bold',
+                                            }}
+                                        />
+                                    ))}
+                                </Stack>
+                            ) : (
+                                <Typography variant="body2" color="text.secondary">N/A</Typography>
+                            )}
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">Date</Typography>
-                            <Typography variant="body1">{rowData?.date ? new Date(rowData.date).toLocaleDateString() : 'N/A'}</Typography>
+                            <Typography variant="body1">
+                                {Array.isArray(rowData?.date)
+                                    ? rowData.date.map((d, i) => new Date(d).toLocaleDateString()).join(', ')
+                                    : rowData?.date
+                                        ? new Date(rowData.date).toLocaleDateString()
+                                        : 'N/A'}
+                            </Typography>
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">Duration (min)</Typography>
