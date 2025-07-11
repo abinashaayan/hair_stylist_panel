@@ -378,20 +378,88 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) =>
         headerName: "Image",
         width: 80,
         renderCell: (params) => {
-            const photoUrl = params.row.photos && params.row.photos.length > 0 ? params.row.photos[0] : null;
+            const photoUrl = params.row.coverImage;
             if (!photoUrl) {
-                return <span><img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} /></span>;
+                return <img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} />;
             }
-            return (
-                <ImageWithLoader src={photoUrl} alt={params.row.name} />
-            );
+            return <ImageWithLoader src={photoUrl} alt={params.row.title || "Package"} />;
         },
     },
     { field: "title", headerName: "Title", flex: 1 },
     { field: "about", headerName: "About", flex: 2 },
-    { field: "serviceName", headerName: "Service", flex: 1, renderCell: (params) => params.row.service?.name || params.row.serviceName || 'N/A' },
-    { field: "subServiceName", headerName: "Sub Service", flex: 1, renderCell: (params) => params.row.subService?.name || params.row.subServiceName || 'N/A' },
-    { field: "date", headerName: "Date", flex: 1, renderCell: (params) => params.row.date ? new Date(params.row.date).toLocaleDateString() : 'N/A' },
+    {
+        field: "serviceName",
+        headerName: "Service",
+        flex: 1,
+        renderCell: (params) => params.row.serviceId?.name || "N/A",
+    },
+    {
+        field: "subServiceName",
+        headerName: "Sub Services",
+        flex: 1.5,
+        renderCell: (params) => {
+            const subServices = Array.isArray(params.row.subService) ? params.row.subService : [];
+            return (
+                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {subServices.length > 0
+                        ? subServices.map((sub) => (
+                            <Chip
+                                key={sub._id}
+                                label={sub.name}
+                                size="small"
+                                sx={{
+                                    bgcolor: 'info.main',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                }}
+                            />
+                        ))
+                        : "N/A"}
+                </Box>
+            );
+        },
+    },
+    {
+        field: "price",
+        headerName: "Price",
+        flex: 0.6,
+        renderCell: (params) => (
+            <Chip
+                label={`₹${params.row.price || 0}`}
+                size="small"
+                sx={{
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    fontWeight: 'bold',
+                }}
+            />
+        ),
+    },
+    {
+        field: "discount",
+        headerName: "Discount",
+        flex: 0.6,
+        renderCell: (params) => (
+            <Chip
+                label={`${params.row.discount || 0}% OFF`}
+                size="small"
+                sx={{
+                    bgcolor: 'secondary.main',
+                    color: 'white',
+                    fontWeight: 'bold',
+                }}
+            />
+        ),
+    },
+    {
+        field: "date",
+        headerName: "Date",
+        flex: 1,
+        renderCell: (params) =>
+            Array.isArray(params.row.date) && params.row.date[0]
+                ? new Date(params.row.date[0]).toLocaleDateString()
+                : "N/A",
+    },
     {
         field: "duration",
         headerName: "Duration (min)",
@@ -415,7 +483,12 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) =>
             );
         },
     },
-    { field: "createdAt", headerName: "Created At", flex: 1, renderCell: (params) => params.row.createdAt ? new Date(params.row.createdAt).toLocaleDateString() : 'N/A' },
+    {
+        field: "createdAt",
+        headerName: "Created At",
+        flex: 1,
+        renderCell: (params) => params.row.createdAt ? new Date(params.row.createdAt).toLocaleDateString() : 'N/A'
+    },
     {
         field: "action",
         headerName: "Action",
@@ -430,5 +503,6 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) =>
         ),
     },
 ];
+
 
 

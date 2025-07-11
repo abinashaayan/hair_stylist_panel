@@ -10,13 +10,16 @@ import { API_BASE_URL } from '../utils/apiConfig';
 import Cookies from 'js-cookie';
 import { Box, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import useStylistProfile from '../hooks/useStylistProfile';
+import SelectInput from '../custom/Select';
+import MultiSelectWithCheckbox from '../custom/MultiSelectWithCheckbox';
 
 export default function PackageEntityDialog({ open, handleClose, onSuccess, viewMode = false, editMode = false, rowData = null }) {
     const [fields, setFields] = useState({
         title: '',
         about: '',
         serviceId: '',
-        subServiceId: '',
+        subServiceIds: [],
         date: '',
         duration: '',
         price: ''
@@ -24,97 +27,112 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [file, setFile] = useState(null);
-    const [allServicesAndSubServicesName, setAllServicesAndSubServicesName] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(false);
+    const [services, setServices] = useState([]);
+    const [subServices, setSubServices] = useState([]);
+    const [preview, setPreview] = useState(null);
+
+    const authToken = Cookies.get("token");
 
     useEffect(() => {
         if (open) {
             setError(null);
             setFile(null);
+            setPreview(null);
         }
-        fetchAllServicesAndSubServicesName();
+        fetchAllServices();
     }, [open, viewMode, editMode, rowData]);
 
     useEffect(() => {
-        if (open && allServicesAndSubServicesName.length > 0) {
-            if ((viewMode || editMode) && rowData) {
-                console.log("Row data in dialog:", rowData);
+        if (open) {
+            if (open && (viewMode || editMode) && rowData) {
+                console.log("Edit/View Mode Row Data:", rowData);
                 setFields({
                     title: rowData.title || rowData.name || '',
                     about: rowData.about || '',
-                    serviceId: rowData.service?._id || '',
-                    subServiceId: rowData.subService?._id || '', // keep this
-                    date: rowData.date ? (typeof rowData.date === 'string' ? rowData.date.slice(0, 10) : new Date(rowData.date).toISOString().slice(0, 10)) : '',
+                    serviceId: rowData.serviceId?._id || '',
+                    subServiceIds: Array.isArray(rowData.subService)
+                        ? rowData.subService.map((s) => s?._id)
+                        : [],
+                    date: Array.isArray(rowData.date)
+                        ? new Date(rowData.date[0]).toISOString().slice(0, 10)
+                        : typeof rowData.date === 'string'
+                            ? rowData.date.slice(0, 10)
+                            : '',
                     duration: rowData.duration || '',
-                    price: rowData.price || ''
+                    price: rowData.price || '',
                 });
+                if (rowData.coverImage) { setPreview(rowData.coverImage); }
+                if (rowData.serviceId?._id) { fetchSubServicesByServiceId(rowData.serviceId._id); }
             } else {
                 setFields({
                     title: '',
                     about: '',
                     serviceId: '',
-                    subServiceId: '',
+                    subServiceIds: [],
                     date: '',
                     duration: '',
                     price: ''
                 });
+                setSubServices([]);
             }
+
+            setError(null);
+            setFile(null);
         }
-    }, [open, viewMode, editMode, rowData, allServicesAndSubServicesName]);
+    }, [open, viewMode, editMode, rowData]);
 
+    const serviceOptions = services.map((item) => ({
+        label: item.name,
+        value: item._id,
+    }));
 
-    useEffect(() => {
-        if (
-            open &&
-            (editMode || viewMode) &&
-            rowData &&
-            allServicesAndSubServicesName.length > 0
-        ) {
-            setFields(prev => ({
-                ...prev,
-                serviceId: rowData.service?._id || '',
-                subServiceId: rowData.subService?._id || '',
-            }));
-        }
-        // eslint-disable-next-line
-    }, [open, editMode, viewMode, rowData, allServicesAndSubServicesName]);
+    const subServiceOptions = subServices.map((item) => ({
+        label: item.name,
+        value: item._id,
+    }));
 
-    const fetchAllServicesAndSubServicesName = async () => {
+    const fetchAllServices = async () => {
         setServicesLoading(true);
         try {
-            const token = Cookies.get('token');
-            const response = await axios.get(`${API_BASE_URL}/stylist/get-services`, {
+            const response = await axios.get(`${API_BASE_URL}/service/get-active`, {
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${authToken}`,
                 },
             });
-            console.log("Response from fetchAllServicesAndSubServicesName:", response?.data);
-            if (response?.data?.status === 200) {
-                const grouped = {};
-                (response.data.data || []).forEach(item => {
-                    const service = item.service;
-                    const subService = item.subService;
-                    if (!grouped[service._id]) { 
-                        grouped[service._id] = {
-                            ...service,
-                            subServices: [],
-                        };
-                    }
-                    grouped[service._id].subServices.push(subService);
-                });
-                setAllServicesAndSubServicesName(Object.values(grouped));
+            if (response.data?.status === 200) {
+                setServices(response.data.data || []);
+                fetchSubServicesByServiceId(response?.data?.data?._id);
             } else {
-                setAllServicesAndSubServicesName([]);
+                setServices([]);
             }
-        } catch (err) {
-            console.error("Error fetching services:", err);
-            setAllServicesAndSubServicesName([]);
+        } catch (error) {
+            console.error("Error fetching services:", error);
+            setServices([]);
         } finally {
             setServicesLoading(false);
         }
     };
 
+    const fetchSubServicesByServiceId = async (serviceId) => {
+        if (!serviceId) return setSubServices([]);
+        try {
+            const response = await axios.get(`${API_BASE_URL}/service/subservice/active/get/${serviceId}`, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            });
+            if (response.data?.status === 200) {
+                const cleanedSubServices = response.data.data || [];
+                setSubServices(cleanedSubServices);
+            } else {
+                setSubServices([]);
+            }
+        } catch (error) {
+            console.error("Error fetching sub-services:", error);
+            setSubServices([]);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -122,47 +140,45 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
     };
 
     const handleFileChange = (e) => {
-        setFile(e.target.files[0] || null);
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile || null);
+        if (selectedFile) {
+            setPreview(URL.createObjectURL(selectedFile));
+        } else {
+            setPreview(null);
+        }
     };
 
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
         try {
-            const token = Cookies.get('token');
+            const formData = new FormData();
+            formData.append('title', fields.title);
+            formData.append('about', fields.about);
+            formData.append('serviceId', fields.serviceId);
+            formData.append('subServiceId', JSON.stringify(fields.subServiceIds));
+            formData.append('date', fields.date);
+            formData.append('duration', fields.duration);
+            formData.append('price', fields.price);
+            if (file) formData.append('files', file);
+
             if (editMode && rowData && rowData._id) {
-                const formData = new FormData();
-                formData.append('title', fields.title);
-                formData.append('about', fields.about);
-                formData.append('serviceId', fields.serviceId);
-                formData.append('subServiceId', fields.subServiceId);
-                formData.append('date', fields.date);
-                formData.append('duration', fields.duration);
-                formData.append('price', fields.price);
-                if (file) formData.append('files', file); 
                 await axios.patch(`${API_BASE_URL}/package/update/${rowData._id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer ${authToken}`,
                     },
                 });
-            } else if (!editMode) {
-                const formData = new FormData();
-                formData.append('title', fields.title);
-                formData.append('about', fields.about);
-                formData.append('serviceId', fields.serviceId);
-                formData.append('subServiceId', fields.subServiceId);
-                formData.append('date', fields.date);
-                formData.append('duration', fields.duration);
-                formData.append('price', fields.price);
-                if (file) formData.append('files', file);
+            } else {
                 await axios.post(`${API_BASE_URL}/package/create`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer ${authToken}`,
                     },
                 });
             }
+
             setLoading(false);
             if (onSuccess) onSuccess();
             handleClose();
@@ -171,7 +187,6 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
             setError(err.response?.data?.message || 'Failed to add package');
         }
     };
-
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
@@ -191,11 +206,15 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">Service</Typography>
-                            <Typography variant="body1">{rowData?.service?.name || rowData?.serviceName || 'N/A'}</Typography>
+                            <Typography variant="body1">{rowData?.serviceId?.name || 'N/A'}</Typography>
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">Sub Service</Typography>
-                            <Typography variant="body1">{rowData?.subService?.name || rowData?.subServiceName || 'N/A'}</Typography>
+                            <Typography variant="body1">
+                                {Array.isArray(rowData?.subService)
+                                    ? rowData.subService.map(s => s.name).join(', ')
+                                    : 'N/A'}
+                            </Typography>
                         </Box>
                         <Box mb={2}>
                             <Typography variant="subtitle2" color="text.secondary">Date</Typography>
@@ -218,56 +237,39 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                         </Box>
                         <Box mb={1}>
                             <label style={{ fontWeight: 500 }}>About</label>
-                            <Input placeholder="About" name="about" value={fields.about} onChange={handleChange} fullWidth margin="normal" />
+                            <Input name="about" value={fields.about} onChange={handleChange} placeholder="About" multiline rows={2} />
                         </Box>
                         <Box mb={1}>
-                            <label style={{ fontWeight: 500 }}>Service Name</label>
-                            <select
-                                name="serviceId"
-                                value={fields.serviceId}
-                                onChange={e => {
-                                    setFields({ ...fields, serviceId: e.target.value, subServiceId: '' });
+                            <Box mb={1}>
+                                <SelectInput
+                                    name="serviceId"
+                                    value={fields.serviceId}
+                                    onChange={(e) => {
+                                        const selectedId = e.target.value;
+                                        setFields({ ...fields, serviceId: selectedId, subServiceIds: [] });
+                                        fetchSubServicesByServiceId(selectedId);
+                                    }}
+                                    options={serviceOptions}
+                                    placeholder={servicesLoading ? 'Loading services...' : 'Select Service'}
+                                    disabled={servicesLoading}
+                                />
+                            </Box>
+                        </Box>
+                        <Box mb={1}>
+                            <MultiSelectWithCheckbox
+                                options={subServiceOptions}
+                                placeholder="Select Sub Services"
+                                value={subServiceOptions.filter(opt =>
+                                    fields.subServiceIds.includes(opt.value)
+                                )}
+                                onChange={(newValue) => {
+                                    setFields({
+                                        ...fields,
+                                        subServiceIds: newValue.map(item => item.value),
+                                    });
                                 }}
-                                style={{ width: '100%', padding: '8px', marginTop: 4 }}
-                                disabled={servicesLoading}
-                            >
-                                <option value="">{servicesLoading ? 'Loading services...' : 'Select Service'}</option>
-                                {allServicesAndSubServicesName.map(service => (
-                                    <option key={service._id} value={service._id}>{service.name}</option>
-                                ))}
-                            </select>
-                        </Box>
-                        <Box mb={1}>
-                            <label style={{ fontWeight: 500 }}>Sub Service Name</label>
-                            <select
-                                name="subServiceId"
-                                value={fields.subServiceId}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: '8px', marginTop: 4 }}
-                                disabled={servicesLoading || !fields.serviceId}
-                            >
-                                <option value="">
-                                    {servicesLoading
-                                        ? 'Loading sub-services...'
-                                        : !fields.serviceId
-                                            ? 'Select a service first'
-                                            : 'Select Sub Service'}
-                                </option>
-                                {(() => {
-                                    const currentService = allServicesAndSubServicesName.find(s => s._id === fields.serviceId);
-                                    const fetchedSubs = currentService?.subServices || [];
-                                    const subServiceExists = fetchedSubs.some(s => s._id === fields.subServiceId);
-
-                                    return !subServiceExists && editMode && rowData?.subService?._id ? (
-                                        <option key={rowData.subService._id} value={rowData.subService._id}>
-                                            {rowData.subService.name} (no longer available)
-                                        </option>
-                                    ) : null;
-                                })()}
-                                {(allServicesAndSubServicesName.find(s => s._id === fields.serviceId)?.subServices || []).map(sub => (
-                                    <option key={sub._id} value={sub._id}>{sub.name}</option>
-                                ))}
-                            </select>
+                                disabled={!fields.serviceId}
+                            />
                         </Box>
                         <Box mb={1}>
                             <label style={{ fontWeight: 500 }}>Date</label>
@@ -289,6 +291,19 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                             <Box mt={2} mb={2}>
                                 <input type="file" accept="image/*" onChange={handleFileChange} />
                             </Box>
+                            {preview && (
+                                <img
+                                    src={preview}
+                                    alt="Preview"
+                                    style={{
+                                        width: '120px',
+                                        height: '120px',
+                                        objectFit: 'cover',
+                                        borderRadius: 8,
+                                        border: '1px solid #ccc',
+                                    }}
+                                />
+                            )}
                         </Box>
                     </>
                 )}

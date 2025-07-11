@@ -1,6 +1,6 @@
 import { TextField, InputAdornment, IconButton } from "@mui/material";
 
-const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconClick, height = 40, name }) => {
+const Input = ({ placeholder, type = "text", value, onChange, icon, endIcon, onEndIconClick, height = 40, name, multiline = false, rows = 4, }) => {
     return (
         <TextField
             fullWidth
@@ -9,6 +9,8 @@ const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconCli
             value={value}
             onChange={onChange}
             name={name}
+            multiline={multiline}
+            rows={rows}
             margin="normal"
             InputProps={{
                 startAdornment: icon && (
@@ -22,13 +24,13 @@ const Input = ({ placeholder, type, value, onChange, icon, endIcon, onEndIconCli
                 sx: {
                     bgcolor: "#f5f5f5",
                     borderRadius: 1,
-                    height: height,
+                    height: multiline ? "auto" : height,
                     "& fieldset": { border: "1px solid #bdbdbd" },
                     "& .MuiInputBase-input": {
                         padding: "8px 10px",
                         fontSize: "14px",
-                        height: "100%",
-                        maxHeight:"50px"
+                        height: multiline ? "auto" : "100%",
+                        maxHeight: multiline ? "none" : "50px",
                     },
                 },
             }}

@@ -7,8 +7,8 @@ const ImageWithLoader = ({ src, alt }) => {
   return (
     <Box
       sx={{
-        width: 48,
-        height: 48,
+        width: 40,
+        height: 40,
         borderRadius: 6,
         position: "relative",
         overflow: "hidden",

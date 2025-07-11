@@ -40,7 +40,7 @@ export default function Packages() {
   const fetchAllPackage = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/package/get`, {
+      const response = await axios.get(`${API_BASE_URL}/package/stylist/get`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
@@ -53,7 +53,6 @@ export default function Packages() {
         showErrorToast(response?.data?.message || "Failed to fetch packages");
       }
     } catch (error) {
-      console.error("Error fetching packages:", error);
       showErrorToast("Error fetching packages");
     } finally {
       setLoading(false);
@@ -94,7 +93,6 @@ export default function Packages() {
   };
 
   const handleDelete = (id) => {
-     console.log("Delete ID:", id);
     setDeleteId(id);
     setAlertOpen(true);
   };
@@ -109,7 +107,6 @@ export default function Packages() {
           "Content-Type": "application/json",
         },
       });
-          console.log("Delete ID:", response);
       if (response?.data?.status === 200) {
         showSuccessToast(response?.data?.message || "Package deleted successfully");
         setAllServices((prevServices) => prevServices.filter((service) => service.id !== deleteId));
