@@ -31,6 +31,16 @@ export default function RegisteredStylist() {
   const colors = tokens(theme.palette.mode);
   const authToken = Cookies.get("token");
 
+  const formatAddress = (address) => {
+    if (!address) return 'N/A';
+    if (typeof address === 'string') return address;
+    if (typeof address === 'object') {
+      // Join all values with comma, skip empty
+      return Object.values(address).filter(Boolean).join(', ');
+    }
+    return 'N/A';
+  };
+
   const fetchAllStylistUserDetials = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/stylist/admin/get-all`, {
@@ -51,6 +61,7 @@ export default function RegisteredStylist() {
           gender: stylist.gender || "N/A",
           approved: stylist.isApproved ?? false,
           createdAt: new Date(stylist.createdAt).toLocaleDateString(),
+          address: formatAddress(stylist.address),
         }));
         setAllUsers(formattedData); // ✅ Set both states
         setFilteredUsers(formattedData);
@@ -71,6 +82,9 @@ export default function RegisteredStylist() {
 
   const handleView = (row) => {
     const fullStylistDetails = originalStylists.find(s => s._id === row.id);
+    if (fullStylistDetails) {
+      fullStylistDetails.address = formatAddress(fullStylistDetails.address);
+    }
     setSelectedStylistDetails(fullStylistDetails);
     setIsDetailsDialogOpen(true);
   };
@@ -97,18 +111,41 @@ export default function RegisteredStylist() {
   };
 
 
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
+  const handleSearch = async (e) => {
+    const value = e.target.value;
     setSearchText(value);
-    if (value === "") {
+    if (value.trim() === "") {
       setFilteredUsers(allUsers);
-    } else {
-      const filtered = allUsers.filter(user =>
-        user.fullName.toLowerCase().includes(value) ||
-        user.email.toLowerCase().includes(value) ||
-        user.phone.toLowerCase().includes(value)
-      );
-      setFilteredUsers(filtered);
+      return;
+    }
+    try {
+      const response = await axios.get(`${API_BASE_URL}/stylist/admin/search-stylist`, {
+        params: { query: value },
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      if (response?.data?.status === 200 && response?.data?.success) {
+        const formattedData = (response?.data?.data || []).map((stylist) => ({
+          id: stylist._id,
+          fullName: stylist.fullName || "N/A",
+          email: stylist.email || "N/A",
+          phone: stylist.phoneNumber || "N/A",
+          role: stylist.role || "N/A",
+          dob: stylist.dob ? new Date(stylist.dob).toLocaleDateString() : "N/A",
+          gender: stylist.gender || "N/A",
+          approved: stylist.isApproved ?? false,
+          createdAt: stylist.createdAt ? new Date(stylist.createdAt).toLocaleDateString() : "N/A",
+          address: formatAddress(stylist.address),
+        }));
+        setFilteredUsers(formattedData);
+      } else {
+        setFilteredUsers([]);
+      }
+    } catch (error) {
+      setFilteredUsers([]);
     }
   };
 

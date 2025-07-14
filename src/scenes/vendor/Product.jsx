@@ -104,9 +104,48 @@ export default function Product() {
     // }
   }, [filteredUsers]);
 
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
+  const handleSearch = async (e) => {
+    const value = e.target.value;
     setSearchText(value);
+    if (value.trim() === "") {
+      setFilteredUsers(allServices);
+      return;
+    }
+    try {
+      const response = await axios.get(`${API_BASE_URL}/product/search`, {
+        params: { query: value },
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      if (response?.data?.status === 200 && response?.data?.success) {
+        const formattedData = (response?.data?.data || []).map((product) => ({
+          id: product._id,
+          name: product.name || "N/A",
+          subtitle: product.subtitle || "N/A",
+          about: product.about || "N/A",
+          price: typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : "N/A",
+          quickTips: product.quickTips || "N/A",
+          stockQuantity: product.stockQuantity ?? 0,
+          inStock: product.inStock ?? false,
+          manufacturer: product.manufacturer || {},
+          photos: Array.isArray(product.photos) ? product.photos : [],
+          goodToKnow: (Array.isArray(product.goodToKnow) ? product.goodToKnow.join(", ") : product.goodToKnow) || "N/A",
+          approved: true,
+          category: product.category?.name || "N/A",
+          createdAt: product.createdAt
+            ? new Date(product.createdAt).toLocaleDateString()
+            : "N/A",
+        }));
+        setFilteredUsers(formattedData);
+      } else {
+        setFilteredUsers([]);
+      }
+    } catch (error) {
+      setFilteredUsers([]);
+    }
   };
 
   const handleDelete = (id) => {
@@ -211,7 +250,7 @@ export default function Product() {
       <Container maxWidth={false}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, mt: 3 }}>
           <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
-            <InputBase placeholder="Search Product" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+            <InputBase placeholder="Search Product name or subtitle" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
             <IconButton type="button" sx={{ p: 1 }}>
               <SearchOutlined />
             </IconButton>
