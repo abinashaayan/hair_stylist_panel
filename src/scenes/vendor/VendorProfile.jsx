@@ -33,7 +33,6 @@ import {
 } from "@mui/icons-material";
 import { tokens } from "../../theme";
 import { Header } from '../../components';
-import LoadingScreen from '../../components/LoadingScreen';
 import bannerImage from '../../assets/images/banner.jpg';
 import useStylistProfile from '../../hooks/useStylistProfile';
 import { showErrorToast } from '../../Toast';
@@ -53,18 +52,29 @@ const socialIcons = [
 ];
 
 const VendorProfile = () => {
-  const { profile, loading, error } = useStylistProfile();
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [dialogType, setDialogType] = React.useState(null);
   const [uploading, setUploading] = React.useState(false);
+  const [currentSectionData, setCurrentSectionData] = React.useState(null);
+
+  const { profile, loading, error } = useStylistProfile();
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
   const fileInputRef = React.useRef();
   const authToken = Cookies.get("token");
   const dispatch = useDispatch();
 
   const handleOpenDialog = (type) => {
+    let dataToSend = null;
+    if (type === 'expertise') {
+      dataToSend = profile?.expertise || [];
+    } else if (type === 'experience') {
+      dataToSend = profile?.experience || [];
+    } else if (type === 'certificate') {
+      dataToSend = profile?.certificates || [];
+    }
+    setCurrentSectionData(dataToSend);
     setDialogType(type);
     setDialogOpen(true);
   };
@@ -246,7 +256,7 @@ const VendorProfile = () => {
               <Divider sx={{ my: 2 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Expertise</Typography>
-                <CustomIconButton size="small" icon={<PersonAdd />} text="Add New Expertise" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('expertise')} />
+                <CustomIconButton size="small" icon={<PersonAdd />} text="Update Expertise" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('expertise')} />
               </Box>
               <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
                 {profile?.expertise?.map((exp, idx) => (
@@ -292,7 +302,7 @@ const VendorProfile = () => {
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Experience</Typography>
-                <CustomIconButton size="small" icon={<PersonAdd />} text="Add New Experience" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('experience')} />
+                <CustomIconButton size="small" icon={<PersonAdd />} text="Update Experience" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('experience')} />
               </Box>
               <Box>
                 {profile?.experience?.map((exp, idx) => (
@@ -322,7 +332,7 @@ const VendorProfile = () => {
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Certificates</Typography>
-                <CustomIconButton size="small" icon={<PersonAdd />} text="Add New Certificates" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('certificate')} />
+                <CustomIconButton size="small" icon={<PersonAdd />} text="Update Certificates" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('certificate')} />
               </Box>
               <Grid container spacing={2}>
                 {profile?.certificates?.map((cert) => (
@@ -374,7 +384,7 @@ const VendorProfile = () => {
           </Card>
         </Grid>
       </Grid>
-      <ProfileEntityDialog open={dialogOpen} type={dialogType} onClose={handleCloseDialog} />
+      <ProfileEntityDialog open={dialogOpen} type={dialogType} profileData={currentSectionData} onClose={handleCloseDialog} />
     </Box>
   );
 };

@@ -48,10 +48,12 @@ const getApiEndpoint = (type) => {
   }
 };
 
-export default function ProfileEntityDialog({ open, type, onClose }) {
+export default function ProfileEntityDialog({ open, type, onClose, profileData }) {
   const [fields, setFields] = useState(getInitialFields(type));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  console.log(profileData,'profileData')
 
   React.useEffect(() => {
     if (open) {
@@ -83,6 +85,7 @@ export default function ProfileEntityDialog({ open, type, onClose }) {
       setError(err.response?.data?.message || 'Failed to add entity');
     }
   };
+
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>

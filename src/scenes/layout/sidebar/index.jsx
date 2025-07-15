@@ -81,10 +81,10 @@ const SideBar = () => {
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [
-      { title: "Calendar", path: "/calendar", icon: <CalendarMonthOutlined /> },
+      // { title: "Calendar", path: "/calendar", icon: <CalendarMonthOutlined /> },
       // { title: "History", path: "/history", icon: <HistoryOutlined /> },
       { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
-      // { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
+      { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
       // { title: "Create Appointment", path: "/create-appointment", icon: <AddCircleOutline /> },
       // { title: "Stylist Profile", path: "/stylist-profile", icon: <PersonOutlined /> },
       // { title: "Change Password", path: "/change-password", icon: <PersonOutlined /> },

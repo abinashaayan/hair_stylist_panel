@@ -16,11 +16,30 @@ const Login = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [panelType, setPanelType] = useState("adminpanel");
-  const [stylistId, setStylistId] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
+  const getCurrentLocation = async () => {
+    try {
+      return await new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation not supported"));
+        }
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            resolve({ latitude, longitude });
+          },
+          (error) => reject(error),
+          { enableHighAccuracy: true }
+        );
+      });
+    } catch (error) {
+      console.warn("Location not available", error);
+      return {}; // return empty object if location fetching fails
+    }
+  };
+
 
   const handleLogin = async () => {
     setError("");
@@ -51,11 +70,13 @@ const Login = ({ onLoginSuccess }) => {
           setError("Please fill in all fields");
           return;
         }
-
+        const location = await getCurrentLocation();
         const response = await axios.post(`${API_BASE_URL}/auth/login`, {
           email,
           password,
-          role: "stylist"
+          role: "stylist",
+          latitude: location.latitude,
+          longitude: location.longitude
         });
 
         const token = response.data.token;
@@ -132,29 +153,6 @@ const Login = ({ onLoginSuccess }) => {
                 <FormControlLabel value="vendorpanel" control={<Radio />} label="VENDOR PANEL" />
               </RadioGroup>
             </FormControl>
-
-            {/* {panelType === "adminpanel" ? (
-              <>
-                <Input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} icon={<Email />} />
-                <Input
-                  placeholder="Password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  icon={<Lock />}
-                  endIcon={showPassword ? <VisibilityOff /> : <Visibility />}
-                  onEndIconClick={() => setShowPassword(!showPassword)}
-                />
-              </>
-            ) : (
-              <Input
-                placeholder="Enter Stylist ID"
-                type="text"
-                value={stylistId}
-                onChange={(e) => setStylistId(e.target.value)}
-                icon={<PersonOutlined />}
-              />
-            )} */}
             {panelType === "adminpanel" || panelType === "vendorpanel" ? (
               <>
                 <Input
