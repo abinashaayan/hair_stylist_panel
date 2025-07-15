@@ -8,6 +8,7 @@ import { CustomIconButton } from '../../custom/Button';
 import axios from 'axios';
 import { API_BASE_URL } from '../../utils/apiConfig';
 import Cookies from 'js-cookie';
+import { useSelector } from 'react-redux';
 
 const getInitialFields = (type) => {
   switch (type) {
@@ -48,12 +49,14 @@ const getApiEndpoint = (type) => {
   }
 };
 
-export default function ProfileEntityDialog({ open, type, onClose, profileData }) {
+export default function ProfileEntityDialog({ open, type, onClose, profileData, onSuccess }) {
   const [fields, setFields] = useState(getInitialFields(type));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [file, setFile] = useState(null);
 
-  console.log(profileData,'profileData')
+  const authToken = Cookies.get("token");
+  const stylistId = useSelector(state => state.stylistProfile?.profile?._id);
 
   React.useEffect(() => {
     if (open) {
@@ -66,26 +69,59 @@ export default function ProfileEntityDialog({ open, type, onClose, profileData }
     setFields({ ...fields, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = Cookies.get('token');
-      const endpoint = getApiEndpoint(type);
-      await axios.post(`${API_BASE_URL}${endpoint}`, fields, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (type === 'experience') {
+        await axios.patch(`${API_BASE_URL}/stylist/add-experience`, { newExperience: [fields] }, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          withCredentials: true,
+        }
+        );
+      } else if (type === 'expertise') {
+        await axios.patch(`${API_BASE_URL}/stylist/add-expertise`, { newExpertise: [fields] }, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          withCredentials: true,
+        }
+        );
+      } else if (type === 'certificate') {
+        if (!file) throw new Error('Please select a certificate file');
+        const formData = new FormData();
+        formData.append('files', file);
+        await axios.post(`${API_BASE_URL}/stylist/${stylistId}/certificates`, formData, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          withCredentials: true,
+        });
+      } else {
+        const endpoint = getApiEndpoint(type);
+        await axios.post(`${API_BASE_URL}${endpoint}`, fields, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+      }
       setLoading(false);
+      if (onSuccess) onSuccess();
       onClose();
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.message || 'Failed to add entity');
+      setError(err.response?.data?.message || err.message || 'Failed to add entity');
     }
   };
-
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -93,23 +129,26 @@ export default function ProfileEntityDialog({ open, type, onClose, profileData }
       <DialogContent>
         {type === 'expertise' && (
           <>
-            <Input placeholder="Service" name="service" value={fields.service} onChange={handleChange} />
-            <Input placeholder="Price" name="price" type="number" value={fields.price} onChange={handleChange} />
-            <Input placeholder="Duration (min)" name="duration" type="number" value={fields.duration} onChange={handleChange} />
+            <Input placeholder="Expertise" name="service" value={fields.service} onChange={handleChange} />
           </>
         )}
         {type === 'experience' && (
           <>
             <Input placeholder="Role" name="role" value={fields.role} onChange={handleChange} />
             <Input placeholder="Salon" name="salon" value={fields.salon} onChange={handleChange} />
-            <Input placeholder="Duration" name="duration" value={fields.duration} onChange={handleChange} />
+            <Input placeholder="Duration (min)" name="duration" type="number" value={fields.duration} onChange={handleChange} />
           </>
         )}
         {type === 'certificate' && (
           <>
-            <Input placeholder="Certificate Name" name="name" value={fields.name} onChange={handleChange} />
-            <Input placeholder="Institution" name="institution" value={fields.institution} onChange={handleChange} />
-            <Input placeholder="Year" name="year" type="number" value={fields.year} onChange={handleChange} />
+            <input type="file" accept="image/*" onChange={handleFileChange} style={{ marginTop: 8 }} />
+            {file && (
+              <img
+                src={URL.createObjectURL(file)}
+                alt="Certificate Preview"
+                style={{ marginTop: 12, maxWidth: '100%', maxHeight: 180, borderRadius: 8, border: '1px solid #eee' }}
+              />
+            )}
           </>
         )}
         {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}

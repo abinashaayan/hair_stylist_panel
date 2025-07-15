@@ -37,13 +37,14 @@ const Navbar = () => {
   const isMdDevices = useMediaQuery("(max-width:768px)");
   const isMobile = useMediaQuery("(max-width:480px)");
   const isNonMobile = useMediaQuery("(min-width: 768px)");
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [anchorEl, setAnchorEl] = useState(null);
+
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const open = Boolean(anchorEl);
   const panelType = localStorage.getItem("panelType");
-  const { profile, loading, error } = panelType === "vendor" ? useStylistProfile() : { profile: null, loading: false, error: null };
+  const { profile } = panelType === "vendor" ? useStylistProfile() : { profile: null, loading: false, error: null };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
