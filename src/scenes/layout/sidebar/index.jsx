@@ -14,13 +14,11 @@ import logo from "../../../assets/images/LOGO2.png";
 import { tokens } from "../../../theme";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import {
-  CalendarTodayOutlined,
   DashboardOutlined,
   MenuOutlined,
   PeopleAltOutlined,
   PersonOutlined,
   CalendarMonthOutlined,
-  HistoryOutlined,
   InventoryOutlined,
   AccessTimeOutlined,
   AddCircleOutline,
@@ -38,17 +36,7 @@ const SideBar = () => {
   const isMdDevices = useMediaQuery("(max-width:768px)");
   const isMobile = useMediaQuery("(max-width:480px)");
 
-  // Update the main content margin when sidebar state changes (desktop only)
-  // useEffect(() => {
-  //   if (!isMdDevices) {
-  //     const mainContent = document.querySelector('[data-main-content]');
-  //     if (mainContent) {
-  //       const sidebarWidth = collapsed ? 80 : 250;
-  //       mainContent.style.marginLeft = `${sidebarWidth}px`;
-  //     }
-  //   }
-  // }, [collapsed, isMdDevices]);
-  // Desktop: update marginLeft based on collapsed state
+
   useEffect(() => {
     if (!isMdDevices) {
       const mainContent = document.querySelector('[data-main-content]');
@@ -81,12 +69,11 @@ const SideBar = () => {
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
     ],
     vendor: [
-      // { title: "Calendar", path: "/calendar", icon: <CalendarMonthOutlined /> },
-      // { title: "History", path: "/history", icon: <HistoryOutlined /> },
       { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
+      { title: "Services", path: "/services", icon: <CalendarMonthOutlined /> },
+      { title: "Portfolio", path: "/portfolio", icon: <AddCircleOutline /> },
       { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
-      // { title: "Create Appointment", path: "/create-appointment", icon: <AddCircleOutline /> },
-      // { title: "Stylist Profile", path: "/stylist-profile", icon: <PersonOutlined /> },
+      // { title: "History", path: "/history", icon: <HistoryOutlined /> },
       // { title: "Change Password", path: "/change-password", icon: <PersonOutlined /> },
     ],
   };

@@ -324,6 +324,7 @@ const VendorProfile = () => {
               </Box>
             </CardContent>
           </Card>
+
         </Grid>
 
         {/* Certificates & Photos Gallery */}
