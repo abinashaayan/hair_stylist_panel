@@ -13,7 +13,6 @@ import {
   CardContent,
   Tooltip,
   Stack,
-  Paper,
   CircularProgress,
 } from "@mui/material";
 import {
@@ -42,7 +41,8 @@ import ProfileEntityDialog from './ProfileEntityDialog';
 import { API_BASE_URL } from '../../utils/apiConfig';
 import { useDispatch } from 'react-redux';
 import { fetchStylistProfile } from '../../hooks/stylistProfileSlice';
-
+import blak_image from '../../assets/images/blank_image.webp';
+import profileimage from '../../assets/images/profileimage.png';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { Trash2 } from 'lucide-react';
@@ -59,9 +59,8 @@ const VendorProfile = () => {
   const [dialogType, setDialogType] = React.useState(null);
   const [uploading, setUploading] = React.useState(false);
   const [currentSectionData, setCurrentSectionData] = React.useState(null);
-  const [deleteDialog, setDeleteDialog] = React.useState({ open: false, certId: null });
-  const [deletePhotoDialog, setDeletePhotoDialog] = React.useState({ open: false, photoId: null });
-  const [deleteExperienceDialog, setDeleteExperienceDialog] = React.useState({ open: false, experienceId: null });
+  const [deleteDialog, setDeleteDialog] = React.useState({ open: false, id: null, type: null });
+  const [deletingExpertiseId, setDeletingExpertiseId] = React.useState(null);
 
   const { profile, loading, error } = useStylistProfile();
   const theme = useTheme();
@@ -121,9 +120,10 @@ const VendorProfile = () => {
     }
   };
 
-  const handleDeleteCertificate = async (stylistId, certId) => {
+  const handleDeleteItem = async (stylistId, itemId, type) => {
+    if (type === 'expertise') setDeletingExpertiseId(itemId);
     try {
-      await axios.delete(`${API_BASE_URL}/stylist/item/delete/${stylistId}/${certId}?type=certificate`, {
+      await axios.delete(`${API_BASE_URL}/stylist/item/delete/${stylistId}/${itemId}?type=${type}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -131,35 +131,9 @@ const VendorProfile = () => {
       });
       dispatch(fetchStylistProfile());
     } catch (err) {
-      showErrorToast(err.response?.data?.message || 'Failed to delete certificate');
-    }
-  };
-
-  const handleDeletePhoto = async (stylistId, photoId) => {
-    try {
-      await axios.delete(`${API_BASE_URL}/stylist/item/delete/${stylistId}/${photoId}?type=photo`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        withCredentials: true,
-      });
-      dispatch(fetchStylistProfile());
-    } catch (err) {
-      showErrorToast(err.response?.data?.message || 'Failed to delete photo');
-    }
-  };
-
-  const handleDeleteExperience = async (stylistId, experienceId) => {
-    try {
-      await axios.delete(`${API_BASE_URL}/stylist/item/delete/${stylistId}/${experienceId}?type=experience`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        withCredentials: true,
-      });
-      dispatch(fetchStylistProfile());
-    } catch (err) {
-      showErrorToast(err.response?.data?.message || 'Failed to delete experience');
+      showErrorToast(err.response?.data?.message || `Failed to delete ${type}`);
+    } finally {
+      if (type === 'expertise') setDeletingExpertiseId(null);
     }
   };
 
@@ -205,34 +179,20 @@ const VendorProfile = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }}>
             <Box sx={{ position: 'relative', width: 140, height: 140 }}>
               <Avatar
-                src={profile?.profilePicture || "/src/assets/images/avatar.png"}
+                src={profile?.profilePicture || profileimage}
+                onError={(e) => { e.target.onerror = null; e.target.src = profileimage; }}
                 sx={{ width: 140, height: 140, border: '6px solid #fff', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', background: '#fff' }}
               />
               {/* Upload Icon Overlay */}
               <IconButton
-                sx={{
-                  position: 'absolute',
-                  bottom: 8,
-                  right: 8,
-                  background: '#fff',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  p: 1,
-                  zIndex: 3,
-                }}
+                sx={{ position: 'absolute', bottom: 8, right: 8, background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', p: 1, zIndex: 3, }}
                 onClick={handleUploadClick}
                 disabled={uploading}
               >
                 <PhotoCamera sx={{ color: uploading ? '#aaa' : '#6D295A' }} />
               </IconButton>
               {/* Hidden file input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-                disabled={uploading}
-              />
+              <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} disabled={uploading} />
               {/* Loading overlay */}
               {uploading && (
                 <Box sx={{
@@ -306,16 +266,25 @@ const VendorProfile = () => {
                 <CustomIconButton size="small" icon={<PersonAdd />} text="Update Expertise" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('expertise')} />
               </Box>
               <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
-                {profile?.expertise?.map((exp, idx) => (
+                {profile?.expertise?.map((exp) => (
                   <Chip
-                    key={idx}
+                    key={exp}
                     label={exp}
-                    // color="secondary"
                     variant="outlined"
+                    onDelete={() => setDeleteDialog({ open: true, id: exp, type: 'expertise' })}
+                    deleteIcon={
+                      deletingExpertiseId === exp ? (
+                        <CircularProgress size={18} sx={{ color: '#ff4d4f' }} />
+                      ) : (
+                        <Trash2 size={18} color="#ff4d4f" />
+                      )
+                    }
                     sx={{ fontWeight: "bold", color: "#6d295a", borderRadius: 2 }}
+                    disabled={deletingExpertiseId === exp}
                   />
                 ))}
               </Box>
+
               {/* Subservices as chips */}
               {profile?.expertise?.map((exp, idx) => (
                 exp.subServices && exp.subServices.length > 0 && (
@@ -360,7 +329,7 @@ const VendorProfile = () => {
                         {exp.role} at {exp.salon} ({exp.duration})
                       </Typography>
                     </Stack>
-                    <IconButton onClick={e => { e.preventDefault(); setDeleteExperienceDialog({ open: true, experienceId: exp._id }); }} sx={{ backgroundColor: "#6d295a", color: "#fff", '&:hover': { backgroundColor: "#5c2350" } }}>
+                    <IconButton onClick={e => { e.preventDefault(); setDeleteDialog({ open: true, id: exp._id, type: 'experience' }); }} sx={{ backgroundColor: "#6d295a", color: "#fff", '&:hover': { backgroundColor: "#5c2350" } }}>
                       <Trash2 size={20} color="white" />
                     </IconButton>
                   </Stack>
@@ -388,13 +357,14 @@ const VendorProfile = () => {
                           height="90"
                           image={cert.url}
                           alt={cert.name}
+                          onError={(e) => { e.target.onerror = null; e.target.src = blak_image; }}
                           sx={{ borderRadius: 3, border: cert.verified ? `2px solid ${colors.greenAccent[500]}` : `2px solid ${colors.primary[400]}` }}
                         />
                       </a>
                       <IconButton
                         size="small"
                         sx={{ position: 'absolute', top: 6, left: 6, background: '#fff', zIndex: 2, '&:hover': { background: '#fff' } }}
-                        onClick={e => { e.preventDefault(); setDeleteDialog({ open: true, certId: cert._id }); }}
+                        onClick={e => { e.preventDefault(); setDeleteDialog({ open: true, id: cert._id, type: 'certificate' }); }}
                       >
                         <Trash2 size={20} color="#ff4d4f" />
                       </IconButton>
@@ -421,12 +391,13 @@ const VendorProfile = () => {
                         height="90"
                         image={photo.url}
                         alt={photo.name}
+                        onError={(e) => { e.target.onerror = null; e.target.src = blak_image; }}
                         sx={{ borderRadius: 3, border: photo.verified ? `2px solid ${colors.greenAccent[500]}` : `2px solid ${colors.primary[400]}` }}
                       />
                       <IconButton
                         size="small"
                         sx={{ position: 'absolute', top: 6, left: 6, background: '#fff', zIndex: 2, '&:hover': { background: '#fff' } }}
-                        onClick={e => { e.preventDefault(); setDeletePhotoDialog({ open: true, photoId: photo._id }); }}
+                        onClick={e => { e.preventDefault(); setDeleteDialog({ open: true, id: photo._id, type: 'photo' }); }}
                       >
                         <Trash2 size={20} color="#ff4d4f" />
                       </IconButton>
@@ -447,43 +418,13 @@ const VendorProfile = () => {
       {deleteDialog.open && (
         <Alert
           open={deleteDialog.open}
-          title="Delete Certificate"
-          description="Are you sure you want to delete this certificate? This action cannot be undone."
-          onClose={() => setDeleteDialog({ open: false, certId: null })}
+          title={`Delete ${deleteDialog.type.charAt(0).toUpperCase() + deleteDialog.type.slice(1)}`}
+          description={`Are you sure you want to delete this ${deleteDialog.type}? This action cannot be undone.`}
+          onClose={() => setDeleteDialog({ open: false, id: null, type: null })}
           onConfirm={e => {
             if (e && e.preventDefault) e.preventDefault();
-            handleDeleteCertificate(profile?._id, deleteDialog.certId);
-            setDeleteDialog({ open: false, certId: null });
-          }}
-          type="warning"
-        />
-      )}
-      {/* Alert for photo delete confirmation */}
-      {deletePhotoDialog.open && (
-        <Alert
-          open={deletePhotoDialog.open}
-          title="Delete Photo"
-          description="Are you sure you want to delete this photo? This action cannot be undone."
-          onClose={() => setDeletePhotoDialog({ open: false, photoId: null })}
-          onConfirm={e => {
-            if (e && e.preventDefault) e.preventDefault();
-            handleDeletePhoto(profile?._id, deletePhotoDialog.photoId);
-            setDeletePhotoDialog({ open: false, photoId: null });
-          }}
-          type="warning"
-        />
-      )}
-      {/* Alert for experience delete confirmation */}
-      {deleteExperienceDialog.open && (
-        <Alert
-          open={deleteExperienceDialog.open}
-          title="Delete Experience"
-          description="Are you sure you want to delete this experience? This action cannot be undone."
-          onClose={() => setDeleteExperienceDialog({ open: false, experienceId: null })}
-          onConfirm={e => {
-            if (e && e.preventDefault) e.preventDefault();
-            handleDeleteExperience(profile?._id, deleteExperienceDialog.experienceId);
-            setDeleteExperienceDialog({ open: false, experienceId: null });
+            handleDeleteItem(profile?._id, deleteDialog.id, deleteDialog.type);
+            setDeleteDialog({ open: false, id: null, type: null });
           }}
           type="warning"
         />

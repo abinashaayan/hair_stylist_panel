@@ -87,7 +87,7 @@ export default function ProfileEntityDialog({ open, type, onClose, profileData, 
         }
         );
       } else if (type === 'expertise') {
-        await axios.patch(`${API_BASE_URL}/stylist/add-expertise`, { newExpertise: [fields] }, {
+        await axios.patch(`${API_BASE_URL}/stylist/add-expertise`, { expertise: [fields.service] }, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
