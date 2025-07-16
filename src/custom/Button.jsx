@@ -12,6 +12,7 @@ export const CustomIconButton = ({
   variant = "contained",
   fontWeight = "500",
   size = "medium",
+  sx = {}, // <-- accept sx prop
 }) => {
   const theme = useTheme();
   const isOutlined = variant === "outlined";
@@ -65,6 +66,7 @@ export const CustomIconButton = ({
             ? `${buttonTextColor}1A`
             : color,
         },
+        ...sx, // <-- merge/override with sx prop
       }}
       onClick={(event) => {
         event.stopPropagation();

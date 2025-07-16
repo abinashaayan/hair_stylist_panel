@@ -379,10 +379,20 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) =>
         width: 80,
         renderCell: (params) => {
             const photoUrl = params.row.coverImage;
-            if (!photoUrl) {
-                return <img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} />;
-            }
-            return <ImageWithLoader src={photoUrl} alt={params.row.title || "Package"} />;
+            const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
+
+            return (
+                <img
+                    src={photoUrl || fallbackUrl}
+                    alt="img"
+                    height={40}
+                    width={40}
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = fallbackUrl;
+                    }}
+                />
+            );
         },
     },
     { field: "title", headerName: "Title", flex: 1 },
