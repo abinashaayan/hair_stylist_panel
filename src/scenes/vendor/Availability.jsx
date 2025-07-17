@@ -141,7 +141,7 @@ const Availability = () => {
         <Box flex={1} minWidth={350} maxWidth={600}>
           <Card sx={{ minWidth: 350, maxWidth: 600, width: '100%', boxShadow: 4, borderRadius: 4 }}>
             <CardContent>
-               <Typography variant="h6" fontWeight={700} mb={2} color="primary.main">
+              <Typography variant="h6" fontWeight={700} mb={2} color="primary.main">
                 Availability Management
               </Typography>
               <Divider sx={{ mb: 2 }} />
@@ -189,11 +189,7 @@ const Availability = () => {
                 <Tooltip title="Mark this day as closed for appointments">
                   <Typography fontWeight={500} color="text.secondary">Closed</Typography>
                 </Tooltip>
-                <Switch
-                  checked={currentAvailability.isClosed}
-                  onChange={toggleClosed}
-                  color="error"
-                />
+                <Switch checked={currentAvailability.isClosed} onChange={toggleClosed} color="error" />
               </Box>
               {!currentAvailability.isClosed && (
                 <Box mt={2}>
@@ -306,12 +302,7 @@ const Availability = () => {
                   size="large"
                   fontWeight={600}
                   variant="contained"
-                  sx={{
-                    minWidth: 200,
-                    fontSize: '1rem',
-                    borderRadius: '20px',
-                    padding: '8px 24px'
-                  }}
+                  sx={{ minWidth: 200, fontSize: '1rem', borderRadius: '20px', padding: '8px 24px' }}
                 />
               </Box>
             </CardContent>
