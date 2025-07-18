@@ -3,9 +3,7 @@ import {
     Container,
     IconButton,
     InputBase,
-    Button,
     useTheme,
-    Typography,
 } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined, PersonAdd } from "@mui/icons-material";
@@ -50,7 +48,6 @@ export default function Category() {
                     Authorization: `Bearer ${authToken}`,
                 },
             });
-
             if (response?.data?.status === 200) {
                 const formattedData = response?.data?.data.map((category) => ({
                     id: category._id,
@@ -151,7 +148,7 @@ export default function Category() {
     };
 
     const handleView = (row) => {
-        setViewValue(row.productName);
+        setViewValue(row);
         setViewStatus(row.approved);
         setIsViewDialog(true);
     };

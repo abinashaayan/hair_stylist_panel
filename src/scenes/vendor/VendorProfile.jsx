@@ -61,6 +61,7 @@ const VendorProfile = () => {
   const [currentSectionData, setCurrentSectionData] = React.useState(null);
   const [deleteDialog, setDeleteDialog] = React.useState({ open: false, id: null, type: null });
   const [deletingExpertiseId, setDeletingExpertiseId] = React.useState(null);
+  const [photoUploading, setPhotoUploading] = React.useState(false);
 
   const { profile, loading, error } = useStylistProfile();
   const theme = useTheme();
@@ -69,6 +70,7 @@ const VendorProfile = () => {
   const fileInputRef = React.useRef();
   const authToken = Cookies.get("token");
   const dispatch = useDispatch();
+  const photoInputRef = React.useRef();
 
   const handleOpenDialog = (type) => {
     let dataToSend = null;
@@ -134,6 +136,38 @@ const VendorProfile = () => {
       showErrorToast(err.response?.data?.message || `Failed to delete ${type}`);
     } finally {
       if (type === 'expertise') setDeletingExpertiseId(null);
+    }
+  };
+
+  // Photo upload handler
+  const handlePhotoUploadClick = () => {
+    if (photoInputRef.current) photoInputRef.current.click();
+  };
+
+  const handlePhotoFileChange = async (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    setPhotoUploading(true);
+    try {
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+      await axios.post(
+        `${API_BASE_URL}/stylist/add-photos`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      dispatch(fetchStylistProfile());
+    } catch (err) {
+      showErrorToast(err.response?.data?.message || 'Failed to upload photo(s)');
+    } finally {
+      setPhotoUploading(false);
     }
   };
 
@@ -381,7 +415,14 @@ const VendorProfile = () => {
 
           <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', p: 2, }}>
             <CardContent>
-              <Typography variant="h6" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Photos</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>Photo</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CustomIconButton size="small" icon={<PersonAdd />} text="Update Photo" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handlePhotoUploadClick} disabled={photoUploading} />
+                  <input ref={photoInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoFileChange} multiple disabled={photoUploading} />
+                  {photoUploading && <CircularProgress size={24} sx={{ ml: 1 }} />}
+                </Box>
+              </Box>
               <Grid container spacing={2}>
                 {profile?.photos?.map((photo) => (
                   <Grid item xs={6} key={photo._id}>

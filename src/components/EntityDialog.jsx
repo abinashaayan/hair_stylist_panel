@@ -45,6 +45,7 @@ const EntityDialog = ({
   const [customOtherValue, setCustomOtherValue] = useState("");
 
   const authToken = Cookies.get("token");
+  console.log("viewValue:", viewValue);
 
   useEffect(() => {
     if (!open) {

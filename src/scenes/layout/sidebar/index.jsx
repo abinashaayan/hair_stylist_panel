@@ -23,6 +23,7 @@ import {
   AccessTimeOutlined,
   AddCircleOutline,
   Close,
+  HistoryOutlined,
 } from "@mui/icons-material";
 import Item from "./Item";
 import { ToggledContext } from "../../../App";
@@ -65,16 +66,15 @@ const SideBar = () => {
       { title: "Products", path: "/product", icon: <PersonOutlined /> },
       { title: "Category", path: "/category", icon: <PeopleAltOutlined /> },
       { title: "Service", path: "/service", icon: <PeopleAltOutlined /> },
-      //  { title: "Service Management", path: "/service-management", icon: <AddCircleOutline /> },
       { title: "Order Details", path: "/order-details", icon: <PeopleAltOutlined /> },
+      { title: "Appointment Status", path: "/appointment-status", icon: <PersonOutlined /> },
     ],
     vendor: [
       { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
       { title: "Services", path: "/services", icon: <CalendarMonthOutlined /> },
       { title: "Portfolio", path: "/portfolio", icon: <AddCircleOutline /> },
       { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
-      // { title: "History", path: "/history", icon: <HistoryOutlined /> },
-      // { title: "Change Password", path: "/change-password", icon: <PersonOutlined /> },
+      { title: "Appointment Management", path: "/appointment", icon: <HistoryOutlined /> },
     ],
   };
 

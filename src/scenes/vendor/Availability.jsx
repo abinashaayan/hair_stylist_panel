@@ -12,6 +12,7 @@ import { showSuccessToast, showErrorToast } from '../../Toast';
 import axios from 'axios';
 import Cookies from "js-cookie";
 import { API_BASE_URL } from '../../utils/apiConfig';
+import { Trash2 } from 'lucide-react';
 
 const TIME_SLOTS = {
   Morning: [
@@ -51,6 +52,7 @@ const Availability = () => {
         },
         withCredentials: true,
       });
+      console.log('Availability data fetched:', res.data);
       if (res.data && res.data.success) {
         setApiData(res.data.data || []);
       }
@@ -132,6 +134,43 @@ const Availability = () => {
       setLoading(false);
     }
   };
+
+  const handleDeleteSlot = async (date, slot) => {
+    try {
+      setLoading(true);
+      if (slot) {
+        // Delete specific slot for a date
+        await axios.delete(`${API_BASE_URL}/stylist/delete-availability-slot/${date}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          data: {
+            from: slot.from,
+            till: slot.till,
+          },
+          withCredentials: true,
+        });
+        showSuccessToast('Slot deleted successfully');
+      } else {
+        // Delete entire availability for a date
+        await axios.delete(`${API_BASE_URL}/stylist/delete-availability/${date}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+        showSuccessToast('Availability deleted successfully');
+      }
+      fetchAvailability();
+    } catch (error) {
+      showErrorToast('Failed to delete availability');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <Box>
@@ -262,16 +301,24 @@ const Availability = () => {
                               .minute(Number(slot.from.split(':')[1]))
                               .second(0)
                               .millisecond(0);
-                            const isPastSlot = selectedDate.isSame(dayjs(), 'day') && slotDateTime.isBefore(dayjs());
+                            const isPastSlot = selectedDate.isBefore(dayjs(), 'day') || (selectedDate.isSame(dayjs(), 'day') && slotDateTime.isBefore(dayjs()));
+
+                            // Disable if slot is already present in apiData for the selected date
+                            let isAlreadyAvailable = false;
+                            const apiDate = apiData.find(item => item.date === selectedDate.format('YYYY-MM-DD'));
+                            if (apiDate && apiDate.slots) {
+                              isAlreadyAvailable = apiDate.slots.some(s => s.from === slot.from && s.till === slot.till);
+                            }
+
                             const slotLabel = `${dayjs(`2000-01-01T${slot.from}`).format('hh:mm A')} - ${dayjs(`2000-01-01T${slot.till}`).format('hh:mm A')}`;
                             return (
                               <Chip
                                 key={`${slot.from}-${slot.till}`}
                                 label={slotLabel}
-                                onClick={() => !isPastSlot && toggleSlot(slot)}
+                                onClick={() => !isPastSlot && !isAlreadyAvailable && toggleSlot(slot)}
                                 icon={selected ? <CheckCircleIcon fontSize="small" sx={{ color: 'white' }} /> : null}
                                 variant={selected ? 'filled' : 'outlined'}
-                                disabled={isPastSlot}
+                                disabled={isPastSlot || isAlreadyAvailable}
                                 sx={{
                                   minWidth: 90,
                                   fontWeight: 'bold',
@@ -279,8 +326,8 @@ const Availability = () => {
                                   backgroundColor: selected ? '#6d295a' : undefined,
                                   color: selected ? 'white' : '#6d295a',
                                   border: selected ? undefined : '1px solid #6d295a',
-                                  opacity: isPastSlot ? 0.5 : 1,
-                                  cursor: isPastSlot ? 'not-allowed' : 'pointer',
+                                  opacity: isPastSlot || isAlreadyAvailable ? 0.5 : 1,
+                                  cursor: isPastSlot || isAlreadyAvailable ? 'not-allowed' : 'pointer',
                                 }}
                               />
                             );
@@ -314,14 +361,19 @@ const Availability = () => {
               <Typography variant="h6" fontWeight={700} mb={2} color="primary.main">
                 All Availability Slots
               </Typography>
-              {apiData.length === 0 ? (
+              {apiData?.length === 0 ? (
                 <Typography color="text.secondary">No availability data found.</Typography>
               ) : (
-                apiData.map((item) => (
+                apiData?.map((item) => (
                   <Box key={item._id} mb={2} p={2} borderRadius={2} bgcolor="#f8f8fa" boxShadow={1}>
-                    <Typography fontWeight={600} color="#6d295a">
-                      {item.date}
-                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography fontWeight={600} color="#6d295a">
+                        {item.date}
+                      </Typography>
+                      <IconButton size="small" onClick={() => handleDeleteSlot(item.date)} sx={{ color: '#6d295a', p: 0.5 }}>
+                        <Trash2 size={16} />
+                      </IconButton>
+                    </Box>
                     <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
                       {item.slots.map(slot => (
                         <Chip
@@ -329,7 +381,16 @@ const Availability = () => {
                           label={`${slot.from} - ${slot.till}`}
                           color="primary"
                           size="small"
-                          sx={{ bgcolor: '#6d295a', color: 'white', fontWeight: 600 }}
+                          sx={{
+                            bgcolor: '#6d295a',
+                            color: 'white',
+                            fontWeight: 600,
+                            '& .MuiChip-deleteIcon': {
+                              marginLeft: '5px'
+                            }
+                          }}
+                          deleteIcon={<Trash2 size={16} />}
+                          onDelete={() => handleDeleteSlot(item.date, slot)}
                         />
                       ))}
                     </Box>

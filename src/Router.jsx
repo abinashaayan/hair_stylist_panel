@@ -7,7 +7,7 @@ import PrivateRoute from "./utils/PrivateRoute";
 import VendorDashboard from "./vendors/VendorDashboard";
 import VendorProfile from "./scenes/vendor/VendorProfile";
 import ServiceManagement from "./scenes/vendor/ServiceManagement";
-import History from "./scenes/vendor/History";
+import Appointment from "./scenes/vendor/Appointment";
 import Packages from "./scenes/vendor/Packages";
 import Availability from "./scenes/vendor/Availability";
 import Portfolio from "./scenes/vendor/Portfolio";
@@ -18,9 +18,9 @@ import CustomerDetails from "./scenes/admin/CustomerDetails";
 import RegisteredStylist from "./scenes/admin/RegisteredStylist";
 import Category from "./scenes/admin/Category";
 import ServiceCategory from "./scenes/admin/ServiceCategory";
-import ChangePassword from "./scenes/vendor/ChangePassword";
 import LoadingScreen from "./components/LoadingScreen";
 import Services from "./scenes/vendor/Services";
+import AppointmentStatus from "./scenes/admin/AppointmentStatus";
 
 const AppRouter = () => {
   const { isAuthenticated, panelType, token, stylistId, login } = useAuth();
@@ -45,17 +45,17 @@ const AppRouter = () => {
                 <Route path="service" element={<ServiceCategory />} />
                 <Route path="service-management" element={<ServiceManagement />} />
                 <Route path="order-details" element={<OrderDetails />} />
+                <Route path="appointment-status" element={<AppointmentStatus />} />
               </>
             ) : panelType === "vendor" ? (
               <>
                 <Route index element={<VendorDashboard />} />
                 <Route path="services" element={<Services />} />
-                <Route path="history" element={<History />} />
+                <Route path="appointment" element={<Appointment />} />
                 <Route path="packages" element={<Packages />} />
                 <Route path="availability" element={<Availability />} />
                 <Route path="portfolio" element={<Portfolio />} />
                 <Route path="stylist-profile" element={<VendorProfile />} />
-                <Route path="change-password" element={<ChangePassword />} />
               </>
             ) : (
               <Route index element={<Navigate to="/login" replace />} />

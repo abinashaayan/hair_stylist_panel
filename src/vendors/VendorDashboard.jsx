@@ -40,8 +40,8 @@ const VendorDashboard = () => {
   const month = 1;
 
   const statData = [
-    { title: "Calendar", value: "31", path: "/calendar", icon: <CalendarMonth /> },
-    { title: "Appointment requests", path: "/appointment-requests", icon: <EventNoteOutlined /> },
+    // { title: "Calendar", value: "31", path: "/calendar", icon: <CalendarMonth /> },
+    { title: "Availability Management", path: "/availability", icon: <EventNoteOutlined /> },
     { title: "Upcoming Appointments", path: "", icon: <SpaOutlined /> },
     { title: "History", path: "/history", icon: <HistoryOutlined /> },
     { title: "Packages", path: "/packages", icon: <RedeemOutlined /> },

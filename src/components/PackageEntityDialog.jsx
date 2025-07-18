@@ -10,7 +10,6 @@ import { API_BASE_URL } from '../utils/apiConfig';
 import Cookies from 'js-cookie';
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import useStylistProfile from '../hooks/useStylistProfile';
 import SelectInput from '../custom/Select';
 import MultiSelectWithCheckbox from '../custom/MultiSelectWithCheckbox';
 

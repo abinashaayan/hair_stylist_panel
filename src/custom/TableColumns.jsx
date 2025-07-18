@@ -514,5 +514,232 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) =>
     },
 ];
 
+export const orderDetailsTableColumns = ({ handleDelete, handleView }) => [
+    {
+        field: "photo",
+        headerName: "Image",
+        width: 80,
+        renderCell: (params) => {
+            const photoUrl = params.row.coverImage;
+            const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
+
+            return (
+                <img
+                    src={photoUrl || fallbackUrl}
+                    alt="img"
+                    height={40}
+                    width={40}
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = fallbackUrl;
+                    }}
+                />
+            );
+        },
+    },
+    { field: "title", headerName: "Title", flex: 1 },
+    { field: "about", headerName: "About", flex: 2 },
+    {
+        field: "serviceName",
+        headerName: "Service",
+        flex: 1,
+        renderCell: (params) => params.row.serviceId?.name || "N/A",
+    },
+    {
+        field: "subServiceName",
+        headerName: "Sub Services",
+        flex: 1.5,
+        renderCell: (params) => {
+            const subServices = Array.isArray(params.row.subService) ? params.row.subService : [];
+            return (
+                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {subServices.length > 0
+                        ? subServices.map((sub) => (
+                            <Chip
+                                key={sub._id}
+                                label={sub.name}
+                                size="small"
+                                sx={{
+                                    bgcolor: 'info.main',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                }}
+                            />
+                        ))
+                        : "N/A"}
+                </Box>
+            );
+        },
+    },
+    {
+        field: "price",
+        headerName: "Price",
+        flex: 0.6,
+        renderCell: (params) => (
+            <Chip
+                label={`₹${params.row.price || 0}`}
+                size="small"
+                sx={{
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    fontWeight: 'bold',
+                }}
+            />
+        ),
+    },
+    {
+        field: "discount",
+        headerName: "Discount",
+        flex: 0.6,
+        renderCell: (params) => (
+            <Chip
+                label={`${params.row.discount || 0}% OFF`}
+                size="small"
+                sx={{
+                    bgcolor: 'secondary.main',
+                    color: 'white',
+                    fontWeight: 'bold',
+                }}
+            />
+        ),
+    },
+    {
+        field: "date",
+        headerName: "Date",
+        flex: 1,
+        renderCell: (params) =>
+            Array.isArray(params.row.date) && params.row.date[0]
+                ? new Date(params.row.date[0]).toLocaleDateString()
+                : "N/A",
+    },
+    {
+        field: "duration",
+        headerName: "Duration (min)",
+        flex: 0.7,
+        renderCell: (params) => {
+            const duration = Number(params.row.duration || 0);
+            let chipColor = 'success.main';
+            if (duration > 120) chipColor = 'error.main';
+            else if (duration > 60) chipColor = 'warning.main';
+            return (
+                <Chip
+                    label={`${duration} min`}
+                    size="small"
+                    variant="filled"
+                    sx={{
+                        bgcolor: chipColor,
+                        color: 'white',
+                        fontWeight: 'bold',
+                    }}
+                />
+            );
+        },
+    },
+    {
+        field: "createdAt",
+        headerName: "Created At",
+        flex: 1,
+        renderCell: (params) => params.row.createdAt ? new Date(params.row.createdAt).toLocaleDateString() : 'N/A'
+    },
+    {
+        field: "action",
+        headerName: "Action",
+        width: 140,
+        sortable: false,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+            </Box>
+        ),
+    },
+];
+
+export const allAppointmentStatusTableColumns = ({ handleDelete, handleView }) => [
+    {
+        field: "user",
+        headerName: "User",
+        flex: 1,
+        renderCell: (params) => params.row.user?.fullName || "N/A",
+    },
+    {
+        field: "userEmail",
+        headerName: "User Email",
+        flex: 1.5,
+        renderCell: (params) => params.row.user?.email || "N/A",
+    },
+    {
+        field: "stylist",
+        headerName: "Stylist",
+        flex: 1,
+        renderCell: (params) => params.row.stylist?.fullName || "N/A",
+    },
+    {
+        field: "service",
+        headerName: "Service",
+        flex: 1,
+        renderCell: (params) => params.row.service?.name || "N/A",
+    },
+    {
+        field: "date",
+        headerName: "Date",
+        flex: 1,
+        renderCell: (params) => params.row.date ? new Date(params.row.date).toLocaleDateString() : "N/A",
+    },
+    {
+        field: "slot",
+        headerName: "Slot",
+        flex: 1,
+        renderCell: (params) => {
+            const slot = params.row.slot;
+            return slot ? `${slot.from} - ${slot.till}` : "N/A";
+        }
+    },
+    {
+        field: "status",
+        headerName: "Status",
+        flex: 0.8,
+        renderCell: (params) => {
+            const { status, _id } = params.row;
+            const statusOptions = ["confirmed", "cancelled"];
+            return (
+                <select
+                    value={status}
+                    onChange={e => params.colDef.handleStatusUpdate ? params.colDef.handleStatusUpdate(_id, e.target.value) : undefined}
+                    style={{ padding: '4px 8px', borderRadius: 4 }}
+                >
+                    {statusOptions.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                </select>
+            );
+        },
+        handleStatusUpdate: undefined, // will be set by columns factory
+    },
+    {
+        field: "notes",
+        headerName: "Notes",
+        flex: 1.5,
+        renderCell: (params) => params.row.notes || "N/A"
+    },
+    {
+        field: "createdAt",
+        headerName: "Created At",
+        flex: 1,
+        renderCell: (params) => params.row.createdAt ? new Date(params.row.createdAt).toLocaleString() : 'N/A'
+    },
+    {
+        field: "action",
+        headerName: "Action",
+        width: 120,
+        sortable: false,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row._id)} />
+            </Box>
+        ),
+    },
+];
 
 
