@@ -3,6 +3,7 @@ import {
     Box,
     Alert,
     CircularProgress,
+    useTheme,
 } from "@mui/material";
 import { tokens } from "../../theme";
 import { Header } from '../../components';
@@ -17,10 +18,12 @@ const AppointmentStatus = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const handleDelete = () => {};
-    const handleView = () => {};
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
 
-    // Handler to update appointment status
+    const handleDelete = () => { };
+    const handleView = () => { };
+
     const handleStatusUpdate = async (appointmentId, newStatus) => {
         setLoading(true);
         setError(null);
@@ -59,7 +62,7 @@ const AppointmentStatus = () => {
                 const response = await axios.get(`${API_BASE_URL}/admin/appointments`, {
                     headers: {
                         Authorization: `Bearer ${authToken}`,
-                    "Content-Type": "application/json",
+                        "Content-Type": "application/json",
                     },
                     withCredentials: true,
                 });
@@ -90,7 +93,7 @@ const AppointmentStatus = () => {
             {!loading && !error && (
                 <CustomTable
                     columns={columns}
-                   rows={appointments.map(appt => ({ ...appt, id: appt._id }))}
+                    rows={appointments.map(appt => ({ ...appt, id: appt._id }))}
                     loading={loading}
                     noRowsMessage="No appointments found."
                 />

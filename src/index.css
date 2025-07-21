@@ -82,3 +82,9 @@ body,
     font-size: 16px !important;
   }
 }
+
+/* Expired appointment row style */
+.expired-row {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+}
