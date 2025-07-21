@@ -178,17 +178,39 @@ export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleVi
 ];
 
 export const ProductTableColumns = ({ handleDelete, handleView, handleEdit }) => [
-    {
+    // {
+    //     field: "photo",
+    //     headerName: "Image",
+    //     width: 80,
+    //     renderCell: (params) => {
+    //         const photoUrl = params.row.photos && params.row.photos.length > 0 ? params.row.photos[0] : null;
+    //         if (!photoUrl) {
+    //             return <span><img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} /></span>;
+    //         }
+    //         return (
+    //             <ImageWithLoader src={photoUrl} alt={params.row.name} />
+    //         );
+    //     },
+    // },
+     {
         field: "photo",
         headerName: "Image",
         width: 80,
         renderCell: (params) => {
             const photoUrl = params.row.photos && params.row.photos.length > 0 ? params.row.photos[0] : null;
-            if (!photoUrl) {
-                return <span><img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} /></span>;
-            }
+            const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
+
             return (
-                <ImageWithLoader src={photoUrl} alt={params.row.name} />
+                <img
+                    src={photoUrl || fallbackUrl}
+                    alt="img"
+                    height={40}
+                    width={40}
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = fallbackUrl;
+                    }}
+                />
             );
         },
     },

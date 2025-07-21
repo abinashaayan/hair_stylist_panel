@@ -7,7 +7,6 @@ import {
   Box,
   Typography,
   InputLabel,
-  CircularProgress,
 } from "@mui/material";
 import Input from "../custom/Input";
 import { CustomIconButton } from "../custom/Button";
@@ -346,7 +345,6 @@ const ProductEntityDialog = ({
               </Box>
             </Box>
           )}
-
           {mode !== 'view' && (
             <>
               <InputLabel sx={{ mt: 2 }}>Product Images</InputLabel>
@@ -358,6 +356,10 @@ const ProductEntityDialog = ({
                     src={url}
                     alt={`Product Preview ${idx + 1}`}
                     style={{ maxWidth: '120px', maxHeight: '120px', objectFit: 'contain', borderRadius: 8 }}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png';
+                    }}
                   />
                 ))}
               </Box>
