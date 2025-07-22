@@ -8,8 +8,8 @@ const portfolio = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const { profile, loading, error } = useStylistProfile();
-  console.log('Profile response', profile);
+  const { profile, loading } = useStylistProfile();
+  console.log("profile", profile?.portfolio);
 
   return (
     <Box m="20px">
@@ -21,12 +21,12 @@ const portfolio = () => {
             <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', mb: 3, p: 2, }}>
               <CardContent>
                 <Grid container spacing={2}>
-                  {profile?.doc?.portfolio?.length === 0 && (
+                  {(!profile?.portfolio || profile.portfolio.length === 0) && (
                     <Grid item xs={12}>
                       <Typography color="textSecondary">No portfolio items available.</Typography>
                     </Grid>
                   )}
-                  {profile?.doc?.portfolio?.map((item) => (
+                  {profile?.portfolio?.map((item) => (
                     <Grid item xs={12} sm={6} md={4} key={item._id}>
                       <Box
                         sx={{

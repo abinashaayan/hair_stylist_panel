@@ -14,7 +14,6 @@ export const fetchStylistProfile = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Stylist Profile Response:", response.data);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch profile');

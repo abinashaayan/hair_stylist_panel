@@ -65,7 +65,8 @@ const VendorProfile = () => {
 
   const { profile, loading, error } = useStylistProfile();
 
-  // console.log('Profile response', profile);
+  console.log("profile", profile?.expertise);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -262,15 +263,15 @@ const VendorProfile = () => {
                     profile?.about?.address ||
                     (profile?.address
                       ? [
-                          profile.address.house,
-                          profile.address.street,
-                          profile.address.city,
-                          profile.address.province,
-                          profile.address.zipCode,
-                          profile.address.country,
-                        ]
-                          .filter(Boolean)
-                          .join(', ')
+                        profile.address.house,
+                        profile.address.street,
+                        profile.address.city,
+                        profile.address.province,
+                        profile.address.zipCode,
+                        profile.address.country,
+                      ]
+                        .filter(Boolean)
+                        .join(', ')
                       : '')
                   }
                 </Typography>
@@ -318,7 +319,7 @@ const VendorProfile = () => {
                 <CustomIconButton size="small" icon={<PersonAdd />} text="Update Expertise" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('expertise')} />
               </Box>
               <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
-                {profile?.doc?.expertise?.map((exp) => (
+                {profile?.expertise?.map((exp) => (
                   <Chip
                     key={exp}
                     label={exp}
@@ -337,31 +338,36 @@ const VendorProfile = () => {
                 ))}
               </Box>
 
-              {/* Subservices as chips */}
-              {profile?.expertise?.map((exp, idx) => (
-                exp.subServices && exp.subServices.length > 0 && (
-                  <Box key={idx} mt={1} display="flex" flexWrap="wrap" gap={1}>
-                    {exp?.subServices?.map((s) => (
-                      <Chip
-                        key={s._id}
-                        label={s.name}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-
-                          borderRadius: 2,
-                          border: '1px solid orange',
-                          color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-                          backgroundColor: 'transparent',
-                          '& .MuiChip-label': {
-                            padding: '0 8px',
-                          },
-                        }}
-                      />
-                    ))}
-                  </Box>
-                )
-              ))}
+              {/* expertise as chips */}
+              {profile?.expertise?.length > 0 ? (
+                profile.expertise.map((exp, idx) => (
+                  exp.subServices && exp.subServices.length > 0 && (
+                    <Box key={idx} mt={1} display="flex" flexWrap="wrap" gap={1}>
+                      {exp.subServices.map((s) => (
+                        <Chip
+                          key={s._id}
+                          label={s.name}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            borderRadius: 2,
+                            border: '1px solid orange',
+                            color: theme.palette.mode === 'dark' ? '#fff' : '#000',
+                            backgroundColor: 'transparent',
+                            '& .MuiChip-label': {
+                              padding: '0 8px',
+                            },
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )
+                ))
+              ) : (
+                <Typography variant="body2" color="textSecondary">
+                  No expertise available.
+                </Typography>
+              )}
             </CardContent>
           </Card>
 
@@ -373,19 +379,36 @@ const VendorProfile = () => {
                 <CustomIconButton size="small" icon={<PersonAdd />} text="Update Experience" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('experience')} />
               </Box>
               <Box>
-                {profile?.doc?.experience?.map((exp, idx) => (
-                  <Stack direction="row" alignItems="center" spacing={2} key={exp._id} mb={1} justifyContent="space-between">
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                      <Work sx={{ color: '#6D295A' }} />
-                      <Typography color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}>
-                        {exp.role} at {exp.salon} ({exp.duration})
-                      </Typography>
+                {profile?.experience?.length > 0 ? (
+                  profile.experience.map((exp, idx) => (
+                    <Stack direction="row" alignItems="center" spacing={2} key={exp._id} mb={1} justifyContent="space-between">
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <Work sx={{ color: '#6D295A' }} />
+                        <Typography color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}>
+                          {exp.role} at {exp.salon} ({exp.duration})
+                        </Typography>
+                      </Stack>
+                      <IconButton
+                        onClick={e => {
+                          e.preventDefault();
+                          setDeleteDialog({ open: true, id: exp._id, type: 'experience' });
+                        }}
+                        sx={{
+                          backgroundColor: "#6d295a",
+                          color: "#fff",
+                          '&:hover': { backgroundColor: "#5c2350" }
+                        }}
+                      >
+                        <Trash2 size={20} color="white" />
+                      </IconButton>
                     </Stack>
-                    <IconButton onClick={e => { e.preventDefault(); setDeleteDialog({ open: true, id: exp._id, type: 'experience' }); }} sx={{ backgroundColor: "#6d295a", color: "#fff", '&:hover': { backgroundColor: "#5c2350" } }}>
-                      <Trash2 size={20} color="white" />
-                    </IconButton>
-                  </Stack>
-                ))}
+                  ))
+                ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    No experience added yet.
+                  </Typography>
+                )}
+
               </Box>
             </CardContent>
           </Card>
@@ -400,7 +423,7 @@ const VendorProfile = () => {
                 <CustomIconButton size="small" icon={<PersonAdd />} text="Update Certificates" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('certificate')} />
               </Box>
               <Grid container spacing={2}>
-                {profile?.doc?.certificates?.map((cert) => (
+                {profile?.certificates?.map((cert) => (
                   <Grid item xs={4} key={cert._id}>
                     <Box sx={{ position: 'relative' }}>
                       <a href={cert.url} target="_blank" rel="noopener noreferrer">
@@ -442,31 +465,51 @@ const VendorProfile = () => {
                 </Box>
               </Box>
               <Grid container spacing={2}>
-                {profile?.photos?.map((photo) => (
-                  <Grid item xs={6} key={photo._id}>
-                    <Box sx={{ position: 'relative' }}>
-                      <CardMedia
-                        component="img"
-                        height="90"
-                        image={photo.url}
-                        alt={photo.name}
-                        onError={(e) => { e.target.onerror = null; e.target.src = blak_image; }}
-                        sx={{ borderRadius: 3, border: photo.verified ? `2px solid ${colors.greenAccent[500]}` : `2px solid ${colors.primary[400]}` }}
-                      />
-                      <IconButton
-                        size="small"
-                        sx={{ position: 'absolute', top: 6, left: 6, background: '#fff', zIndex: 2, '&:hover': { background: '#fff' } }}
-                        onClick={e => { e.preventDefault(); setDeleteDialog({ open: true, id: photo._id, type: 'photo' }); }}
+                {profile?.photos?.length > 0 ? (
+                  profile.photos.map((photo) => (
+                    <Grid item xs={6} key={photo._id}>
+                      <Box sx={{ position: 'relative' }}>
+                        <CardMedia
+                          component="img"
+                          height="90"
+                          image={photo.url}
+                          alt={photo.name}
+                          onError={(e) => { e.target.onerror = null; e.target.src = blak_image; }}
+                          sx={{
+                            borderRadius: 3,
+                            border: photo.verified
+                              ? `2px solid ${colors.greenAccent[500]}`
+                              : `2px solid ${colors.primary[400]}`
+                          }}
+                        />
+                        <IconButton
+                          size="small"
+                          sx={{ position: 'absolute', top: 6, left: 6, background: '#fff', zIndex: 2, '&:hover': { background: '#fff' } }}
+                          onClick={e => {
+                            e.preventDefault();
+                            setDeleteDialog({ open: true, id: photo._id, type: 'photo' });
+                          }}
+                        >
+                          <Trash2 size={20} color="#ff4d4f" />
+                        </IconButton>
+                        {photo.verified && (
+                          <Verified sx={{ position: 'absolute', top: 6, right: 6, color: colors.greenAccent[500], fontSize: 20 }} />
+                        )}
+                      </Box>
+                      <Typography variant="caption" display="block" align="center"
+                        color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}
                       >
-                        <Trash2 size={20} color="#ff4d4f" />
-                      </IconButton>
-                      {photo.verified && (
-                        <Verified sx={{ position: 'absolute', top: 6, right: 6, color: colors.greenAccent[500], fontSize: 20 }} />
-                      )}
-                    </Box>
-                    <Typography variant="caption" display="block" align="center" color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]}>{photo.name}</Typography>
+                        {photo.name}
+                      </Typography>
+                    </Grid>
+                  ))
+                ) : (
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="textSecondary">
+                      No photos uploaded yet.
+                    </Typography>
                   </Grid>
-                ))}
+                )}
               </Grid>
             </CardContent>
           </Card>
