@@ -64,6 +64,8 @@ const VendorProfile = () => {
   const [photoUploading, setPhotoUploading] = React.useState(false);
 
   const { profile, loading, error } = useStylistProfile();
+
+  // console.log('Profile response', profile);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -255,7 +257,23 @@ const VendorProfile = () => {
               </Typography>
               <Stack direction="row" spacing={1} alignItems="center" mb={1}>
                 <LocationOn sx={{ color: theme.palette.mode === 'dark' ? colors.greenAccent[400] : colors.greenAccent[500] }} />
-                <Typography color="#fff">{profile?.about?.address || profile?.address}</Typography>
+                <Typography color="#fff">
+                  {
+                    profile?.about?.address ||
+                    (profile?.address
+                      ? [
+                          profile.address.house,
+                          profile.address.street,
+                          profile.address.city,
+                          profile.address.province,
+                          profile.address.zipCode,
+                          profile.address.country,
+                        ]
+                          .filter(Boolean)
+                          .join(', ')
+                      : '')
+                  }
+                </Typography>
               </Stack>
               <Stack direction="row" spacing={1} alignItems="center" mb={1}>
                 <Email sx={{ color: theme.palette.mode === 'dark' ? colors.blueAccent[400] : colors.blueAccent[500] }} />
@@ -300,7 +318,7 @@ const VendorProfile = () => {
                 <CustomIconButton size="small" icon={<PersonAdd />} text="Update Expertise" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('expertise')} />
               </Box>
               <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
-                {profile?.expertise?.map((exp) => (
+                {profile?.doc?.expertise?.map((exp) => (
                   <Chip
                     key={exp}
                     label={exp}
@@ -355,7 +373,7 @@ const VendorProfile = () => {
                 <CustomIconButton size="small" icon={<PersonAdd />} text="Update Experience" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('experience')} />
               </Box>
               <Box>
-                {profile?.experience?.map((exp, idx) => (
+                {profile?.doc?.experience?.map((exp, idx) => (
                   <Stack direction="row" alignItems="center" spacing={2} key={exp._id} mb={1} justifyContent="space-between">
                     <Stack direction="row" alignItems="center" spacing={2}>
                       <Work sx={{ color: '#6D295A' }} />
@@ -382,7 +400,7 @@ const VendorProfile = () => {
                 <CustomIconButton size="small" icon={<PersonAdd />} text="Update Certificates" fontWeight="bold" color="#6d295a" variant="outlined" onClick={() => handleOpenDialog('certificate')} />
               </Box>
               <Grid container spacing={2}>
-                {profile?.certificates?.map((cert) => (
+                {profile?.doc?.certificates?.map((cert) => (
                   <Grid item xs={4} key={cert._id}>
                     <Box sx={{ position: 'relative' }}>
                       <a href={cert.url} target="_blank" rel="noopener noreferrer">

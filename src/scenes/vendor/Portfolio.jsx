@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Card, CardContent, Grid, Typography, CardMedia, Chip, useTheme, LinearProgress } from "@mui/material";
+import { Box, Card, CardContent, Grid, Typography, useTheme, LinearProgress } from "@mui/material";
 import { tokens } from "../../theme";
 import { Header } from "../../components";
 import useStylistProfile from "../../hooks/useStylistProfile";
@@ -9,6 +9,7 @@ const portfolio = () => {
   const colors = tokens(theme.palette.mode);
 
   const { profile, loading, error } = useStylistProfile();
+  console.log('Profile response', profile);
 
   return (
     <Box m="20px">
@@ -20,12 +21,12 @@ const portfolio = () => {
             <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', mb: 3, p: 2, }}>
               <CardContent>
                 <Grid container spacing={2}>
-                  {profile?.portfolio?.length === 0 && (
+                  {profile?.doc?.portfolio?.length === 0 && (
                     <Grid item xs={12}>
                       <Typography color="textSecondary">No portfolio items available.</Typography>
                     </Grid>
                   )}
-                  {profile?.portfolio?.map((item) => (
+                  {profile?.doc?.portfolio?.map((item) => (
                     <Grid item xs={12} sm={6} md={4} key={item._id}>
                       <Box
                         sx={{
@@ -47,7 +48,7 @@ const portfolio = () => {
                         }}
                       >
                         <Box sx={{ width: '100%', position: 'relative' }}>
-                          {item.mediaType === 'video' ? (
+                          {item?.mediaType === 'video' ? (
                             <Box sx={{ position: 'relative', width: '100%' }}>
                               <video
                                 src={item.url}
@@ -63,6 +64,7 @@ const portfolio = () => {
                               <img
                                 src={item.url}
                                 alt={item.name}
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://imgscf.slidemembers.com/docs/1/1/286/hair_styling_portfolio_presentation_285153.jpg"; }}
                                 style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: '12px 12px 0 0', boxShadow: '0 1px 6px rgba(0,0,0,0.08)' }}
                               />
                               <Box sx={{

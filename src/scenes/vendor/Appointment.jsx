@@ -54,7 +54,7 @@ const Appointment = () => {
           "Content-Type": "application/json",
         },
       });
-
+      console.log('Appointments response', response);
       if (response?.data?.success) {
         setAppointments(response.data.data);
       } else {
