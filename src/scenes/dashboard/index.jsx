@@ -40,16 +40,16 @@ function Dashboard() {
 
   const fetchOverViewDataOfDashboard = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/dashboard-details`, {
+      const response = await axios.get(`${API_BASE_URL}/admin/overview`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
       });
-      console.log(response.data, 'sdfsdfdf');
+
       if (response.data.success) {
         setOverviewData(response.data.data);
-        setRecentActivity(response.data.data.recentActivities);
+        setRecentActivity(response.data.data.recentActivity); // ✅ Fixed key
       }
     } catch (error) {
       console.log(error);
@@ -97,23 +97,45 @@ function Dashboard() {
     },
   ];
 
+  const getAvatarColor = (type) => {
+    switch (type) {
+      case "booking":
+        return "#ffe0b2"; // orange
+      case "review":
+        return "#c8e6c9"; // green
+      case "profile":
+        return "#bbdefb"; // blue
+      case "approval":
+        return "#f8bbd0"; // pink
+      case "product":
+        return "#d1c4e9"; // purple
+      default:
+        return "#e0e0e0"; // grey fallback
+    }
+  };
+
   return (
     <Box sx={{ width: "100%", maxWidth: "100%" }}>
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
           <CircularProgress />
         </Box>
       ) : (
         <>
           <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            {overviewStats.map((stat, idx) => (
+            {overviewStats.map((stat) => (
               <Grid item xs={12} sm={6} md={4} lg={2.4} key={stat.title}>
                 <Card sx={{ background: stat.color, borderRadius: 2, boxShadow: 4, border: '0.5px solid #6d295a' }}>
                   <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
                     {stat.icon}
-                    <Typography variant="subtitle2" sx={{ mt: 1, color: '#6D295A', fontWeight: 700 }}>{stat.title}</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#222' }}>{stat.value}</Typography>
+                    <Typography variant="subtitle2" sx={{ mt: 1, color: '#6D295A', fontWeight: 700 }}>
+                      {stat.title}
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#222' }}>
+                      {stat.value}
+                    </Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -123,18 +145,37 @@ function Dashboard() {
           {/* Recent Activity Feed */}
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>Recent Activity</Typography>
+              <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>
+                Recent Activity
+              </Typography>
               <List>
                 {recentActivity?.map((activity, idx) => (
-                  <ListItem button key={idx} sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}>
+                  <ListItem
+                    button
+                    key={idx}
+                    sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}
+                  >
                     <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: '#fff', border: '2px solid #6D295A' }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: getAvatarColor(activity.type),
+                          border: '2px solid #6D295A',
+                        }}
+                      >
                         <EventIcon sx={{ color: 'black' }} />
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={<Typography sx={{ fontWeight: 600 }}>{activity.text}</Typography>}
-                      secondary={<Typography variant="caption" sx={{ color: '#7b7b7b' }}>{activity.time}</Typography>}
+                      primary={
+                        <Typography sx={{ fontWeight: 600 }}>
+                          {activity.message}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography variant="caption" sx={{ color: '#7b7b7b' }}>
+                          {activity.time}
+                        </Typography>
+                      }
                     />
                   </ListItem>
                 ))}
@@ -145,7 +186,6 @@ function Dashboard() {
       )}
     </Box>
   );
-
 }
 
 
