@@ -39,8 +39,8 @@ const AppRouter = () => {
               <>
                 <Route index element={<Dashboard />} />
                 <Route path="customers" element={<CustomerDetails />} />
-                <Route path="product" element={<Product />} />
                 <Route path="stylist" element={<RegisteredStylist />} />
+                <Route path="product" element={<Product />} />
                 <Route path="category" element={<Category />} />
                 <Route path="service" element={<ServiceCategory />} />
                 <Route path="service-management" element={<ServiceManagement />} />

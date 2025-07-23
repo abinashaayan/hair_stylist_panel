@@ -16,6 +16,7 @@ import { showErrorToast, showSuccessToast } from "../../Toast";
 import Cookies from "js-cookie";
 import { stylistUserTableColumns } from "../../custom/StylistUserTableColumns";
 import ShowDetailsDialog from "../../components/ShowDetailsDialog";
+import Alert from "../../custom/Alert";
 
 export default function RegisteredStylist() {
   const [allUsers, setAllUsers] = useState([]);
@@ -26,6 +27,7 @@ export default function RegisteredStylist() {
   const [togglingIds, setTogglingIds] = useState({});
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedStylistDetails, setSelectedStylistDetails] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, loading: false });
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -150,9 +152,14 @@ export default function RegisteredStylist() {
   };
 
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this stylist?");
-    if (!confirmDelete) return;
+  const handleDelete = (id) => {
+    setDeleteDialog({ open: true, id, loading: false });
+  };
+
+  const handleConfirmDelete = async () => {
+    const id = deleteDialog.id;
+    console.log("Deleting stylist with ID:", id);
+    setDeleteDialog((prev) => ({ ...prev, loading: true }));
     try {
       const response = await axios.delete(`${API_BASE_URL}/stylist/admin/delete-stylist/${id}`, {
         headers: {
@@ -164,12 +171,13 @@ export default function RegisteredStylist() {
         showSuccessToast(response?.data?.message || "Stylist deleted successfully");
         setAllUsers((prevList) => prevList.filter(user => user.id !== id));
         setFilteredUsers((prevList) => prevList.filter(user => user.id !== id));
-
       } else {
         showErrorToast("Failed to delete stylist.");
       }
     } catch (error) {
       showErrorToast(error?.response?.data?.message || "An error occurred while deleting.");
+    } finally {
+      setDeleteDialog({ open: false, id: null, loading: false });
     }
   };
 
@@ -193,6 +201,14 @@ export default function RegisteredStylist() {
         open={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
         data={selectedStylistDetails}
+      />
+      <Alert
+        open={deleteDialog.open}
+        title="Delete Stylist"
+        description="Are you sure you want to delete this stylist?"
+        onClose={() => setDeleteDialog({ open: false, id: null, loading: false })}
+        onConfirm={handleConfirmDelete}
+        loading={deleteDialog.loading}
       />
     </Box>
   );
