@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, useTheme, Card, CardContent, Grid, Avatar, Chip, Tooltip } from "@mui/material";
+import { Box, Typography, useTheme, CardContent, Grid, Avatar, Chip, Tooltip } from "@mui/material";
 import { tokens } from "../../theme";
 import Cookies from "js-cookie";
 import axios from 'axios';
@@ -124,7 +124,7 @@ const Appointment = () => {
                         overflow: 'hidden',
                         background:
                           appointment.status === 'expired'
-                            ? '#808080'
+                            ? 'beige'
                             : theme.palette.mode === 'dark'
                               ? colors.primary[900]
                               : '#fff',
@@ -143,6 +143,21 @@ const Appointment = () => {
                             : undefined,
                       }}
                     >
+                      {appointment.status === 'expired' && (
+                        <Box
+                          component="img"
+                          src="https://www.shutterstock.com/image-vector/grunge-green-expired-word-round-600w-2494298589.jpg"
+                          alt="Expired Stamp"
+                          sx={{
+                            position: 'absolute',
+                            top: 10,
+                            right: 10,
+                            width: 100,
+                            opacity: 0.3,
+                            zIndex: 5,
+                          }}
+                        />
+                      )}
                       <CardContent sx={{ pb: 7 }}>
                         <Box display="flex" alignItems="center" mb={2}>
                           <Avatar {...stringAvatar(appointment.user?.fullName)} sx={{ bgcolor: '#6D295A', color: '#fff', mr: 2, width: 48, height: 48, fontSize: 22, fontFamily: 'Poppins, sans-serif' }} />

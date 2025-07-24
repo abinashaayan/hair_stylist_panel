@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   const [panelType, setPanelType] = useState(null);
   const [token, setToken] = useState(null);
   const [stylistId, setStylistId] = useState(null);
-  const [logoutReason, setLogoutReason] = useState(null); // NEW
+  const [logoutReason, setLogoutReason] = useState(null); 
 
   // Check token expiration on mount and at intervals
   useEffect(() => {
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }) => {
     setPanelType(null);
     setToken(null);
     setStylistId(null);
-    if (reason) setLogoutReason(reason); // set reason if provided
+    if (reason) setLogoutReason(reason); 
   };
 
   // Function to clear logout reason after showing notification
