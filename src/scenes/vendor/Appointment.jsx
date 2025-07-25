@@ -297,6 +297,7 @@ const Appointment = () => {
           <Alert
             open={alertOpen}
             title="Change Status"
+            confirmLabel="Update"
             description={`Are you sure you want to change the status to '${selectedStatus}'?`}
             onClose={handleAlertClose}
             onConfirm={handleAlertConfirm}

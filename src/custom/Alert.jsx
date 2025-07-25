@@ -7,7 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import MuiAlert from "@mui/material/Alert";
 
-const Alert = ({ open, title = "Confirm", description = "Are you sure?", onClose, onConfirm, loading = false, disableCancel = false }) => {
+const Alert = ({ open, title = "Confirm", description = "Are you sure?", onClose, onConfirm, loading = false, disableCancel = false, confirmLabel = "Confirm", }) => {
     return (
         <Dialog
             open={open}
@@ -33,7 +33,7 @@ const Alert = ({ open, title = "Confirm", description = "Are you sure?", onClose
                 </Button>
                 <Button onClick={onConfirm} color="error" variant="contained" sx={{ textTransform: "none" }} autoFocus disabled={loading}>
                     {loading ? <span className="spinner-border spinner-border-sm" style={{ marginRight: 8 }} /> : null}
-                    Delete
+                   {confirmLabel}
                 </Button>
             </DialogActions>
         </Dialog>
