@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme, Button, useMediaQuery, Select, MenuItem } from "@mui/material";
 import {
   CalendarMonth,
@@ -24,29 +24,53 @@ import {
   Legend
 } from 'chart.js';
 import { Link } from "react-router-dom";
+import Cookies from "js-cookie";
 import "../vendors/customscss/Dashboard.scss";
+// import useStylistAvailability from "../hooks/useStylistAvailability";
+import axios from "axios";
+import { API_BASE_URL } from "../utils/apiConfig";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const VendorDashboard = () => {
-  const theme = useTheme();
-  const isNonMobile = useMediaQuery("(min-width: 1000px)");
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const isTablet = useMediaQuery("(max-width: 1024px)");
-  const colors = theme.palette.mode === "dark" ? theme.palette.grey[700] : theme.palette.grey[100];
+  const [apiData, setApiData] = useState([]);
 
-  const appointments = [23, 24, 25, 26, 29, 30]; // dynamic appointment days
-  const year = 2025;
-  const month = 1;
+  const authToken = Cookies.get("token");
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // const { data: availabilityList } = useStylistAvailability();
+
+  const fetchAvailability = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/stylist/get-availability`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      if (res.data && res.data.success) {
+        setApiData(res.data.data || []);
+      }
+    } catch (err) {
+      showErrorToast('Failed to fetch availability data');
+    }
+  };
+
+  useEffect(() => {
+    fetchAvailability();
+  }, [authToken]);
+
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
 
   const statData = [
-    // { title: "Calendar", value: "31", path: "/calendar", icon: <CalendarMonth /> },
     { title: "Availability Management", path: "/availability", icon: <EventNoteOutlined /> },
-    { title: "Upcoming Appointments", path: "", icon: <SpaOutlined /> },
-    { title: "History", path: "/history", icon: <HistoryOutlined /> },
-    { title: "Packages", path: "/packages", icon: <RedeemOutlined /> },
+    { title: "Upcoming Appointments", path: "/availability", icon: <SpaOutlined /> },
+    { title: "History", path: "/appointment", icon: <HistoryOutlined /> },
     { title: "Availability Management", path: "/availability", icon: <FactCheckOutlined /> },
-    { title: "Create Appointment", path: "/create-appointment", icon: <AddOutlined /> },
     { title: "Lorem Services", path: "", icon: <StarOutline /> },
   ];
 
@@ -193,18 +217,10 @@ const VendorDashboard = () => {
           >
             Upcoming Appointments
           </Typography>
-          <CustomCalendar year={year} month={month} appointments={appointments} />
+          <CustomCalendar year={currentYear} month={currentMonth} />
         </Box>
         <Box sx={{ minHeight: "100vh" }}>
-          <Box sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, 1fr)",
-              md: "repeat(3, 1fr)"
-            },
-            gap: { xs: 2, sm: 3, md: 4 }
-          }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: { xs: 2, sm: 3, md: 4 } }}>
             <Box className="p-4" sx={{
               background: "linear-gradient(180deg, #6D295A 0%, #420C36 100%)",
               borderRadius: 2,
@@ -223,10 +239,7 @@ const VendorDashboard = () => {
               >
                 <Box display="flex" alignItems="center">
                   <Banknote size={24} style={{ marginRight: 10 }} />
-                  <Typography sx={{
-                    textAlign: { xs: "center", sm: "left" },
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" }
-                  }}>
+                  <Typography sx={{ textAlign: { xs: "center", sm: "left" }, fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                     Bank Account 3432xxxx23432
                   </Typography>
                 </Box>

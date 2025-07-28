@@ -186,7 +186,7 @@ export default function Category() {
                     </Box>
                     <CustomIconButton icon={<PersonAdd />} text="Add Category" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} />
                 </Box>
-                <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
+                <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
             </Container>
             <EntityDialog
                 open={openCategoryDialog}

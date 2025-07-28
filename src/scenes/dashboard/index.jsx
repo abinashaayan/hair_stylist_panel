@@ -28,14 +28,25 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import EventIcon from '@mui/icons-material/Event';
 
+const timeAgo = (date) => {
+  const now = new Date();
+  const seconds = Math.floor((now - new Date(date)) / 1000);
+
+  if (seconds < 60) return `${seconds} sec ago`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} hr ago`;
+  return `${Math.floor(seconds / 86400)} days ago`;
+};
 
 function Dashboard() {
   const [overviewData, setOverviewData] = useState({});
   const [recentActivity, setRecentActivity] = useState([]);
+  const [rawRecentActivity, setRawRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
+
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const navigate = useNavigate();
   const authToken = Cookies.get("token");
 
   const fetchOverViewDataOfDashboard = async () => {
@@ -46,10 +57,15 @@ function Dashboard() {
           Authorization: `Bearer ${authToken}`,
         },
       });
-
       if (response.data.success) {
+        console.log(response.data.data, 'overview data')
         setOverviewData(response.data.data);
-        setRecentActivity(response.data.data.recentActivity); // ✅ Fixed key
+        // const recent = response.data.data.recentActivity.map((item) => ({
+        //   ...item,
+        //   time: timeAgo(item.timeRaw),
+        // }));
+        setRawRecentActivity(response.data.data.recentActivity); // stores raw datetime
+        setRecentActivity(response.data.data.recentActivity); // visible activity with time text
       }
     } catch (error) {
       console.log(error);
@@ -63,6 +79,19 @@ function Dashboard() {
       fetchOverViewDataOfDashboard();
     }
   }, [authToken]);
+
+  useEffect(() => {
+    // Recalculate time every 60 seconds
+    const interval = setInterval(() => {
+      const updated = rawRecentActivity.map((item) => ({
+        ...item,
+        time: timeAgo(item.timeRaw),
+      }));
+      setRecentActivity(updated);
+    }, 60000); // 60 sec
+
+    return () => clearInterval(interval);
+  }, [rawRecentActivity]);
 
   const overviewStats = [
     {
@@ -156,15 +185,42 @@ function Dashboard() {
                     sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}
                   >
                     <ListItemAvatar>
-                      <Avatar
-                        sx={{
-                          bgcolor: getAvatarColor(activity.type),
-                          border: '2px solid #6D295A',
-                        }}
-                      >
-                        <EventIcon sx={{ color: 'black' }} />
-                      </Avatar>
+                      <Box position="relative" display="inline-flex">
+                        {/* Animated progress ring */}
+                        <CircularProgress
+                          variant="indeterminate"
+                          size={46}
+                          thickness={4}
+                          sx={{
+                            color: getAvatarColor(activity.type),
+                            animationDuration: '2s',
+                          }}
+                        />
+                        {/* Avatar in center */}
+                        <Box
+                          position="absolute"
+                          top={0}
+                          left={0}
+                          bottom={0}
+                          right={0}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          <Avatar
+                            sx={{
+                              bgcolor: getAvatarColor(activity.type),
+                              border: '2px solid #6D295A',
+                              width: 36,
+                              height: 36,
+                            }}
+                          >
+                            <EventIcon sx={{ color: 'black', fontSize: 20 }} />
+                          </Avatar>
+                        </Box>
+                      </Box>
                     </ListItemAvatar>
+
                     <ListItemText
                       primary={
                         <Typography sx={{ fontWeight: 600 }}>

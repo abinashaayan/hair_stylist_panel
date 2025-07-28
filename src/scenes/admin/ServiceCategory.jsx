@@ -179,7 +179,7 @@ export default function ServiceCategory() {
                     </Box>
                     <CustomIconButton icon={<PersonAdd />} text="Add New Service" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
                 </Box>
-                <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
+                <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
             </Container>
 
             <EntityDialog
