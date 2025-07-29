@@ -182,16 +182,30 @@ const Navbar = () => {
             <Typography variant="body2" sx={{ color: "#7b7b7b", mb: 1 }}>
               {profile?.role || "Urban Braids"}
             </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
-              {[1, 2, 3, 4, 5].map((i) => (
-                <span key={i} style={{ color: i <= 4 ? "#FFD700" : "#FFD70099", fontSize: 20, marginRight: 1 }}>
-                  {i < 5 ? "★" : "☆"}
-                </span>
-              ))}
-              <Typography variant="caption" sx={{ color: "#7b7b7b", ml: 1 }}>
-                (212 Reviews)
-              </Typography>
-            </Box>
+            {Array.isArray(profile?.reviews) && profile?.reviews.length > 0 && (() => {
+              const totalRatings = profile?.reviews.reduce((acc, r) => acc + (r.ratings || 0), 0);
+              const avgRating = totalRatings / profile?.reviews.length;
+
+              return (
+                <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <span
+                      key={i}
+                      style={{
+                        color: i <= Math.round(avgRating) ? "#FFD700" : "#FFD70099",
+                        fontSize: 20,
+                        marginRight: 1
+                      }}
+                    >
+                      {i <= Math.round(avgRating) ? "★" : "☆"}
+                    </span>
+                  ))}
+                  <Typography variant="caption" sx={{ color: "#7b7b7b", ml: 1 }}>
+                    ({profile?.reviews.length} Review{profile?.reviews.length > 1 ? "s" : ""})
+                  </Typography>
+                </Box>
+              );
+            })()}
             <Typography variant="subtitle2" sx={{ color: "#6D295A", fontWeight: 700, mb: 1 }}>
               09:00 - 18:00
             </Typography>

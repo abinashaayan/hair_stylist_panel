@@ -63,6 +63,7 @@ const SideBar = () => {
     admin: [
       { title: "Customers", path: "/customers", icon: <PeopleAltOutlined /> },
       { title: "Stylist", path: "/stylist", icon: <PeopleAltOutlined /> },
+      { title: "Stylist Reviews", path: "/stylist-reviews", icon: <PersonOutlined /> },
       { title: "Products", path: "/product", icon: <PersonOutlined /> },
       { title: "Product Category", path: "/category", icon: <PeopleAltOutlined /> },
       { title: "Stylist Services", path: "/service", icon: <PeopleAltOutlined /> },

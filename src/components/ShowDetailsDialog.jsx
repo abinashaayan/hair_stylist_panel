@@ -194,9 +194,6 @@ const ShowDetailsDialog = ({ open, onClose, data }) => {
             </DialogContent>
             <DialogActions>
                 <CustomIconButton icon={<Close />} color="red" text="Close" onClick={onClose} />
-                {/* <Button onClick={onClose} color="primary">
-                    Close
-                </Button> */}
             </DialogActions>
         </Dialog>
     );

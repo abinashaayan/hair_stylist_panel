@@ -178,21 +178,7 @@ export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleVi
 ];
 
 export const ProductTableColumns = ({ handleDelete, handleView, handleEdit }) => [
-    // {
-    //     field: "photo",
-    //     headerName: "Image",
-    //     width: 80,
-    //     renderCell: (params) => {
-    //         const photoUrl = params.row.photos && params.row.photos.length > 0 ? params.row.photos[0] : null;
-    //         if (!photoUrl) {
-    //             return <span><img src="https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png" alt="img" height={40} width={40} /></span>;
-    //         }
-    //         return (
-    //             <ImageWithLoader src={photoUrl} alt={params.row.name} />
-    //         );
-    //     },
-    // },
-     {
+    {
         field: "photo",
         headerName: "Image",
         width: 80,
@@ -759,6 +745,49 @@ export const allAppointmentStatusTableColumns = ({ handleDelete, handleView }) =
             <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
                 <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row._id)} />
+            </Box>
+        ),
+    },
+];
+
+export const reviewsTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds }) => [
+    { field: "userName", headerName: "User Name", flex: 1 },
+    { field: "reviewed", headerName: "Reviewed Stylist", flex: 1 },
+    { field: "ratings", headerName: "Rating", width: 100 },
+    { field: "description", headerName: "Description", flex: 2 },
+    {
+        field: "isVisible",
+        headerName: "Visible",
+        width: 120,
+        renderCell: (params) => {
+            const isLoading = togglingIds?.[params.row.id];
+            return (
+                <Box display="flex" alignItems="center" justifyContent="center" width="100%">
+                    {isLoading ? (
+                        <CircularProgress size={20} color="success" />
+                    ) : (
+                        <Switch
+                            checked={params.row.isVisible}
+                            onChange={() => handleToggleStatus(params.row.id, params.row.isVisible)}
+                            onClick={(e) => e.stopPropagation()}
+                            color="success"
+                            size="medium"
+                        />
+                    )}
+                </Box>
+            );
+        },
+    },
+    { field: "createdAt", headerName: "Created At", width: 140 },
+    {
+        field: "action",
+        headerName: "Action",
+        width: 180,
+        sortable: false,
+        renderCell: (params) => (
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
             </Box>
         ),
     },

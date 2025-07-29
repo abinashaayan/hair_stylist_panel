@@ -37,7 +37,6 @@ export default function RegisteredStylist() {
     if (!address) return 'N/A';
     if (typeof address === 'string') return address;
     if (typeof address === 'object') {
-      // Join all values with comma, skip empty
       return Object.values(address).filter(Boolean).join(', ');
     }
     return 'N/A';

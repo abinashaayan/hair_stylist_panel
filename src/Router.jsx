@@ -21,12 +21,13 @@ import ServiceCategory from "./scenes/admin/ServiceCategory";
 import LoadingScreen from "./components/LoadingScreen";
 import Services from "./scenes/vendor/Services";
 import AppointmentStatus from "./scenes/admin/AppointmentStatus";
+import AllReviews from "./scenes/admin/AllReviews";
 
 const AppRouter = () => {
   const { isAuthenticated, panelType, token, stylistId, login } = useAuth();
-  
+
   if (isAuthenticated === null) {
-    return <div><LoadingScreen/></div>;
+    return <div><LoadingScreen /></div>;
   }
 
   return (
@@ -40,6 +41,7 @@ const AppRouter = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="customers" element={<CustomerDetails />} />
                 <Route path="stylist" element={<RegisteredStylist />} />
+                <Route path="stylist-reviews" element={<AllReviews />} />
                 <Route path="product" element={<Product />} />
                 <Route path="category" element={<Category />} />
                 <Route path="service" element={<ServiceCategory />} />
