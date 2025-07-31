@@ -13,6 +13,7 @@ import axios from 'axios';
 import Cookies from "js-cookie";
 import { API_BASE_URL } from '../../utils/apiConfig';
 import { Trash2 } from 'lucide-react';
+import useStylistProfile from '../../hooks/useStylistProfile';
 
 const TIME_SLOTS = {
   Morning: [
@@ -33,7 +34,6 @@ const TIME_SLOTS = {
   ]
 };
 
-
 const Availability = () => {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -42,6 +42,7 @@ const Availability = () => {
   const [apiData, setApiData] = useState([]);
 
   const authToken = Cookies.get("token");
+  const { profile } = useStylistProfile();
 
   const fetchAvailability = async () => {
     try {
@@ -114,7 +115,7 @@ const Availability = () => {
         isActive: !data.isClosed
       }));
 
-      await axios.post(`${API_BASE_URL}/stylist/set-availability`,
+      await axios.post(`${API_BASE_URL}/stylist/set-availability/${profile?._id}`,
         { availability: availabilityPayload },
         {
           headers: {
