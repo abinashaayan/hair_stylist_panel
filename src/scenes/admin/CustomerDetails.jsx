@@ -1,4 +1,4 @@
-import { Box, Container, IconButton, InputBase, useTheme } from "@mui/material";
+import { Box, CardContent, Container, Dialog, DialogTitle, IconButton, InputBase, useTheme } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
@@ -23,12 +23,14 @@ export default function CustomerDetails() {
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
-    const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
-    const [selectedUserDetails, setSelectedUserDetails] = useState(null);
+
     const [deleteId, setDeleteId] = useState(null);
     const [alertOpen, setAlertOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [showDialog, setShowDialog] = useState(false);
+    const [shouldEdit, setShouldEdit] = useState(false);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -52,6 +54,7 @@ export default function CustomerDetails() {
                 role: user.role || "N/A",
                 city: user.city || "N/A",
                 gender: user.gender || "N/A",
+                status: user.status,
                 createdAt: new Date(user.createdAt).toLocaleDateString(),
             }));
             setAllUsers(formattedData);
@@ -156,29 +159,39 @@ export default function CustomerDetails() {
         }
     };
 
-    // const handleVerify = async (user) => {
-    //     console.log(user, 'user')
-    //     try {
-    //         const response = await axios.patch(`${API_BASE_URL}/user/admin/update/${user.id}`, {
-    //             isPhoneVerified: !user.isPhoneVerified,
-    //         }, {
-    //             headers: {
-    //                 Authorization: `Bearer ${authToken}`,
-    //             },
-    //         });
-    //         console.log("resposne", response)
-    //         showSuccessToast(`User ${!user.isPhoneVerified ? 'verified' : 'unverified'} successfully.`);
-    //         fetchAllUsers();
-    //     } catch (error) {
-    //         console.error("Verification toggle failed", error);
-    //         showErrorToast("Failed to update verification status");
-    //     }
-    // };
+    const handleToggleUserStatus = async (userId, newStatus) => {
+        console.log(userId, 'userId')
+        try {
+            const response = await axios.patch(
+                `${API_BASE_URL}/user/admin/user-status/${userId}`,
+                { status: newStatus },
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                }
+            );
+            showSuccessToast(`User status changed to "${newStatus}".`);
+            fetchAllUsers();
+        } catch (error) {
+            console.error("Status update failed:", error);
+            showErrorToast("Failed to update user status.");
+        }
+    };
 
-    const handleView = (user) => {
-        const fullUserDetails = originalUsers.find(u => u._id === user.id);
-        setSelectedUserDetails(fullUserDetails);
-        setIsDetailsDialogOpen(true);
+
+    const handleEdit = (customer) => {
+        const fullUserDetails = originalUsers.find(u => u._id === customer.id);
+        setSelectedCustomer(fullUserDetails);
+        setShouldEdit(true); // ✅ trigger edit mode in dialog
+        setShowDialog(true);
+    };
+
+    const handleView = (customer) => {
+        const fullUserDetails = originalUsers.find(u => u._id === customer.id);
+        setSelectedCustomer(fullUserDetails);
+        setShouldEdit(false); // ✅ view-only mode
+        setShowDialog(true);
     };
 
     const handleReset = () => {
@@ -187,53 +200,54 @@ export default function CustomerDetails() {
         fetchFilteredUsers("", null);
     };
 
-    const columns = userTableColumns({ handleDelete, handleView });
+    const columns = userTableColumns({ handleDelete, handleView, handleToggleUserStatus, handleEdit });
 
     return (
         <Box className="p-1">
-            {/* <Container maxWidth={false}> */}
-                <Header title="All Customers" />
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <Box display="flex" className="me-2" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
-                        <InputBase placeholder="Search user" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
-                        <IconButton type="button" sx={{ p: 1 }}>
-                            <SearchOutlined />
-                        </IconButton>
-                    </Box>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                            value={selectedDate}
-                            onChange={(newDate) => {
-                                setSelectedDate(newDate);
-                                fetchFilteredUsers(searchText, newDate);
-                            }}
-                            slotProps={{
-                                textField: {
-                                    size: 'small',
-                                    variant: 'outlined',
-                                    sx: {
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: '15px',
-                                            '& fieldset': {
-                                                borderColor: '#420c36',
-                                                borderWidth: '1.5px',
-                                            },
+            <Header title="All Customers" />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Box display="flex" className="me-2" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
+                    <InputBase placeholder="Search user" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+                    <IconButton type="button" sx={{ p: 1 }}>
+                        <SearchOutlined />
+                    </IconButton>
+                </Box>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        value={selectedDate}
+                        onChange={(newDate) => {
+                            setSelectedDate(newDate);
+                            fetchFilteredUsers(searchText, newDate);
+                        }}
+                        slotProps={{
+                            textField: {
+                                size: 'small',
+                                variant: 'outlined',
+                                sx: {
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '15px',
+                                        '& fieldset': {
+                                            borderColor: '#420c36',
+                                            borderWidth: '1.5px',
                                         },
                                     },
                                 },
-                            }}
-                            className="me-2"
-                        />
-                    </LocalizationProvider>
-                    <CustomIconButton color="red" text="Reset" onClick={handleReset} />
-                </Box>
-                <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
-            {/* </Container> */}
-            <ShowDetailsDialog
-                open={isDetailsDialogOpen}
-                onClose={() => setIsDetailsDialogOpen(false)}
-                data={selectedUserDetails}
+                            },
+                        }}
+                        className="me-2"
+                    />
+                </LocalizationProvider>
+                <CustomIconButton color="red" text="Reset" onClick={handleReset} />
+            </Box>
+            <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
+            <ShowDetailsDialog 
+                open={showDialog} 
+                onClose={() => setShowDialog(false)} 
+                data={selectedCustomer} 
+                onUpdate={fetchAllUsers} 
+                editModeProp={shouldEdit} 
             />
+
             <Alert
                 open={alertOpen}
                 title="Delete Service"

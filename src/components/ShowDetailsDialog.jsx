@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -13,17 +13,32 @@ import {
     Link,
     Avatar,
     Divider,
-    Stack
+    Stack,
+    TextField
 } from '@mui/material';
-import { Briefcase, Building2, Calendar, CheckCircle2, GraduationCap, Mail, Phone, Sparkles, Star, User, Award, MapPin, Linkedin, Share2, Image } from 'lucide-react';
+import { Briefcase, Building2, Calendar, CheckCircle2, GraduationCap, Mail, Phone, Sparkles, Star, User, Award, MapPin, Linkedin, Share2, Image, Pencil, Save, X } from 'lucide-react';
 import { CustomIconButton } from '../custom/Button';
 import { Close, Facebook, Instagram } from '@mui/icons-material';
+import axios from 'axios';
+import { API_BASE_URL } from '../utils/apiConfig';
+import Cookies from 'js-cookie';
+import { showSuccessToast, showErrorToast } from '../Toast';
 
-const DetailItem = ({ icon, label, value, fullWidth = false }) => (
+const DetailItem = ({ icon, label, value, fullWidth = false, editMode = false, fieldName = null, formData = {}, handleChange = null }) => (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, borderBottom: '1px solid #f0f0f0' }}>
         {icon && <Box sx={{ color: 'primary.main' }}>{icon}</Box>}
         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', minWidth: '120px' }}>{label}</Typography>
-        {typeof value === 'boolean' ? (
+        {editMode && fieldName ? (
+            <TextField
+                name={fieldName}
+                value={formData[fieldName] || ''}
+                onChange={handleChange}
+                fullWidth
+                size="small"
+                variant="outlined"
+                sx={{ flexGrow: 1 }}
+            />
+        ) : typeof value === 'boolean' ? (
             <Chip label={value ? 'Yes' : 'No'} color={value ? 'success' : 'default'} size="small" />
         ) : (
             <Typography variant="body2" sx={{ wordBreak: 'break-word', flexGrow: 1 }}>{value || 'N/A'}</Typography>
@@ -42,27 +57,36 @@ const Section = ({ title, icon, children }) => (
     </Paper>
 );
 
-const CustomerDetailsView = ({ data }) => (
+const CustomerDetailsView = ({ data, editMode, formData, handleChange }) => (
     <Box sx={{ backgroundColor: '#f4f6f8', p: { xs: 1, md: 2 } }}>
         <Section title="Customer Information" icon={<User size={24} />}>
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
-                    <DetailItem icon={<User size={20} />} label="Full Name" value={data.fullName} />
-                    <DetailItem icon={<Mail size={20} />} label="Email" value={data.email} />
-                    <DetailItem icon={<Calendar size={20} />} label="Age" value={data.age} />
-                    <DetailItem icon={<User size={20} />} label="Gender" value={data.gender} />
+                    <DetailItem label="Full Name" value={data.fullName} editMode={editMode} fieldName="fullName" formData={formData} handleChange={handleChange} />
+                    <DetailItem label="Email" value={data.email} editMode={editMode} fieldName="email" formData={formData} handleChange={handleChange} />
+                    <DetailItem label="Age" value={data.age} editMode={editMode} fieldName="age" formData={formData} handleChange={handleChange} />
+                    <DetailItem label="Gender" value={data.gender} editMode={editMode} fieldName="gender" formData={formData} handleChange={handleChange} />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                    <DetailItem icon={<Phone size={20} />} label="Phone" value={data.phoneNumber} />
-                    <DetailItem icon={<CheckCircle2 size={20} />} label="Verified" value={data.isPhoneVerified} />
-                    <DetailItem icon={<Calendar size={20} />} label="Joined On" value={new Date(data.createdAt).toLocaleString()} />
+                    <DetailItem label="Phone" value={data.phoneNumber} editMode={editMode} fieldName="phoneNumber" formData={formData} handleChange={handleChange} />
+                    <DetailItem label="Verified" value={data.isPhoneVerified} />
+                    <DetailItem label="Joined On" value={new Date(data.createdAt).toLocaleString()} />
                 </Grid>
                 <Grid item xs={12}>
-                    <DetailItem
-                        icon={<MapPin size={20} />}
-                        label="Address"
-                        value={`${data.addressLine1 || ''}, ${data.addressLine2 || ''}, ${data.city || ''}, ${data.region || ''} - ${data.postalCode || ''}`}
-                    />
+                    {editMode ? (
+                        <>
+                            <DetailItem label="Address Line 1" value={data.addressLine1} editMode={editMode} fieldName="addressLine1" formData={formData} handleChange={handleChange} />
+                            <DetailItem label="Address Line 2" value={data.addressLine2} editMode={editMode} fieldName="addressLine2" formData={formData} handleChange={handleChange} />
+                            <DetailItem label="City" value={data.city} editMode={editMode} fieldName="city" formData={formData} handleChange={handleChange} />
+                            <DetailItem label="Region" value={data.region} editMode={editMode} fieldName="region" formData={formData} handleChange={handleChange} />
+                            <DetailItem label="Postal Code" value={data.postalCode} editMode={editMode} fieldName="postalCode" formData={formData} handleChange={handleChange} />
+                        </>
+                    ) : (
+                        <DetailItem
+                            label="Address"
+                            value={`${data.addressLine1 || ''}, ${data.addressLine2 || ''}, ${data.city || ''}, ${data.region || ''} - ${data.postalCode || ''}`}
+                        />
+                    )}
                 </Grid>
             </Grid>
         </Section>
@@ -170,9 +194,9 @@ const StylistDetailsView = ({ data }) => {
                                             {item.mediaType === 'video' ? (
                                                 <video src={item.url} controls style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 8, }} />
                                             ) : (
-                                                <Box    component="img"    src={item.url}    alt={item.name || `portfolio-${index}`}    sx={{        width: '100%',        height: 140,        objectFit: 'cover',        borderRadius: 1.5,    }}/>
+                                                <Box component="img" src={item.url} alt={item.name || `portfolio-${index}`} sx={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 1.5, }} />
                                             )}
-                                            <Typography    variant="body2"    color="text.secondary"    sx={{ mt: 1 }}    noWrap>
+                                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }} noWrap>
                                                 {item.description || item.name}
                                             </Typography>
                                         </Box>
@@ -263,25 +287,73 @@ const StylistDetailsView = ({ data }) => {
     );
 };
 
-const ShowDetailsDialog = ({ open, onClose, data }) => {
-    if (!data) {
-        return null;
-    }
+const ShowDetailsDialog = ({ open, onClose, data, editModeProp = false, onUpdate }) => {
+    const [editMode, setEditMode] = useState(editModeProp);
+    const [formData, setFormData] = useState({});
+
+    useEffect(() => {
+        if (data) {
+            setFormData(data);
+            setEditMode(editModeProp); // Set initial mode based on prop
+        }
+    }, [data, editModeProp]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        try {
+            await axios.patch(`${API_BASE_URL}/user/admin/update/${data._id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            showSuccessToast("Customer details updated");
+            onUpdate?.();
+            onClose();
+        } catch (error) {
+            showErrorToast(error?.response?.data?.message || "Update failed");
+        }
+    };
+
+    const handleCancel = () => {
+        setEditMode(false);
+        setFormData(data); // Reset form data to original values
+    };
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
-            <DialogTitle sx={{ pb: 1, textTransform: 'capitalize' }}>{data.role} Details: {data.fullName}</DialogTitle>
-            <DialogContent dividers sx={{ p: 0, '&.MuiDialogContent-root': { p: 0 } }}>
-                {data.role === 'stylist'
-                    ? <StylistDetailsView data={data} />
-                    : <CustomerDetailsView data={data} />
-                }
+            <DialogTitle>
+                {editMode ? "Edit Customer Details" : "Customer Details"}
+            </DialogTitle>
+            <DialogContent>
+                {/* Render customer view */}
+                <CustomerDetailsView
+                    data={data}
+                    editMode={editMode}
+                    formData={formData}
+                    handleChange={handleChange}
+                />
             </DialogContent>
             <DialogActions>
-                <CustomIconButton icon={<Close />} color="red" text="Close" onClick={onClose} />
+                {editMode ? (
+                    <>
+                        <CustomIconButton icon={<Save />} color="green" text="Save" onClick={handleSave} />
+                        <CustomIconButton icon={<X />} color="gray" text="Cancel" onClick={handleCancel} />
+                    </>
+                ) : (
+                    <>
+                        <CustomIconButton icon={<Pencil />} color="blue" text="Edit" onClick={() => setEditMode(true)} />
+                        <CustomIconButton icon={<Close />} color="red" text="Close" onClick={onClose} />
+                    </>
+                )}
             </DialogActions>
         </Dialog>
     );
 };
+
 
 export default ShowDetailsDialog;

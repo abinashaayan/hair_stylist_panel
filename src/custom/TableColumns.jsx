@@ -1,10 +1,10 @@
 import { Trash2, Eye, Pencil, TransgenderIcon, Plus } from "lucide-react";
 import { CustomIconButton } from "./Button";
-import { Box, Chip, CircularProgress, Rating, Switch, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, MenuItem, Rating, Select, Switch, Typography } from "@mui/material";
 import ImageWithLoader from "./ImageWithLoader";
 import PersonIcon from "@mui/icons-material/Person";
 
-export const userTableColumns = ({ handleDelete, handleView, handleVerify }) => [
+export const userTableColumns = ({ handleDelete, handleView, handleToggleUserStatus, handleEdit }) => [
     { field: "fullName", headerName: "Full Name", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
@@ -54,20 +54,44 @@ export const userTableColumns = ({ handleDelete, handleView, handleVerify }) => 
             );
         },
     },
-    // {
-    //     field: "isPhoneVerified",
-    //     headerName: "Verified",
-    //     flex: 0.6,
-    //     renderCell: (params) => (
-    //         <Switch
-    //             checked={params.row.isPhoneVerified}
-    //             onClick={(event) => event.stopPropagation()}
-    //             onChange={() => handleVerify(params.row)}
-    //             color="success"
-    //             size="small"
-    //         />
-    //     ),
-    // },
+    {
+        field: "status",
+        headerName: "Status",
+        flex: 0.6,
+        renderCell: (params) => {
+            const status = params.row.status || "active";
+            const getStatusColor = (status) => {
+                switch (status) {
+                    case "active":
+                        return "#d0f0c0"; 
+                    case "inactive":
+                        return "#ffe0b2"; 
+                    case "banned":
+                        return "#f8d7da"; 
+                    default:
+                        return "#e0e0e0"; 
+                }
+            };
+            return (
+                <Select
+                    value={status}
+                    onChange={(e) => handleToggleUserStatus(params.row.id, e.target.value)}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                        minWidth: 120,
+                        textTransform: "capitalize",
+                        backgroundColor: getStatusColor(status),
+                        fontWeight: "bold",
+                    }}
+                >
+                    <MenuItem value="active">Active</MenuItem>
+                    <MenuItem value="inactive">Inactive</MenuItem>
+                    <MenuItem value="banned">Banned</MenuItem>
+                </Select>
+            );
+        },
+    },
     { field: "createdAt", headerName: "Created", flex: 0.8 },
     {
         field: "action",
@@ -77,7 +101,7 @@ export const userTableColumns = ({ handleDelete, handleView, handleVerify }) => 
         renderCell: (params) => (
             <Box sx={{ display: "flex", gap: 0.5 }}>
                 <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
-                {/* <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} /> */}
+                <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} />
                 <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
             </Box>
         ),
