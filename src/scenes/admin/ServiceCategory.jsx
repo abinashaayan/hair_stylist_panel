@@ -1,6 +1,5 @@
 import {
     Box,
-    Container,
     IconButton,
     InputBase,
     useTheme,
@@ -35,6 +34,8 @@ export default function ServiceCategory() {
     const [viewStatus, setViewStatus] = useState(undefined);
     const [openSubCategoryDialog, setOpenSubCategoryDialog] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState(null);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [editService, setEditService] = useState(null);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -54,7 +55,13 @@ export default function ServiceCategory() {
                     name: service.name || "N/A",
                     approved: !!service.isActive,
                     createdAt: service.createdAt
-                        ? new Date(service.createdAt).toLocaleDateString()
+                        ? (() => {
+                            const createdDate = new Date(service.createdAt);
+                            const today = new Date();
+                            const formattedDate = createdDate.toLocaleDateString();
+                            const isOutdated = createdDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                            return isOutdated ? `${formattedDate} (Outdated Service)` : formattedDate;
+                        })()
                         : "N/A",
                 }));
                 setAllServices(formattedData);
@@ -164,11 +171,19 @@ export default function ServiceCategory() {
         setOpenSubCategoryDialog(true);
     };
 
-    const columns = serviceTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService });
+    const handleEditService = (serviceRow) => {
+        setEditService(serviceRow);
+        setEditDialogOpen(true);
+    };
+    const handleCloseEditDialog = () => {
+        setEditDialogOpen(false);
+        setEditService(null);
+    };
+
+    const columns = serviceTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService, handleEdit: handleEditService });
 
     return (
         <Box className="p-1">
-            {/* <Container maxWidth={false}> */}
             <Header title="Create Service" />
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
                 <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' }, }}>
@@ -180,7 +195,6 @@ export default function ServiceCategory() {
                 <CustomIconButton icon={<PersonAdd />} text="Add New Service" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
             </Box>
             <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
-            {/* </Container> */}
 
             <EntityDialog
                 open={openCategoryDialog}
@@ -195,22 +209,10 @@ export default function ServiceCategory() {
                 buttonText="Add Service"
                 showPriceFields={true}
             />
-            <EntityDialog
-                open={isViewDialog}
-                handleClose={handleCloseViewDialog}
-                isView={true}
-                viewValue={viewValue}
-                viewStatus={viewStatus}
-                inputLabel="Service Name"
-                showPriceFields={true}
-            />
+            <EntityDialog open={isViewDialog} handleClose={handleCloseViewDialog} isView={true} viewValue={viewValue} viewStatus={viewStatus} inputLabel="Service Name" showPriceFields={true} />
+            <EntityDialog open={editDialogOpen} handleClose={handleCloseEditDialog} isEdit={true} editService={editService} onSuccess={() => { handleCloseEditDialog(); fetchAllServices(); }} />
 
-            <CreateSubservices
-                open={openSubCategoryDialog}
-                handleClose={() => setOpenSubCategoryDialog(false)}
-                serviceId={selectedServiceId}
-                onSuccess={fetchAllServices}
-            />
+            <CreateSubservices open={openSubCategoryDialog} handleClose={() => setOpenSubCategoryDialog(false)} serviceId={selectedServiceId} onSuccess={fetchAllServices} />
 
             <Alert
                 open={alertOpen}

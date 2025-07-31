@@ -1,17 +1,17 @@
-import { Trash2, Eye, Pencil, TransgenderIcon, Plus } from "lucide-react";
+import { Trash2, Eye, Pencil, TransgenderIcon, Plus, Mail } from "lucide-react";
 import { CustomIconButton } from "./Button";
 import { Box, Chip, CircularProgress, MenuItem, Rating, Select, Switch, Typography } from "@mui/material";
 import ImageWithLoader from "./ImageWithLoader";
 import PersonIcon from "@mui/icons-material/Person";
 
-export const userTableColumns = ({ handleDelete, handleView, handleToggleUserStatus, handleEdit }) => [
-    { field: "fullName", headerName: "Full Name", flex: 1 },
+export const userTableColumns = ({ handleDelete, handleView, handleToggleUserStatus, handleEdit, handleSendEmail, sendingEmailIds }) => [
+    { field: "fullName", headerName: "Full Name", flex: 0.4 },
     { field: "email", headerName: "Email", flex: 1 },
-    { field: "mobile", headerName: "Mobile", flex: 1 },
+    { field: "mobile", headerName: "Mobile", flex: 0.4 },
     {
         field: "role",
         headerName: "Role",
-        flex: 0.6,
+        flex: 0.3,
         renderCell: (params) => (
             <Chip
                 icon={<PersonIcon sx={{ color: "white" }} />}
@@ -27,11 +27,10 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
             />
         ),
     },
-    { field: "city", headerName: "City", flex: 0.6 },
     {
         field: "gender",
         headerName: "Gender",
-        flex: 0.6,
+        flex: 0.4,
         renderCell: (params) => {
             const gender = params.row.gender?.toLowerCase();
             let chipColor = "default";
@@ -63,13 +62,13 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
             const getStatusColor = (status) => {
                 switch (status) {
                     case "active":
-                        return "#d0f0c0"; 
+                        return "#d0f0c0";
                     case "inactive":
-                        return "#ffe0b2"; 
+                        return "#ffe0b2";
                     case "banned":
-                        return "#f8d7da"; 
+                        return "#f8d7da";
                     default:
-                        return "#e0e0e0"; 
+                        return "#e0e0e0";
                 }
             };
             return (
@@ -92,7 +91,7 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
             );
         },
     },
-    { field: "createdAt", headerName: "Created", flex: 0.8 },
+    { field: "createdAt", headerName: "Created", flex: 0.4 },
     {
         field: "action",
         headerName: "Action",
@@ -100,6 +99,17 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
         sortable: false,
         renderCell: (params) => (
             <Box sx={{ display: "flex", gap: 0.5 }}>
+                <CustomIconButton
+                    size="small"
+                    icon={
+                        sendingEmailIds?.[params.row.id]
+                            ? <CircularProgress size={16} color="inherit" />
+                            : <Mail size={16} />
+                    }
+                    color="#D93025"
+                    onClick={() => handleSendEmail(params.row)}
+                    text="Send"
+                />
                 <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
                 <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} />
                 <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
@@ -148,7 +158,7 @@ export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, 
     },
 ];
 
-export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService }) => [
+export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService, handleEdit }) => [
     { field: "name", headerName: "Service Name", flex: 1 },
     {
         field: "addSubService",
@@ -191,7 +201,26 @@ export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleVi
             );
         },
     },
-    { field: "createdAt", headerName: "Created At", flex: 0.8 },
+    {
+        field: "createdAt",
+        headerName: "Created At",
+        flex: 0.8,
+        renderCell: (params) => {
+            const value = params.row.createdAt;
+            const [datePart, labelPart] = value.split(" (");
+            const isOutdated = value.includes("(Outdated Service)");
+            return (
+                <Box component="span">
+                    {datePart}
+                    {isOutdated && (
+                        <Box component="span" sx={{ color: 'brown', fontStyle: 'italic', ml: 0.5 }}>
+                            ({labelPart})
+                        </Box>
+                    )}
+                </Box>
+            );
+        },
+    },
     {
         field: "action",
         headerName: "Action",
@@ -200,6 +229,9 @@ export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleVi
         renderCell: (params) => (
             <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                {handleEdit && (
+                    <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} />
+                )}
                 <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
             </Box>
         ),

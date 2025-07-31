@@ -1,4 +1,4 @@
-import { Box, CardContent, Container, Dialog, DialogTitle, IconButton, InputBase, useTheme } from "@mui/material";
+import { Box, CardContent, DialogContent, TextField, DialogActions, Dialog, DialogTitle, IconButton, InputBase, useTheme, Button } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { CustomIconButton } from "../../custom/Button";
+import Input from "../../custom/Input";
 
 export default function CustomerDetails() {
     const [allUsers, setAllUsers] = useState([]);
@@ -23,7 +24,6 @@ export default function CustomerDetails() {
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
-
     const [deleteId, setDeleteId] = useState(null);
     const [alertOpen, setAlertOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -31,6 +31,7 @@ export default function CustomerDetails() {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
     const [shouldEdit, setShouldEdit] = useState(false);
+    const [sendingEmailIds, setSendingEmailIds] = useState({});
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -179,7 +180,6 @@ export default function CustomerDetails() {
         }
     };
 
-
     const handleEdit = (customer) => {
         const fullUserDetails = originalUsers.find(u => u._id === customer.id);
         setSelectedCustomer(fullUserDetails);
@@ -200,7 +200,39 @@ export default function CustomerDetails() {
         fetchFilteredUsers("", null);
     };
 
-    const columns = userTableColumns({ handleDelete, handleView, handleToggleUserStatus, handleEdit });
+const handleSendEmail = async (customer) => {
+    const userId = customer?.id;
+    if (!userId) return;
+
+    setSendingEmailIds(prev => ({ ...prev, [userId]: true }));
+
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/user/admin/send-email/${userId}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    "Content-Type": "application/json",
+                },
+                withCredentials: true
+            }
+        );
+
+        if (response?.data?.success) {
+            showSuccessToast("Email sent successfully.");
+        } else {
+            showErrorToast(response?.data?.message || "Failed to send email.");
+        }
+    } catch (error) {
+        showErrorToast(error?.response?.data?.message || "Error sending email.");
+    } finally {
+        setSendingEmailIds(prev => ({ ...prev, [userId]: false }));
+    }
+};
+
+
+    const columns = userTableColumns({ handleDelete, handleView, handleToggleUserStatus, handleEdit, handleSendEmail, sendingEmailIds });
 
     return (
         <Box className="p-1">
@@ -240,13 +272,7 @@ export default function CustomerDetails() {
                 <CustomIconButton color="red" text="Reset" onClick={handleReset} />
             </Box>
             <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
-            <ShowDetailsDialog 
-                open={showDialog} 
-                onClose={() => setShowDialog(false)} 
-                data={selectedCustomer} 
-                onUpdate={fetchAllUsers} 
-                editModeProp={shouldEdit} 
-            />
+            <ShowDetailsDialog open={showDialog} onClose={() => setShowDialog(false)} data={selectedCustomer} onUpdate={fetchAllUsers} editModeProp={shouldEdit} />
 
             <Alert
                 open={alertOpen}

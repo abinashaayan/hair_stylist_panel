@@ -294,7 +294,7 @@ const ShowDetailsDialog = ({ open, onClose, data, editModeProp = false, onUpdate
     useEffect(() => {
         if (data) {
             setFormData(data);
-            setEditMode(editModeProp); // Set initial mode based on prop
+            setEditMode(editModeProp);
         }
     }, [data, editModeProp]);
 
@@ -321,7 +321,7 @@ const ShowDetailsDialog = ({ open, onClose, data, editModeProp = false, onUpdate
 
     const handleCancel = () => {
         setEditMode(false);
-        setFormData(data); // Reset form data to original values
+        setFormData(data);
     };
 
     return (
@@ -330,13 +330,7 @@ const ShowDetailsDialog = ({ open, onClose, data, editModeProp = false, onUpdate
                 {editMode ? "Edit Customer Details" : "Customer Details"}
             </DialogTitle>
             <DialogContent>
-                {/* Render customer view */}
-                <CustomerDetailsView
-                    data={data}
-                    editMode={editMode}
-                    formData={formData}
-                    handleChange={handleChange}
-                />
+                <CustomerDetailsView data={data} editMode={editMode} formData={formData} handleChange={handleChange} />
             </DialogContent>
             <DialogActions>
                 {editMode ? (
@@ -354,6 +348,5 @@ const ShowDetailsDialog = ({ open, onClose, data, editModeProp = false, onUpdate
         </Dialog>
     );
 };
-
 
 export default ShowDetailsDialog;

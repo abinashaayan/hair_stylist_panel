@@ -18,8 +18,9 @@ RUN npm run build
 RUN npm install -g serve
 
 # Expose port 2233
-EXPOSE 2233
+# EXPOSE 2233
+EXPOSE 2235
 
 # Serve the app on port 2222
-CMD ["serve", "-s", "dist", "-l", "2233"]
+CMD ["serve", "-s", "dist", "-l", "2235"]
 

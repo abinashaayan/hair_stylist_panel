@@ -15,7 +15,7 @@ import { tokens } from "../../theme";
 import { showErrorToast, showSuccessToast } from "../../Toast";
 import Cookies from "js-cookie";
 import { stylistUserTableColumns } from "../../custom/StylistUserTableColumns";
-import ShowDetailsDialog from "../../components/ShowDetailsDialog";
+import StylistEntityDialog from "../../components/StylistEntityDialog";
 import Alert from "../../custom/Alert";
 
 export default function RegisteredStylist() {
@@ -85,9 +85,11 @@ export default function RegisteredStylist() {
     const fullStylistDetails = originalStylists.find(s => s._id === row.id);
     if (fullStylistDetails) {
       fullStylistDetails.address = formatAddress(fullStylistDetails.address);
+      setSelectedStylistDetails(fullStylistDetails);
+      setIsDetailsDialogOpen(true);
+    } else {
+      showErrorToast("Stylist details not found");
     }
-    setSelectedStylistDetails(fullStylistDetails);
-    setIsDetailsDialogOpen(true);
   };
 
   const handleToggleStatus = async (id) => {
@@ -184,7 +186,6 @@ export default function RegisteredStylist() {
 
   return (
     <Box className="p-1">
-      {/* <Container maxWidth={false}> */}
       <Header title="All Registered Stylist" />
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
@@ -195,8 +196,7 @@ export default function RegisteredStylist() {
         </Box>
       </Box>
       <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
-      {/* </Container> */}
-      <ShowDetailsDialog
+      <StylistEntityDialog
         open={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
         data={selectedStylistDetails}

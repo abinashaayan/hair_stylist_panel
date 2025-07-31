@@ -36,6 +36,7 @@ const EntityDialog = ({
   editValue = "",
   isView = false,
   viewValue = "",
+  editService = null,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,8 @@ const EntityDialog = ({
   const [subServicesLoading, setSubServicesLoading] = useState(false);
   const [deletingSubId, setDeletingSubId] = useState(null);
   const [customOtherValue, setCustomOtherValue] = useState("");
+  const [isActive, setIsActive] = useState(true);
+  const [icon, setIcon] = useState("");
 
   const authToken = Cookies.get("token");
   console.log("viewValue:", viewValue);
@@ -50,12 +53,26 @@ const EntityDialog = ({
   useEffect(() => {
     if (!open) {
       setInputValue("");
+      setSubServices([]);
+      setIsActive(true);
+      setIcon("");
+    } else if (isEdit && editService) {
+      setInputValue(editService.name || "");
+      setIsActive(editService.approved !== undefined ? !!editService.approved : true);
+      setIcon(editService.icon || "");
+      // If subServices are present in editService, use them, else fetch
+      if (editService.subServices) {
+        setSubServices(editService.subServices);
+      } else if (editService.id) {
+        // Optionally fetch subservices if not present
+        getAllServicesByServiceId(editService.id);
+      }
     } else if (isEdit && editValue) {
       setInputValue(editValue);
     } else if (isView && viewValue) {
       setInputValue(viewValue);
     }
-  }, [open, isEdit, editValue, isView, viewValue]);
+  }, [open, isEdit, editValue, isView, viewValue, editService]);
 
   const handleAddOrUpdate = async () => {
     const selectedValue = inputValue === "other" ? customOtherValue : inputValue;
@@ -150,6 +167,41 @@ const EntityDialog = ({
     }
   };
 
+  // Sub-service editing handlers
+  const handleSubServiceChange = (idx, field, value) => {
+    setSubServices(prev => prev.map((sub, i) => i === idx ? { ...sub, [field]: value } : sub));
+  };
+  const handleAddSubServiceField = () => {
+    setSubServices(prev => [...prev, { name: "" }]);
+  };
+  const handleRemoveSubServiceField = (idx) => {
+    setSubServices(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  // PATCH for edit mode
+  const handleEditSave = async () => {
+    setLoading(true);
+    try {
+      await axios.patch(
+        `${API_BASE_URL}/service/admin/update-service/${editService.id}`,
+        {
+          serviceData: {
+            name: inputValue,
+            isActive,
+            icon,
+          },
+          subServices: subServices.map(sub => ({ _id: sub._id, name: sub.name })).filter(s => s.name),
+        },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      showSuccessToast("Service updated successfully");
+      onSuccess();
+    } catch (error) {
+      showErrorToast(error?.response?.data?.message || "Update failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDialogClose = () => {
     setInputValue("");
@@ -165,7 +217,47 @@ const EntityDialog = ({
       </DialogTitle>
       <Divider sx={{ borderBottomWidth: 1, borderColor: "black" }} />
       <DialogContent>
-        {isView ? (
+        {isEdit && editService ? (
+          <Box sx={{ p: 2 }}>
+            <InputLabel sx={{ color: "black", fontWeight: 500 }}>Service Name</InputLabel>
+            <Input
+              placeholder="Service Name"
+              type="text"
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <InputLabel sx={{ color: "black", fontWeight: 500 }}>Icon URL</InputLabel>
+            <Input
+              placeholder="Icon URL"
+              type="text"
+              value={icon}
+              onChange={e => setIcon(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <Box display="flex" alignItems="center" gap={2} mb={2}>
+              <InputLabel sx={{ color: "black", fontWeight: 500 }}>Active</InputLabel>
+              <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
+            </Box>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+              Sub Services
+            </Typography>
+            {subServices.map((sub, idx) => (
+              <Box key={sub._id || idx} display="flex" alignItems="center" gap={1} mb={1}>
+                <Input
+                  placeholder="Sub-service Name"
+                  type="text"
+                  value={sub.name}
+                  onChange={e => handleSubServiceChange(idx, "name", e.target.value)}
+                  sx={{ flex: 1 }}
+                />
+                <CustomIconButton icon={<Trash size="small" />} color="red" onClick={() => handleRemoveSubServiceField(idx)} />
+              </Box>
+            ))}
+            <CustomIconButton icon={<PersonAdd />} color="green" text="Add Sub-service" onClick={handleAddSubServiceField} />
+          </Box>
+        ) : isView ? (
           <Box sx={{ p: 2 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} pb={1} borderBottom="1px solid #ccc">
               <InputLabel sx={{ color: "black", fontWeight: 500 }}>Name</InputLabel>
@@ -284,7 +376,16 @@ const EntityDialog = ({
       </DialogContent>
       <DialogActions>
         <CustomIconButton icon={<Close />} color="red" text="Close" onClick={handleDialogClose} />
-        {!isView && (
+        {isEdit && editService ? (
+          <CustomIconButton
+            icon={<PersonAdd />}
+            loading={loading}
+            disabled={loading}
+            color="black"
+            text="Save"
+            onClick={handleEditSave}
+          />
+        ) : !isView && (
           <CustomIconButton
             icon={<PersonAdd />}
             loading={loading}
