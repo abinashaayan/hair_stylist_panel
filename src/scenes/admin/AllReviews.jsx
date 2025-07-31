@@ -22,8 +22,12 @@ import Cookies from "js-cookie";
 import { CustomIconButton } from "../../custom/Button";
 import { reviewsTableColumns } from "../../custom/TableColumns";
 import Alert from "../../custom/Alert";
+import useStylistProfile from "../../hooks/useStylistProfile";
+import { useAuth } from "../../utils/context/AuthContext";
 
 export default function AllReviews() {
+    const { panelType } = useAuth();
+
     const [allReviews, setAllReviews] = useState([]);
     const [filteredReviews, setFilteredReviews] = useState([]);
     const [searchText, setSearchText] = useState("");
@@ -35,42 +39,60 @@ export default function AllReviews() {
     const [viewDialogOpen, setViewDialogOpen] = useState(false);
     const [selectedReview, setSelectedReview] = useState(null);
 
+    const { profile } = useStylistProfile();
+    console.log("profile", profile?.reviews);
+
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const authToken = Cookies.get("token");
 
     const fetchAllReviews = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/user/admin/stylist-reviews`, {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            if (response?.data?.success) {
-                const formattedData = response.data.reviews.map((review) => ({
-                    id: review._id,
-                    userName: review.userName,
-                    reviewed: review.reviewed,
-                    ratings: review.ratings,
-                    description: review.description,
-                    isVisible: review.isVisible,
-                    createdAt: new Date(review.createdAt).toLocaleDateString(),
-                }));
-                setAllReviews(formattedData);
-            }
-        } catch (error) {
-            showErrorToast("Error fetching reviews");
-        } finally {
+        if (panelType === "vendor") {
+            const reviews = profile?.reviews?.map((review) => ({
+                id: review._id,
+                userName: review.userName,
+                reviewed: review.reviewed,
+                ratings: review.ratings,
+                description: review.description,
+                isVisible: review.isVisible,
+                createdAt: new Date(review.createdAt).toLocaleDateString(),
+            })) || [];
+
+            setAllReviews(reviews);
             setLoading(false);
+        } else {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/user/admin/stylist-reviews`, {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (response?.data?.success) {
+                    const formattedData = response.data.reviews.map((review) => ({
+                        id: review._id,
+                        userName: review.userName,
+                        reviewed: review.reviewed,
+                        ratings: review.ratings,
+                        description: review.description,
+                        isVisible: review.isVisible,
+                        createdAt: new Date(review.createdAt).toLocaleDateString(),
+                    }));
+                    setAllReviews(formattedData);
+                }
+            } catch (error) {
+                showErrorToast("Error fetching reviews");
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
     useEffect(() => {
-        if (authToken) {
+        if (authToken || panelType === "vendor") {
             fetchAllReviews();
         }
-    }, [authToken]);
+    }, [authToken, profile, panelType]);
 
     useEffect(() => {
         if (searchText === "") {
@@ -85,6 +107,7 @@ export default function AllReviews() {
     }, [allReviews, searchText]);
 
     const handleToggleStatus = async (id, currentStatus) => {
+        if (panelType === "vendor") return;
         setTogglingIds((prev) => ({ ...prev, [id]: true }));
         try {
             const response = await axios.patch(`${API_BASE_URL}/user/admin/review-visibility`, {
@@ -99,7 +122,7 @@ export default function AllReviews() {
 
             if (response?.data?.success) {
                 showSuccessToast("Visibility status updated!");
-                await fetchAllReviews(); 
+                await fetchAllReviews();
             } else {
                 showErrorToast("Failed to update visibility.");
             }
@@ -111,8 +134,6 @@ export default function AllReviews() {
         }
     };
 
-
-
     const handleDelete = (id) => {
         setDeleteId(id);
         setAlertOpen(true);
@@ -122,18 +143,22 @@ export default function AllReviews() {
         if (!deleteId) return;
         setDeleting(true);
         try {
-            const response = await axios.delete(`${API_BASE_URL}/user/admin/stylist-reviews/${deleteId}`, {
+            const response = await axios.delete(`${API_BASE_URL}/user/admin/stylist-reviews`, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     "Content-Type": "application/json",
                 },
+                data: {
+                    reviewIds: [deleteId], // send as array
+                },
             });
-            if (response?.data?.status === 200 || response?.data?.success) {
+            if (response?.data?.success) {
                 showSuccessToast("Review deleted successfully");
                 setAllReviews((prev) => prev.filter((r) => r.id !== deleteId));
             } else {
                 showErrorToast("Failed to delete review.");
             }
+            await fetchAllReviews();
         } catch (error) {
             showErrorToast("An error occurred while deleting the review.");
         } finally {
@@ -143,15 +168,16 @@ export default function AllReviews() {
         }
     };
 
+
     const handleView = (row) => {
         setSelectedReview(row);
         setViewDialogOpen(true);
     };
-    const columns = reviewsTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
+    const columns = reviewsTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds, panelType });
 
     return (
         <Box className="p-1">
-            <Container maxWidth={false}>
+            {/* <Container maxWidth={false}> */}
                 <Header title="Stylist Reviews" />
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
                     <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' } }}>
@@ -161,9 +187,8 @@ export default function AllReviews() {
                         </IconButton>
                     </Box>
                 </Box>
-
                 <CustomTable columns={columns} rows={filteredReviews} loading={loading} />
-            </Container>
+            {/* </Container> */}
 
             <Alert
                 open={alertOpen}

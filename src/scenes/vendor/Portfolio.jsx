@@ -1,20 +1,117 @@
-import React from "react";
-import { Box, Card, CardContent, Grid, Typography, useTheme, LinearProgress } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Card, CardContent, Grid, Typography, useTheme, LinearProgress, Button, Dialog, DialogTitle, TextField, DialogActions, IconButton } from "@mui/material";
 import { tokens } from "../../theme";
 import { Header } from "../../components";
 import useStylistProfile from "../../hooks/useStylistProfile";
+import AddIcon from '@mui/icons-material/Add';
+import { CustomIconButton } from "../../custom/Button";
+import { Close } from "@mui/icons-material";
+import axios from "axios";
+import { API_BASE_URL } from "../../utils/apiConfig";
+import Cookies from "js-cookie";
+import { DeleteIcon } from "lucide-react";
+import { fetchStylistProfile } from "../../hooks/stylistProfileSlice";
+import { useDispatch } from "react-redux";
+import Alert from "../../custom/Alert";
 
 const portfolio = () => {
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
+  const [mediaType, setMediaType] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const dispatch = useDispatch();
 
   const { profile, loading } = useStylistProfile();
-  console.log("profile", profile?.portfolio);
+  const authToken = Cookies.get("token");
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const type = file.type.startsWith("video") ? "video" : "image";
+    setMediaFile(file);
+    setMediaType(type);
+    setMediaPreview(URL.createObjectURL(file));
+  };
+
+  const handleAddPortfolio = () => {
+    setAddDialogOpen(true);
+    setMediaFile(null);
+    setMediaPreview(null);
+    setMediaType("");
+    setName("");
+    setDescription("");
+  };
+
+
+  const handleUpload = async () => {
+    if (!mediaFile || !description) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("files", mediaFile);
+      formData.append("descriptions", JSON.stringify([description]));
+      formData.append("profileCompletionStep", "certifications");
+      await axios.post(`${API_BASE_URL}/stylist/${profile?._id}/portfolio`, formData,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setAddDialogOpen(false);
+      dispatch(fetchStylistProfile());
+    } catch (error) {
+      console.error("Upload failed:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteClick = (item) => {
+    setItemToDelete(item);
+    setDeleteDialogOpen(true);
+  };
+  const confirmDelete = async () => {
+    if (!itemToDelete || !profile?._id) return;
+    setDeleteLoading(true);
+    try {
+      await axios.delete(`${API_BASE_URL}/stylist/${profile._id}/portfolio/${itemToDelete._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      dispatch(fetchStylistProfile());
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error("Delete failed", error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
 
   return (
-    <Box m="20px">
+    <Box>
       {(loading || !profile) && <LinearProgress sx={{ mb: 2 }} />}
       <Header title="Portfolio" />
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <CustomIconButton icon={<AddIcon />} text="Add Portfolio" fontWeight="bold" color="#6d295a" variant="outlined"
+          sx={{ width: { xs: '100%', sm: 'auto' } }} onClick={handleAddPortfolio} />
+      </Box>
       {(!profile) ? null : (
         <Grid container spacing={2}>
           <Grid item xs={12} md={12} lg={12}>
@@ -48,6 +145,20 @@ const portfolio = () => {
                         }}
                       >
                         <Box sx={{ width: '100%', position: 'relative' }}>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteClick(item)}
+                            sx={{
+                              position: 'absolute',
+                              top: 8,
+                              left: 8,
+                              zIndex: 3,
+                              backgroundColor: 'rgba(255,0,0,0.7)',
+                              color: '#fff',
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
                           {item?.mediaType === 'video' ? (
                             <Box sx={{ position: 'relative', width: '100%' }}>
                               <video
@@ -79,17 +190,7 @@ const portfolio = () => {
                             </Box>
                           )}
                           {/* Floating info card */}
-                          <Box sx={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            px: 2,
-                            py: 1.5,
-                            zIndex: 2,
-                            color: '#fff',
-                            textAlign: 'center',
-                          }}>
+                          <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, px: 2, py: 1.5, zIndex: 2, color: '#fff', textAlign: 'center', }}>
                             <Typography variant="subtitle1" fontWeight={600} sx={{ fontFamily: 'Poppins, sans-serif', textShadow: '0 2px 8px #000' }}>
                               {item.name}
                             </Typography>
@@ -107,6 +208,44 @@ const portfolio = () => {
           </Grid>
         </Grid>
       )}
+
+      {/* Upload Image/Video Dialog */}
+      <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Portfolio Item</DialogTitle>
+        <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Button variant="outlined" component="label">
+            Upload Image/Video
+            <input hidden accept="image/*,video/*" type="file" onChange={handleFileChange} />
+          </Button>
+          {mediaPreview && mediaType === "image" && (
+            <img src={mediaPreview} alt="preview" style={{ width: "100%", maxHeight: 300, objectFit: "contain" }} />
+          )}
+          {mediaPreview && mediaType === "video" && (
+            <video controls src={mediaPreview} style={{ width: "100%", maxHeight: 300 }} />
+          )}
+          <TextField fullWidth value={name} onChange={(e) => setName(e.target.value)} />
+          <TextField fullWidth multiline rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+        </CardContent>
+        <DialogActions>
+          <CustomIconButton icon={<Close />} color="red" text="Close" onClick={() => setAddDialogOpen(false)} />
+          <Button variant="contained" onClick={handleUpload} disabled={uploading}>
+            {uploading ? "Uploading..." : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Alert
+        open={deleteDialogOpen}
+        title="Delete Portfolio Item"
+        description={`Are you sure you want to delete "${itemToDelete?.name}"?`}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        loading={deleteLoading}
+        confirmLabel="Delete"
+      />
     </Box>
   );
 };

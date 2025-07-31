@@ -168,19 +168,19 @@ export default function ServiceCategory() {
 
     return (
         <Box className="p-1">
-            <Container maxWidth={false}>
-                <Header title="Create Service" />
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
-                    <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' }, }}>
-                        <InputBase placeholder="Search Service" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
-                        <IconButton type="button" sx={{ p: 1 }}>
-                            <SearchOutlined />
-                        </IconButton>
-                    </Box>
-                    <CustomIconButton icon={<PersonAdd />} text="Add New Service" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
+            {/* <Container maxWidth={false}> */}
+            <Header title="Create Service" />
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
+                <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' }, }}>
+                    <InputBase placeholder="Search Service" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+                    <IconButton type="button" sx={{ p: 1 }}>
+                        <SearchOutlined />
+                    </IconButton>
                 </Box>
-                <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
-            </Container>
+                <CustomIconButton icon={<PersonAdd />} text="Add New Service" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
+            </Box>
+            <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
+            {/* </Container> */}
 
             <EntityDialog
                 open={openCategoryDialog}

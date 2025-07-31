@@ -11,11 +11,13 @@ import {
   Avatar,
   Grid,
   CircularProgress,
+  Chip,
+  Stack,
 } from "@mui/material";
 import {
   Header,
 } from "../../components";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -27,6 +29,19 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import EventIcon from '@mui/icons-material/Event';
+
+const quickAccessItems = [
+  { label: "Customers", color: "secondary", path: "/customers" },
+  { label: "Stylists", color: "success", path: "/stylist" },
+  { label: "Stylist Reviews", color: "info", path: "/stylist-reviews" },
+  { label: "Products", color: "warning", path: "/product" },
+  { label: "Categories", color: "primary", path: "/category" },
+  { label: "Service Categories", color: "secondary", path: "/service" },
+  { label: "Service Management", color: "success", path: "/service-management" },
+  { label: "Order Details", color: "info", path: "/order-details" },
+  { label: "Appointment Status", color: "warning", path: "/appointment-status" },
+];
+
 
 const timeAgo = (date) => {
   const now = new Date();
@@ -60,12 +75,8 @@ function Dashboard() {
       if (response.data.success) {
         console.log(response.data.data, 'overview data')
         setOverviewData(response.data.data);
-        // const recent = response.data.data.recentActivity.map((item) => ({
-        //   ...item,
-        //   time: timeAgo(item.timeRaw),
-        // }));
-        setRawRecentActivity(response.data.data.recentActivity); // stores raw datetime
-        setRecentActivity(response.data.data.recentActivity); // visible activity with time text
+        setRawRecentActivity(response.data.data.recentActivity);
+        setRecentActivity(response.data.data.recentActivity);
       }
     } catch (error) {
       console.log(error);
@@ -152,7 +163,6 @@ function Dashboard() {
       ) : (
         <>
           <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
           <Grid container spacing={2} sx={{ mb: 3 }}>
             {overviewStats.map((stat) => (
               <Grid item xs={12} sm={6} md={4} lg={2.4} key={stat.title}>
@@ -171,19 +181,36 @@ function Dashboard() {
             ))}
           </Grid>
 
-          {/* Recent Activity Feed */}
           <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>
+                Quick Access
+              </Typography>
+              <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+                {quickAccessItems?.map((item, index) => (
+                  <Link to={item.path} key={index} style={{ textDecoration: 'none' }}>
+                    <Chip
+                      label={item.label}
+                      color={item.color}
+                      variant="outlined"
+                      clickable
+                      sx={{ fontWeight: 'bold' }}
+                    />
+                  </Link>
+                ))}
+              </Stack>
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity Feed */}
+          <Card sx={{ borderRadius: 3, mt: 2 }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>
                 Recent Activity
               </Typography>
               <List>
                 {recentActivity?.map((activity, idx) => (
-                  <ListItem
-                    button
-                    key={idx}
-                    sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}
-                  >
+                  <ListItem button key={idx} sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}>
                     <ListItemAvatar>
                       <Box position="relative" display="inline-flex">
                         {/* Animated progress ring */}

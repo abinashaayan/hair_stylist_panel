@@ -246,7 +246,7 @@ export default function Product() {
   return (
     <Box className="p-1">
       <Header title="Products" subtitle="Managing products and inventory" />
-      <Container maxWidth={false}>
+      {/* <Container maxWidth={false}> */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, mt: 3 }}>
           <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
             <InputBase placeholder="Search Product name or subtitle" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
@@ -311,7 +311,7 @@ export default function Product() {
           title="Delete Products"
           description={`Are you sure you want to delete these ${selectedRows.length} products? This action cannot be undone.`}
         />
-      </Container>
+      {/* </Container> */}
     </Box>
   );
 };

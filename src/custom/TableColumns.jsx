@@ -1,10 +1,10 @@
 import { Trash2, Eye, Pencil, TransgenderIcon, Plus } from "lucide-react";
 import { CustomIconButton } from "./Button";
-import { Box, Chip, CircularProgress, Switch } from "@mui/material";
+import { Box, Chip, CircularProgress, Rating, Switch, Typography } from "@mui/material";
 import ImageWithLoader from "./ImageWithLoader";
 import PersonIcon from "@mui/icons-material/Person";
 
-export const userTableColumns = ({ handleDelete, handleView }) => [
+export const userTableColumns = ({ handleDelete, handleView, handleVerify }) => [
     { field: "fullName", headerName: "Full Name", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
@@ -54,6 +54,20 @@ export const userTableColumns = ({ handleDelete, handleView }) => [
             );
         },
     },
+    // {
+    //     field: "isPhoneVerified",
+    //     headerName: "Verified",
+    //     flex: 0.6,
+    //     renderCell: (params) => (
+    //         <Switch
+    //             checked={params.row.isPhoneVerified}
+    //             onClick={(event) => event.stopPropagation()}
+    //             onChange={() => handleVerify(params.row)}
+    //             color="success"
+    //             size="small"
+    //         />
+    //     ),
+    // },
     { field: "createdAt", headerName: "Created", flex: 0.8 },
     {
         field: "action",
@@ -62,18 +76,9 @@ export const userTableColumns = ({ handleDelete, handleView }) => [
         sortable: false,
         renderCell: (params) => (
             <Box sx={{ display: "flex", gap: 0.5 }}>
-                <CustomIconButton
-                    size="small"
-                    icon={<Eye size={16} />}
-                    color="rgb(77 141 225)"
-                    onClick={() => handleView(params.row)}
-                />
-                <CustomIconButton
-                    size="small"
-                    icon={<Trash2 size={16} />}
-                    color="hsl(0 84.2% 60.2%)"
-                    onClick={() => handleDelete(params.row.id)}
-                />
+                <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                {/* <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} /> */}
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
             </Box>
         ),
     },
@@ -750,34 +755,87 @@ export const allAppointmentStatusTableColumns = ({ handleDelete, handleView }) =
     },
 ];
 
-export const reviewsTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds }) => [
-    { field: "userName", headerName: "User Name", flex: 1 },
-    { field: "reviewed", headerName: "Reviewed Stylist", flex: 1 },
-    { field: "ratings", headerName: "Rating", width: 100 },
-    { field: "description", headerName: "Description", flex: 2 },
+export const reviewsTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, panelType }) => [
     {
-        field: "isVisible",
-        headerName: "Visible",
-        width: 120,
+        field: "photo",
+        headerName: "User Profile",
+        width: 80,
         renderCell: (params) => {
-            const isLoading = togglingIds?.[params.row.id];
+            const photoUrl = params.row.userProfileImage;
+            const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
             return (
-                <Box display="flex" alignItems="center" justifyContent="center" width="100%">
-                    {isLoading ? (
-                        <CircularProgress size={20} color="success" />
-                    ) : (
-                        <Switch
-                            checked={params.row.isVisible}
-                            onChange={() => handleToggleStatus(params.row.id, params.row.isVisible)}
-                            onClick={(e) => e.stopPropagation()}
-                            color="success"
-                            size="medium"
-                        />
-                    )}
-                </Box>
+                <img
+                    src={photoUrl || fallbackUrl}
+                    alt="img"
+                    height={40}
+                    width={40}
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = fallbackUrl;
+                    }}
+                />
             );
         },
     },
+    { field: "userName", headerName: "User Name", flex: 1 },
+    // { field: "reviewed", headerName: "Reviewed Stylist", flex: 1 },
+    {
+        field: "ratings",
+        headerName: "Rating",
+        width: 160,
+        renderCell: (params) => (
+            <Box display="flex" alignItems="center" gap={1}>
+                <Rating name="read-only" value={params.row.ratings} readOnly precision={0.5} size="small" />
+                <Box
+                    px={1}
+                    py={0.3}
+                    borderRadius="50%"
+                    bgcolor={
+                        params.row.ratings >= 4
+                            ? "success.main"
+                            : params.row.ratings >= 2.5
+                                ? "warning.main"
+                                : "error.main"
+                    }
+                    color="white"
+                    fontSize="0.75rem"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    width={24}
+                    height={24}
+                >
+                    {params.row.ratings}
+                </Box>
+            </Box>
+        )
+    },
+    { field: "description", headerName: "Description", flex: 2 },
+    ...(panelType !== "vendor"
+        ? [{
+            field: "isVisible",
+            headerName: "Visible",
+            width: 120,
+            renderCell: (params) => {
+                const isLoading = togglingIds?.[params.row.id];
+                return (
+                    <Box display="flex" alignItems="center" justifyContent="center" width="100%">
+                        {isLoading ? (
+                            <CircularProgress size={20} color="success" />
+                        ) : (
+                            <Switch
+                                checked={params.row.isVisible}
+                                onChange={() => handleToggleStatus(params.row.id, params.row.isVisible)}
+                                onClick={(e) => e.stopPropagation()}
+                                color="success"
+                                size="medium"
+                            />
+                        )}
+                    </Box>
+                );
+            },
+        }]
+        : []),
     { field: "createdAt", headerName: "Created At", width: 140 },
     {
         field: "action",

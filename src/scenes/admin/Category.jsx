@@ -174,8 +174,8 @@ export default function Category() {
     const columns = productCategoryTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds, handleEdit });
 
     return (
-        <Box className="p-1 mt-4">
-            <Container maxWidth={false}>
+        <Box className="">
+            {/* <Container maxWidth={false}> */}
                 <Header title="Category" />
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                     <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
@@ -187,7 +187,7 @@ export default function Category() {
                     <CustomIconButton icon={<PersonAdd />} text="Add Category" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} />
                 </Box>
                 <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
-            </Container>
+            {/* </Container> */}
             <EntityDialog
                 open={openCategoryDialog}
                 handleClose={handleCloseCategoryDialog}

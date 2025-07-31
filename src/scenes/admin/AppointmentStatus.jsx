@@ -80,7 +80,7 @@ const AppointmentStatus = () => {
     const columns = allAppointmentStatusTableColumns({ handleDelete, handleView, handleStatusUpdate });
 
     return (
-        <Box m="20px">
+        <Box>
             <Header title="Appointment Status" />
             {loading && (
                 <Box display="flex" justifyContent="center" alignItems="center" mt={2}>

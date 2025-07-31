@@ -73,6 +73,7 @@ const SideBar = () => {
     vendor: [
       { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
       { title: "Services", path: "/services", icon: <CalendarMonthOutlined /> },
+      { title: "Reviews", path: "/reviews", icon: <PersonOutlined /> },
       { title: "Portfolio", path: "/portfolio", icon: <AddCircleOutline /> },
       { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
       { title: "Appointment Management", path: "/appointment", icon: <HistoryOutlined /> },

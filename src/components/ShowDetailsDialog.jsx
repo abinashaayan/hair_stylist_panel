@@ -15,9 +15,9 @@ import {
     Divider,
     Stack
 } from '@mui/material';
-import { Briefcase, Building2, Calendar, CheckCircle2, GraduationCap, Mail, Phone, Sparkles, Star, User, Award, MapPin } from 'lucide-react';
+import { Briefcase, Building2, Calendar, CheckCircle2, GraduationCap, Mail, Phone, Sparkles, Star, User, Award, MapPin, Linkedin, Share2, Image } from 'lucide-react';
 import { CustomIconButton } from '../custom/Button';
-import { Close } from '@mui/icons-material';
+import { Close, Facebook, Instagram } from '@mui/icons-material';
 
 const DetailItem = ({ icon, label, value, fullWidth = false }) => (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, borderBottom: '1px solid #f0f0f0' }}>
@@ -26,7 +26,7 @@ const DetailItem = ({ icon, label, value, fullWidth = false }) => (
         {typeof value === 'boolean' ? (
             <Chip label={value ? 'Yes' : 'No'} color={value ? 'success' : 'default'} size="small" />
         ) : (
-             <Typography variant="body2" sx={{ wordBreak: 'break-word', flexGrow: 1 }}>{value || 'N/A'}</Typography>
+            <Typography variant="body2" sx={{ wordBreak: 'break-word', flexGrow: 1 }}>{value || 'N/A'}</Typography>
         )}
     </Stack>
 );
@@ -37,7 +37,7 @@ const Section = ({ title, icon, children }) => (
             <Box color="primary.main">{icon}</Box>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{title}</Typography>
         </Stack>
-        <Divider sx={{ mb: 2 }}/>
+        <Divider sx={{ mb: 2 }} />
         {children}
     </Paper>
 );
@@ -58,10 +58,10 @@ const CustomerDetailsView = ({ data }) => (
                     <DetailItem icon={<Calendar size={20} />} label="Joined On" value={new Date(data.createdAt).toLocaleString()} />
                 </Grid>
                 <Grid item xs={12}>
-                    <DetailItem 
-                        icon={<MapPin size={20} />} 
-                        label="Address" 
-                        value={`${data.addressLine1 || ''}, ${data.addressLine2 || ''}, ${data.city || ''}, ${data.region || ''} - ${data.postalCode || ''}`} 
+                    <DetailItem
+                        icon={<MapPin size={20} />}
+                        label="Address"
+                        value={`${data.addressLine1 || ''}, ${data.addressLine2 || ''}, ${data.city || ''}, ${data.region || ''} - ${data.postalCode || ''}`}
                     />
                 </Grid>
             </Grid>
@@ -82,20 +82,105 @@ const StylistDetailsView = ({ data }) => {
         <Box sx={{ backgroundColor: '#f4f6f8', p: { xs: 1, md: 2 } }}>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={5}>
-                     <Section title="Personal Information" icon={<User size={24}/>}> 
-                        <DetailItem icon={<User size={20}/>} label="Full Name" value={data.fullName} />
-                        <DetailItem icon={<Mail size={20}/>} label="Email" value={data.email} />
-                        <DetailItem icon={<Calendar size={20}/>} label="DOB" value={data.dob ? new Date(data.dob).toLocaleDateString() : 'N/A'} />
-                        <DetailItem icon={<Phone size={20}/>} label="Phone" value={data.phoneNumber} />
-                        <DetailItem icon={<MapPin size={20}/>} label="Address" value={data.address} />
-                     </Section>
-                     {data.about && (
-                        <Section title="Shop Details" icon={<Building2 size={24}/>}> 
-                            <DetailItem icon={<Star size={20}/>} label="Shop Name" value={data.about.shopName} />
-                            <DetailItem icon={<Phone size={20}/>} label="Timings" value={data.about.timings ? `${data.about.timings.from} - ${data.about.timings.till}` : 'N/A'} />
+                    <Section title="Personal Information" icon={<User size={24} />}>
+                        <DetailItem icon={<User size={20} />} label="Full Name" value={data.fullName} />
+                        <DetailItem icon={<Mail size={20} />} label="Email" value={data.email} />
+                        <DetailItem icon={<Calendar size={20} />} label="DOB" value={data.dob ? new Date(data.dob).toLocaleDateString() : 'N/A'} />
+                        <DetailItem icon={<Phone size={20} />} label="Phone" value={data.phoneNumber} />
+                        <DetailItem icon={<MapPin size={20} />} label="Address" value={data.address} />
+                    </Section>
+                    {data?.about && (
+                        <Section title="Shop Details" icon={<Building2 size={24} />}>
+                            <DetailItem icon={<Star size={20} />} label="Shop Name" value={data.about.shopName} />
+                            <DetailItem icon={<Phone size={20} />} label="Timings" value={data.about.timings ? `${data.about.timings.from} - ${data.about.timings.till}` : 'N/A'} />
                             <Typography variant="body2" color="text.secondary" sx={{ mt: 1, p: 1, background: '#fff', borderRadius: 1 }}>{data.about.about}</Typography>
                         </Section>
-                     )}
+                    )}
+                    {data.socialMediaLinks && (
+                        <Section title="Social Media" icon={<Share2 size={24} />}>
+                            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+                                {data.socialMediaLinks.instagram && (
+                                    <Box display="flex" alignItems="center" gap={1}>
+                                        <Avatar sx={{ bgcolor: '#E1306C', width: 32, height: 32 }}>
+                                            <Instagram size={18} color="white" />
+                                        </Avatar>
+                                        <Link
+                                            href={data.socialMediaLinks.instagram}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            underline="hover"
+                                            color="primary"
+                                        >
+                                            Instagram
+                                        </Link>
+                                    </Box>
+                                )}
+                                {data.socialMediaLinks.facebook && (
+                                    <Box display="flex" alignItems="center" gap={1}>
+                                        <Avatar sx={{ bgcolor: '#3b5998', width: 32, height: 32 }}>
+                                            <Facebook size={18} color="white" />
+                                        </Avatar>
+                                        <Link
+                                            href={data.socialMediaLinks.facebook}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            underline="hover"
+                                            color="primary"
+                                        >
+                                            Facebook
+                                        </Link>
+                                    </Box>
+                                )}
+                                {data.socialMediaLinks.linkedin && (
+                                    <Box display="flex" alignItems="center" gap={1}>
+                                        <Avatar sx={{ bgcolor: '#0e76a8', width: 32, height: 32 }}>
+                                            <Linkedin size={18} color="white" />
+                                        </Avatar>
+                                        <Link
+                                            href={data.socialMediaLinks.linkedin}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            underline="hover"
+                                            color="primary"
+                                        >
+                                            LinkedIn
+                                        </Link>
+                                    </Box>
+                                )}
+                            </Stack>
+                        </Section>
+                    )}
+                    {data.portfolio?.length > 0 && (
+                        <Section title="Portfolio Gallery" icon={<Image size={24} />}>
+                            <Grid container spacing={2}>
+                                {data.portfolio.map((item, index) => (
+                                    <Grid item xs={12} sm={6} md={4} key={index}>
+                                        <Box
+                                            sx={{
+                                                textAlign: 'center',
+                                                border: '1px solid #e0e0e0',
+                                                borderRadius: 2,
+                                                p: 1,
+                                                backgroundColor: '#fff',
+                                                boxShadow: 1,
+                                                transition: 'transform 0.2s',
+                                                '&:hover': { transform: 'scale(1.02)', boxShadow: 3 },
+                                            }}
+                                        >
+                                            {item.mediaType === 'video' ? (
+                                                <video src={item.url} controls style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 8, }} />
+                                            ) : (
+                                                <Box    component="img"    src={item.url}    alt={item.name || `portfolio-${index}`}    sx={{        width: '100%',        height: 140,        objectFit: 'cover',        borderRadius: 1.5,    }}/>
+                                            )}
+                                            <Typography    variant="body2"    color="text.secondary"    sx={{ mt: 1 }}    noWrap>
+                                                {item.description || item.name}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Section>
+                    )}
                 </Grid>
                 <Grid item xs={12} md={7}>
                     {isAllEmpty ? (
@@ -136,10 +221,10 @@ const StylistDetailsView = ({ data }) => {
                                 </Section>
                             )}
                             {data.education?.length > 0 && (
-                                <Section title="Education" icon={<GraduationCap size={24}/>}> 
+                                <Section title="Education" icon={<GraduationCap size={24} />}>
                                     <Stack spacing={2}>
                                         {data.education.map((edu, index) => (
-                                            <Box key={index} sx={{p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5}}>
+                                            <Box key={index} sx={{ p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5 }}>
                                                 <Typography sx={{ fontWeight: 'bold' }}>{edu.degree}</Typography>
                                                 <Typography variant="body2">{edu.institute}, {edu.year}</Typography>
                                             </Box>
@@ -148,10 +233,10 @@ const StylistDetailsView = ({ data }) => {
                                 </Section>
                             )}
                             {data.experience?.length > 0 && (
-                                 <Section title="Experience" icon={<Briefcase size={24}/>}> 
+                                <Section title="Experience" icon={<Briefcase size={24} />}>
                                     <Stack spacing={2}>
                                         {data.experience.map((exp, index) => (
-                                            <Box key={index} sx={{p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5}}>
+                                            <Box key={index} sx={{ p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1.5 }}>
                                                 <Typography sx={{ fontWeight: 'bold' }}>{exp.role} at {exp.salon}</Typography>
                                                 <Typography variant="body2">Duration: {exp.duration}</Typography>
                                             </Box>
@@ -160,7 +245,7 @@ const StylistDetailsView = ({ data }) => {
                                 </Section>
                             )}
                             {data.certificates?.length > 0 && (
-                                <Section title="Certificates & Portfolio" icon={<Award size={24} />}> 
+                                <Section title="Certificates & Portfolio" icon={<Award size={24} />}>
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
                                         {data.certificates.map((cert, index) => (
                                             <Link href={cert.url} target="_blank" rel="noopener noreferrer" key={index}>
@@ -187,8 +272,8 @@ const ShowDetailsDialog = ({ open, onClose, data }) => {
         <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
             <DialogTitle sx={{ pb: 1, textTransform: 'capitalize' }}>{data.role} Details: {data.fullName}</DialogTitle>
             <DialogContent dividers sx={{ p: 0, '&.MuiDialogContent-root': { p: 0 } }}>
-                {data.role === 'stylist' 
-                    ? <StylistDetailsView data={data} /> 
+                {data.role === 'stylist'
+                    ? <StylistDetailsView data={data} />
                     : <CustomerDetailsView data={data} />
                 }
             </DialogContent>

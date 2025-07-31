@@ -11,6 +11,11 @@ import Cookies from "js-cookie";
 import ShowDetailsDialog from "../../components/ShowDetailsDialog";
 import Alert from "../../custom/Alert";
 import { showSuccessToast, showErrorToast } from "../../Toast";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { CustomIconButton } from "../../custom/Button";
 
 export default function CustomerDetails() {
     const [allUsers, setAllUsers] = useState([]);
@@ -23,6 +28,7 @@ export default function CustomerDetails() {
     const [deleteId, setDeleteId] = useState(null);
     const [alertOpen, setAlertOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -61,20 +67,51 @@ export default function CustomerDetails() {
         fetchAllUsers();
     }, []);
 
+    const fetchFilteredUsers = async (text = "", date = null) => {
+        if (!text && !date) {
+            setFilteredUsers(allUsers);
+            return;
+        }
+        try {
+            setLoading(true);
+            const response = await axios.get(`${API_BASE_URL}/user/admin/search-users`, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                },
+                params: {
+                    query: text || undefined,
+                    role: "user",
+                    date: date ? dayjs(date).format('YYYY-MM-DD') : undefined,
+                    page: 1,
+                    limit: 100,
+                },
+            });
+            const formattedData = response?.data?.users?.map((user) => ({
+                id: user._id,
+                fullName: user.fullName || "N/A",
+                email: user.email || "N/A",
+                mobile: user.phoneNumber || "N/A",
+                role: user.role || "N/A",
+                city: user.location?.city || "N/A",
+                gender: user.gender || "N/A",
+                createdAt: new Date(user.createdAt).toLocaleDateString(),
+            }));
+            setFilteredUsers(formattedData);
+        } catch (error) {
+            console.error("Search API error:", error);
+            showErrorToast("Failed to search users");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSearch = (e) => {
         const value = e.target.value.toLowerCase();
         setSearchText(value);
-        if (value === "") {
-            setFilteredUsers(allUsers);
-        } else {
-            const filtered = allUsers.filter(user =>
-                user.fullName.toLowerCase().includes(value) ||
-                user.email.toLowerCase().includes(value) ||
-                user.mobile.toLowerCase().includes(value)
-            );
-            setFilteredUsers(filtered);
-        }
+        fetchFilteredUsers(value, selectedDate);
     };
+
 
     const handleDelete = (id) => {
         setDeleteId(id);
@@ -119,28 +156,79 @@ export default function CustomerDetails() {
         }
     };
 
+    // const handleVerify = async (user) => {
+    //     console.log(user, 'user')
+    //     try {
+    //         const response = await axios.patch(`${API_BASE_URL}/user/admin/update/${user.id}`, {
+    //             isPhoneVerified: !user.isPhoneVerified,
+    //         }, {
+    //             headers: {
+    //                 Authorization: `Bearer ${authToken}`,
+    //             },
+    //         });
+    //         console.log("resposne", response)
+    //         showSuccessToast(`User ${!user.isPhoneVerified ? 'verified' : 'unverified'} successfully.`);
+    //         fetchAllUsers();
+    //     } catch (error) {
+    //         console.error("Verification toggle failed", error);
+    //         showErrorToast("Failed to update verification status");
+    //     }
+    // };
+
     const handleView = (user) => {
         const fullUserDetails = originalUsers.find(u => u._id === user.id);
         setSelectedUserDetails(fullUserDetails);
         setIsDetailsDialogOpen(true);
     };
 
+    const handleReset = () => {
+        setSearchText("");
+        setSelectedDate(null);
+        fetchFilteredUsers("", null);
+    };
+
     const columns = userTableColumns({ handleDelete, handleView });
 
     return (
         <Box className="p-1">
-            <Container maxWidth={false}>
+            {/* <Container maxWidth={false}> */}
                 <Header title="All Customers" />
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                    <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <Box display="flex" className="me-2" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
                         <InputBase placeholder="Search user" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
                         <IconButton type="button" sx={{ p: 1 }}>
                             <SearchOutlined />
                         </IconButton>
                     </Box>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            value={selectedDate}
+                            onChange={(newDate) => {
+                                setSelectedDate(newDate);
+                                fetchFilteredUsers(searchText, newDate);
+                            }}
+                            slotProps={{
+                                textField: {
+                                    size: 'small',
+                                    variant: 'outlined',
+                                    sx: {
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: '15px',
+                                            '& fieldset': {
+                                                borderColor: '#420c36',
+                                                borderWidth: '1.5px',
+                                            },
+                                        },
+                                    },
+                                },
+                            }}
+                            className="me-2"
+                        />
+                    </LocalizationProvider>
+                    <CustomIconButton color="red" text="Reset" onClick={handleReset} />
                 </Box>
                 <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
-            </Container>
+            {/* </Container> */}
             <ShowDetailsDialog
                 open={isDetailsDialogOpen}
                 onClose={() => setIsDetailsDialogOpen(false)}

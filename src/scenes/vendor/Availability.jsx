@@ -127,6 +127,13 @@ const Availability = () => {
 
       showSuccessToast('Availability saved successfully');
       fetchAvailability();
+      setAvailability(prev => ({
+        ...prev,
+        [selectedDate.format('YYYY-MM-DD')]: {
+          slots: [],
+          isClosed: false,
+        }
+      }));
     } catch (error) {
       console.error(error);
       showErrorToast('Failed to save availability');
@@ -139,7 +146,6 @@ const Availability = () => {
     try {
       setLoading(true);
       if (slot) {
-        // Delete specific slot for a date
         await axios.delete(`${API_BASE_URL}/stylist/delete-availability-slot/${date}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -153,7 +159,6 @@ const Availability = () => {
         });
         showSuccessToast('Slot deleted successfully');
       } else {
-        // Delete entire availability for a date
         await axios.delete(`${API_BASE_URL}/stylist/delete-availability/${date}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -176,7 +181,6 @@ const Availability = () => {
     <Box>
       <Header title="Availability Management" />
       <Box display="flex" justifyContent="center" alignItems="flex-start" minHeight="80vh" p={2} gap={3}>
-        {/* Left column: Availability Management */}
         <Box flex={1} minWidth={350} maxWidth={600}>
           <Card sx={{ minWidth: 350, maxWidth: 600, width: '100%', boxShadow: 4, borderRadius: 4 }}>
             <CardContent>
