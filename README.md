@@ -45,3 +45,4 @@ Argon Admin Dashboard is open-source and completely free to use. Download it, cu
 **Keywords:** React.js, Vite, Material UI, Admin Dashboard, Dark Mode, Light Mode, Data Management, Team Management, Calendar, Charts, Formik, Yup, Open Source.
 
 **Enjoy building awesome projects with Argon Admin Dashboard!** -->
+.
