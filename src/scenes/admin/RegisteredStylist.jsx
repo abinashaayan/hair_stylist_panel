@@ -28,6 +28,7 @@ export default function RegisteredStylist() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedStylistDetails, setSelectedStylistDetails] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, loading: false });
+  const [editMode, setEditMode] = useState(false);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -64,7 +65,7 @@ export default function RegisteredStylist() {
           createdAt: new Date(stylist.createdAt).toLocaleDateString(),
           address: formatAddress(stylist.address),
         }));
-        setAllUsers(formattedData); // ✅ Set both states
+        setAllUsers(formattedData);
         setFilteredUsers(formattedData);
       }
     } catch (error) {
@@ -73,7 +74,6 @@ export default function RegisteredStylist() {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     if (authToken) {
@@ -86,6 +86,7 @@ export default function RegisteredStylist() {
     if (fullStylistDetails) {
       fullStylistDetails.address = formatAddress(fullStylistDetails.address);
       setSelectedStylistDetails(fullStylistDetails);
+      setEditMode(false);
       setIsDetailsDialogOpen(true);
     } else {
       showErrorToast("Stylist details not found");
@@ -103,7 +104,6 @@ export default function RegisteredStylist() {
       });
       console.log('Toggle response:', response.data.data);
       showSuccessToast(response?.data?.message || "Stylist status updated!");
-      // After successful toggle, re-fetch the stylist user details
       await fetchAllStylistUserDetials();
     } catch (error) {
       console.log("Toggle error:", error);
@@ -112,7 +112,6 @@ export default function RegisteredStylist() {
       setTogglingIds((prev) => ({ ...prev, [id]: false }));
     }
   };
-
 
   const handleSearch = async (e) => {
     const value = e.target.value;
@@ -152,7 +151,6 @@ export default function RegisteredStylist() {
     }
   };
 
-
   const handleDelete = (id) => {
     setDeleteDialog({ open: true, id, loading: false });
   };
@@ -182,7 +180,42 @@ export default function RegisteredStylist() {
     }
   };
 
-  const columns = stylistUserTableColumns({ handleToggleStatus, handleDelete, handleView, togglingIds });
+  const handleEdit = (stylist) => {
+    const fullStylistDetails = originalStylists.find(s => s._id === stylist.id);
+    if (fullStylistDetails) {
+      setSelectedStylistDetails(fullStylistDetails);
+      setEditMode(true);
+      setIsDetailsDialogOpen(true);
+    }
+  };
+
+  const handleSaveStylist = async (updatedData) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/stylist/profile/${selectedStylistDetails._id}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response?.data?.status === 200) {
+        showSuccessToast("Stylist updated successfully!");
+        fetchAllStylistUserDetials();
+        setIsDetailsDialogOpen(false);
+        setEditMode(false);
+      } else {
+        showErrorToast("Failed to update stylist");
+      }
+    } catch (error) {
+      showErrorToast(error?.response?.data?.message || "An error occurred while updating.");
+    }
+  };
+
+  const columns = stylistUserTableColumns({ handleToggleStatus, handleDelete, handleView, handleEdit, togglingIds });
 
   return (
     <Box className="p-1">
@@ -200,6 +233,8 @@ export default function RegisteredStylist() {
         open={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
         data={selectedStylistDetails}
+        onSave={handleSaveStylist}
+        editMode={editMode}
       />
       <Alert
         open={deleteDialog.open}

@@ -35,6 +35,7 @@ export default function Product() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [multiDeleteOpen, setMultiDeleteOpen] = useState(false);
   const [multiDeleting, setMultiDeleting] = useState(false);
+  const [lowStockProducts, setLowStockProducts] = useState([]);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -59,6 +60,15 @@ export default function Product() {
           quickTips: product.quickTips || "N/A",
           stockQuantity: product.stockQuantity ?? 0,
           inStock: product.inStock ?? false,
+          validityInDays: product.validityInDays ?? "N/A",
+          discount: typeof product.discount === 'number' ? `${product.discount}%` : "0%",
+          flashSaleStart: product.flashSaleStart
+            ? new Date(product.flashSaleStart).toLocaleString()
+            : "N/A",
+          flashSaleEnd: product.flashSaleEnd
+            ? new Date(product.flashSaleEnd).toLocaleString()
+            : "N/A",
+          isFlashSale: product.isFlashSale ?? false,
           manufacturer: product.manufacturer || {},
           photos: Array.isArray(product.photos) ? product.photos : [],
           goodToKnow: (Array.isArray(product.goodToKnow) ? product.goodToKnow.join(", ") : product.goodToKnow) || "N/A",
@@ -70,6 +80,7 @@ export default function Product() {
         }));
         setAllServices(formattedData);
         setFilteredUsers(formattedData);
+        checkLowStock();
       } else {
         showErrorToast(response?.data?.message || "Failed to fetch products");
       }
@@ -80,9 +91,29 @@ export default function Product() {
     }
   };
 
+  const checkLowStock = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/product/admin/check-low-stock`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (response?.data?.status === 200 && response?.data?.lowStockProducts?.length > 0) {
+        const list = response.data.lowStockProducts;
+        setLowStockProducts(list);
+        showWarningToast(response.data.message || "Some products are low in stock.");
+      } else {
+        setLowStockProducts([]);
+      }
+    } catch (error) {
+      console.error("Error checking low stock:", error?.response?.data?.message);
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
-      fetchAllProducts();
+      fetchAllProducts().then(() => checkLowStock());
     }
   }, [authToken]);
 
@@ -92,15 +123,6 @@ export default function Product() {
     if (stillVisible.length !== selectedRows.length) {
       setSelectedRows(stillVisible);
     }
-    // if (searchText === "") {
-    //   setFilteredUsers(allServices);
-    // } else {
-    //   setFilteredUsers(
-    //     allServices.filter((service) =>
-    //       service.name.toLowerCase().includes(searchText)
-    //     )
-    //   );
-    // }
   }, [filteredUsers]);
 
   const handleSearch = async (e) => {
@@ -237,80 +259,89 @@ export default function Product() {
     }
   };
 
-  const columns = ProductTableColumns({
-    handleDelete,
-    handleView,
-    handleEdit
-  });
+  const columns = ProductTableColumns({ handleDelete, handleView, handleEdit });
+
 
   return (
     <Box className="p-1">
       <Header title="Products" subtitle="Managing products and inventory" />
-      {/* <Container maxWidth={false}> */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, mt: 3 }}>
-          <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
-            <InputBase placeholder="Search Product name or subtitle" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
-            <IconButton type="button" sx={{ p: 1 }}>
-              <SearchOutlined />
-            </IconButton>
-          </Box>
-          <Box display="flex" alignItems="center" gap={2}>
-            {selectedRows.length >= 1 && (
-              <CustomIconButton
-                icon={<DeleteIcon />}
-                text={selectedRows.length === 1 ? "Delete" : `Delete (${selectedRows.length})`}
-                color="#d32f2f"
-                variant="outlined"
-                onClick={() => {
-                  if (selectedRows.length === 1) {
-                    handleDelete(selectedRows[0]);
-                  } else {
-                    handleMultiDelete();
-                  }
-                }}
-                fontWeight="bold"
-              />
-            )}
-            <CustomIconButton icon={<PersonAdd />} text="Add New Product" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenProduct} />
-          </Box>
+      {lowStockProducts?.length > 0 && (
+        <div severity="warning" sx={{ mb: 2 }} style={{ backgroundColor: "wheat" }} className="rounded p-1">
+          ⚠️ Low Stock Alert:
+          <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
+            {lowStockProducts?.map((product) => (
+              <li key={product._id}>
+                {product.name} — only {product.stockQuantity} left
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, mt: 3 }}>
+        <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
+          <InputBase placeholder="Search Product name or subtitle" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+          <IconButton type="button" sx={{ p: 1 }}>
+            <SearchOutlined />
+          </IconButton>
         </Box>
+        <Box display="flex" alignItems="center" gap={2}>
+          {selectedRows.length >= 1 && (
+            <CustomIconButton
+              icon={<DeleteIcon />}
+              text={selectedRows.length === 1 ? "Delete" : `Delete (${selectedRows.length})`}
+              color="#d32f2f"
+              variant="outlined"
+              onClick={() => {
+                if (selectedRows.length === 1) {
+                  handleDelete(selectedRows[0]);
+                } else {
+                  handleMultiDelete();
+                }
+              }}
+              fontWeight="bold"
+            />
+          )}
+          <CustomIconButton icon={<PersonAdd />} text="Add New Product" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenProduct} />
+        </Box>
+      </Box>
 
-        <CustomTable
-          rows={filteredUsers}
-          columns={columns}
-          loading={loading}
-          checkboxSelection
-          noRowsMessage="No products found"
-          onSelectionModelChange={handleSelectionModelChange}
-          selectionModel={selectedRows}
-        />
+      <CustomTable
+        rows={filteredUsers}
+        columns={columns}
+        loading={loading}
+        checkboxSelection
+        noRowsMessage="No products found"
+        onSelectionModelChange={handleSelectionModelChange}
+        selectionModel={selectedRows}
+      />
 
-        <ProductEntityDialog
-          open={openProductDialog}
-          handleClose={handleCloseProductDialog}
-          onSuccess={fetchAllProducts}
-          dialogTitle={dialogMode === 'create' ? "Add New Product" : dialogMode === 'edit' ? "Edit Product" : "View Product Details"}
-          buttonText={dialogMode === 'create' ? "Add Product" : dialogMode === 'edit' ? "Update Product" : "Close"}
-          mode={dialogMode}
-          initialData={selectedProduct}
-        />
+      <ProductEntityDialog
+        open={openProductDialog}
+        handleClose={handleCloseProductDialog}
+        onSuccess={fetchAllProducts}
+        dialogTitle={dialogMode === 'create' ? "Add New Product" : dialogMode === 'edit' ? "Edit Product" : "View Product Details"}
+        buttonText={dialogMode === 'create' ? "Add Product" : dialogMode === 'edit' ? "Update Product" : "Close"}
+        mode={dialogMode}
+        initialData={selectedProduct}
+      />
 
-        <Alert
-          open={alertOpen}
-          onClose={() => setAlertOpen(false)}
-          onConfirm={handleConfirmDelete}
-          loading={deleting}
-          title="Delete Product"
-          description="Are you sure you want to delete this product? This action cannot be undone."
-        />
-        <Alert
-          open={multiDeleteOpen}
-          onClose={() => setMultiDeleteOpen(false)}
-          onConfirm={handleConfirmMultiDelete}
-          loading={multiDeleting}
-          title="Delete Products"
-          description={`Are you sure you want to delete these ${selectedRows.length} products? This action cannot be undone.`}
-        />
+      <Alert
+        open={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        onConfirm={handleConfirmDelete}
+        loading={deleting}
+        title="Delete Product"
+        description="Are you sure you want to delete this product? This action cannot be undone."
+      />
+      <Alert
+        open={multiDeleteOpen}
+        onClose={() => setMultiDeleteOpen(false)}
+        onConfirm={handleConfirmMultiDelete}
+        loading={multiDeleting}
+        title="Delete Products"
+        description={`Are you sure you want to delete these ${selectedRows.length} products? This action cannot be undone.`}
+      />
       {/* </Container> */}
     </Box>
   );

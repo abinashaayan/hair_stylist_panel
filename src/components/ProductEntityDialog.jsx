@@ -35,6 +35,10 @@ const ProductEntityDialog = ({
     stockQuantity: "",
     goodToKnow: "",
     quickTips: "",
+    discount: "",
+    validityInDays: "",
+    isFlashSale: false,
+    flashSaleStart: "",
   });
   const [manufacturer, setManufacturer] = useState(initialManufacturer);
   const [files, setFiles] = useState([]);
@@ -44,7 +48,6 @@ const ProductEntityDialog = ({
 
   useEffect(() => {
     if (initialData && (mode === 'edit' || mode === 'view')) {
-      console.log("Initial Data:", initialData);
       setFields({
         name: initialData.name || "",
         subtitle: initialData.subtitle || "",
@@ -53,6 +56,12 @@ const ProductEntityDialog = ({
         stockQuantity: initialData.stockQuantity?.toString() || "",
         goodToKnow: Array.isArray(initialData.goodToKnow) ? initialData.goodToKnow.join(", ") : initialData.goodToKnow || "",
         quickTips: initialData.quickTips || "",
+        discount: initialData.discount ? initialData.discount.toString().replace('%', '') : "",
+        validityInDays: initialData.validityInDays?.toString() || "",
+        isFlashSale: initialData.isFlashSale || false,
+        flashSaleStart: initialData.flashSaleStart
+          ? new Date(initialData.flashSaleStart).toISOString().split('T')[0]
+          : "",
       });
       setManufacturer({
         name: initialData.manufacturer?.name || "",
@@ -216,37 +225,37 @@ const ProductEntityDialog = ({
               <Box sx={{ display: 'flex', gap: 4 }}>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">Product Name:</Typography>
-                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields.name || 'N/A'}</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields?.name || 'N/A'}</Typography>
                 </Box>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">Subtitle:</Typography>
-                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields.subtitle || 'N/A'}</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields?.subtitle || 'N/A'}</Typography>
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', gap: 4 }}>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">About:</Typography>
-                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields.about || 'N/A'}</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields?.about || 'N/A'}</Typography>
                 </Box>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">Price:</Typography>
-                  <Typography variant="body1" sx={{ mb: 1.5 }}>${fields.price || '0.00'}</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>${fields?.price || '0.00'}</Typography>
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', gap: 4 }}>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">Stock Quantity:</Typography>
-                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields.stockQuantity || '0'}</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields?.stockQuantity || '0'}</Typography>
                 </Box>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">Good To Know:</Typography>
-                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields.goodToKnow || 'N/A'}</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields?.goodToKnow || 'N/A'}</Typography>
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', gap: 4 }}>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">Quick Tips:</Typography>
-                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields.quickTips || 'N/A'}</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{fields?.quickTips || 'N/A'}</Typography>
                 </Box>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" fontWeight="bold">Product Images:</Typography>
@@ -284,6 +293,31 @@ const ProductEntityDialog = ({
                 </Box>
                 <Box sx={{ flex: 1 }} />
               </Box>
+              <Box sx={{ display: 'flex', gap: 4 }}>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">Discount:</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{initialData?.discount ?? 'N/A'}</Typography>
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">Validity (in days):</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{initialData?.validityInDays ?? 'N/A'}</Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ display: 'flex', gap: 4 }}>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">Is Flash Sale:</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>{initialData?.isFlashSale ? 'Yes' : 'No'}</Typography>
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">Flash Sale Period:</Typography>
+                  <Typography variant="body1" sx={{ mb: 1.5 }}>
+                    {initialData?.flashSaleStart
+                      ? new Date(initialData?.flashSaleStart).toLocaleDateString()
+                      : 'N/A'}
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
           ) : (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -291,58 +325,65 @@ const ProductEntityDialog = ({
                 <InputLabel sx={{ mb: 0.5 }}>Product Name</InputLabel>
                 <Input name="name" value={fields.name} onChange={handleFieldChange} placeholder="Enter product name" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Subtitle</InputLabel>
-                <Input name="subtitle" value={fields.subtitle} onChange={handleFieldChange} placeholder="Enter subtitle" fullWidth />
+                <Input name="subtitle" value={fields?.subtitle} onChange={handleFieldChange} placeholder="Enter subtitle" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Quick Tips</InputLabel>
-                <Input name="quickTips" value={fields.quickTips} onChange={handleFieldChange} placeholder="Quick tips" fullWidth />
+                <Input name="quickTips" value={fields?.quickTips} onChange={handleFieldChange} placeholder="Quick tips" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Price</InputLabel>
-                <Input name="price" value={fields.price} onChange={handleFieldChange} placeholder="Enter price" type="number" fullWidth />
+                <Input name="price" value={fields?.price} onChange={handleFieldChange} placeholder="Enter price" type="number" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Stock Quantity</InputLabel>
-                <Input name="stockQuantity" value={fields.stockQuantity} onChange={handleFieldChange} placeholder="Enter stock quantity" type="number" fullWidth />
+                <Input name="stockQuantity" value={fields?.stockQuantity} onChange={handleFieldChange} placeholder="Enter stock quantity" type="number" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Good To Know</InputLabel>
-                <Input name="goodToKnow" value={fields.goodToKnow} onChange={handleFieldChange} placeholder="Good to know" fullWidth />
+                <Input name="goodToKnow" value={fields?.goodToKnow} onChange={handleFieldChange} placeholder="Good to know" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>About</InputLabel>
-                <Input name="about" value={fields.about} onChange={handleFieldChange} placeholder="About product" fullWidth />
+                <Input name="about" value={fields?.about} onChange={handleFieldChange} placeholder="About product" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 100%", mt: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Manufacturer Details</Typography>
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Name</InputLabel>
-                <Input name="name" value={manufacturer.name} onChange={handleManufacturerChange} placeholder="Manufacturer name" fullWidth />
+                <Input name="name" value={manufacturer?.name} onChange={handleManufacturerChange} placeholder="Manufacturer name" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Address</InputLabel>
-                <Input name="address" value={manufacturer.address} onChange={handleManufacturerChange} placeholder="Manufacturer address" fullWidth />
+                <Input name="address" value={manufacturer?.address} onChange={handleManufacturerChange} placeholder="Manufacturer address" fullWidth />
               </Box>
-
               <Box sx={{ flex: "1 1 30%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Contact</InputLabel>
-                <Input name="contact" value={manufacturer.contact} onChange={handleManufacturerChange} placeholder="Manufacturer contact" fullWidth />
+                <Input name="contact" value={manufacturer?.contact} onChange={handleManufacturerChange} placeholder="Manufacturer contact" fullWidth />
                 {contactError && (
                   <Typography color="error" variant="caption">{contactError}</Typography>
                 )}
               </Box>
+              <Box sx={{ flex: "1 1 45%" }}>
+                <InputLabel sx={{ mb: 0.5 }}>Discount (%)</InputLabel>
+                <Input name="discount" value={fields?.discount} onChange={handleFieldChange} placeholder="Enter discount" type="number" fullWidth />
+              </Box>
+              <Box sx={{ flex: "1 1 45%" }}>
+                <InputLabel sx={{ mb: 0.5 }}>Validity (in days)</InputLabel>
+                <Input name="validityInDays" value={fields?.validityInDays} onChange={handleFieldChange} placeholder="Validity period" type="number" fullWidth />
+              </Box>
+              <Box sx={{ flex: "1 1 45%" }}>
+                <InputLabel sx={{ mb: 0.5 }}>Flash Sale Start Date</InputLabel>
+                <Input name="flashSaleStart" value={fields?.flashSaleStart} onChange={handleFieldChange} type="date" fullWidth />
+              </Box>
+              <Box sx={{ flex: "1 1 45%", display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
+                <InputLabel>Is Flash Sale?</InputLabel>
+                <input type="checkbox" name="isFlashSale" checked={fields?.isFlashSale} onChange={(e) => setFields({ ...fields, isFlashSale: e.target.checked })} />
+              </Box>
+
             </Box>
           )}
           {mode !== 'view' && (

@@ -29,6 +29,11 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import EventIcon from '@mui/icons-material/Event';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 
 const quickAccessItems = [
   { label: "Customers", color: "secondary", path: "/customers" },
@@ -41,7 +46,6 @@ const quickAccessItems = [
   { label: "Order Details", color: "info", path: "/order-details" },
   { label: "Appointment Status", color: "warning", path: "/appointment-status" },
 ];
-
 
 const timeAgo = (date) => {
   const now = new Date();
@@ -58,7 +62,8 @@ function Dashboard() {
   const [recentActivity, setRecentActivity] = useState([]);
   const [rawRecentActivity, setRawRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [appointments, setAppointments] = useState([]);
+  const [stylistAvailability, setStylistAvailability] = useState([]);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -73,7 +78,6 @@ function Dashboard() {
         },
       });
       if (response.data.success) {
-        console.log(response.data.data, 'overview data')
         setOverviewData(response.data.data);
         setRawRecentActivity(response.data.data.recentActivity);
         setRecentActivity(response.data.data.recentActivity);
@@ -85,11 +89,91 @@ function Dashboard() {
     }
   };
 
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/appointments`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      setAppointments(response.data.data || []);
+    } catch (err) {
+      setError('Failed to fetch appointments');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const fetchAllAvailabilityOfStylist = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/all-availability`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      console.log('response', response.data);
+      setStylistAvailability(response.data.data || []);
+    } catch (err) {
+      setError('Failed to fetch appointments');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (authToken) {
       fetchOverViewDataOfDashboard();
+      fetchAppointments();
+      fetchAllAvailabilityOfStylist();
     }
   }, [authToken]);
+
+  const events = appointments?.map(app => {
+    const isExpired = app.status === 'expired';
+    const title = app.service?.name || 'Appointment';
+    const color = isExpired ? '#b0b0b0' : '#4CAF50'; // Gray for expired, Green for active
+    const tooltip = `
+    Service: ${app.service?.name || 'N/A'}<br/>
+    ${app.user ? `User: ${app.user.fullName}` : ''}
+    ${app.stylist ? `<br/>Stylist: ${app.stylist.fullName}` : ''}
+    <br/>Slot: ${app.slot?.from} - ${app.slot?.till}
+    ${app.notes ? `<br/>Notes: ${app.notes}` : ''}
+  `;
+
+    return {
+      title,
+      date: app.date,
+      color,
+      extendedProps: { tooltip },
+    };
+  });
+
+  const availabilityEvents = stylistAvailability.flatMap(item =>
+    item.slots.map(slot => {
+      const fromTime = `${item.date}T${slot.from}`;
+      const tillTime = `${item.date}T${slot.till}`;
+      return {
+        title: `${item.stylist.fullName} (${slot.from} - ${slot.till})`,
+        start: fromTime,
+        end: tillTime,
+        color: '#1976d2',
+        extendedProps: {
+          stylistEmail: item.stylist.email,
+          tooltip: `
+          <b>Stylist:</b> ${item.stylist.fullName}<br/>
+          <b>Email:</b> ${item.stylist.email}<br/>
+          <b>Time:</b> ${slot.from} - ${slot.till}
+        `
+        }
+      };
+    })
+  );
+
+  const allEvents = [...events, ...availabilityEvents];
 
   useEffect(() => {
     // Recalculate time every 60 seconds
@@ -201,70 +285,134 @@ function Dashboard() {
               </Stack>
             </CardContent>
           </Card>
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={12} md={6}>
+              <Card sx={{ borderRadius: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 1.5, color: '#6D295A', fontWeight: 700 }}>
+                    Calendar
+                  </Typography>
 
-          {/* Recent Activity Feed */}
-          <Card sx={{ borderRadius: 3, mt: 2 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>
-                Recent Activity
-              </Typography>
-              <List>
-                {recentActivity?.map((activity, idx) => (
-                  <ListItem button key={idx} sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}>
-                    <ListItemAvatar>
-                      <Box position="relative" display="inline-flex">
-                        {/* Animated progress ring */}
-                        <CircularProgress
-                          variant="indeterminate"
-                          size={46}
-                          thickness={4}
-                          sx={{
-                            color: getAvatarColor(activity.type),
-                            animationDuration: '2s',
-                          }}
+                  {/* Legend */}
+                  <Box display="flex" alignItems="center" gap={3} mb={2}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Box sx={{ width: 16, height: 16, bgcolor: '#4CAF50', borderRadius: '50%' }} />
+                      <Typography variant="body2">Active Appointments</Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Box sx={{ width: 16, height: 16, bgcolor: '#b0b0b0', borderRadius: '50%' }} />
+                      <Typography variant="body2">Expired Appointments</Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Box sx={{ width: 16, height: 16, bgcolor: '#1976d2', borderRadius: '50%' }} />
+                      <Typography variant="body2">Stylist Availability</Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Calendar */}
+                  <FullCalendar
+                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                    initialView="dayGridMonth"
+                    height="auto"
+                    events={allEvents}
+                    eventDidMount={(info) => {
+                      if (info.event.extendedProps.tooltip) {
+                        const tooltip = document.createElement('div');
+                        tooltip.innerHTML = info.event.extendedProps.tooltip;
+                        tooltip.style.position = 'absolute';
+                        tooltip.style.background = '#fff';
+                        tooltip.style.border = '1px solid #ccc';
+                        tooltip.style.padding = '8px';
+                        tooltip.style.borderRadius = '6px';
+                        tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                        tooltip.style.zIndex = 1000;
+                        tooltip.style.whiteSpace = 'nowrap';
+                        tooltip.style.display = 'none';
+                        tooltip.className = 'custom-calendar-tooltip';
+                        info.el.addEventListener('mouseenter', (e) => {
+                          document.body.appendChild(tooltip);
+                          tooltip.style.top = e.pageY + 10 + 'px';
+                          tooltip.style.left = e.pageX + 10 + 'px';
+                          tooltip.style.display = 'block';
+                        });
+                        info.el.addEventListener('mousemove', (e) => {
+                          tooltip.style.top = e.pageY + 10 + 'px';
+                          tooltip.style.left = e.pageX + 10 + 'px';
+                        });
+                        info.el.addEventListener('mouseleave', () => {
+                          tooltip.remove();
+                        });
+                      }
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              {/* Recent Activity Feed */}
+              <Card sx={{ borderRadius: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 2, color: '#6D295A', fontWeight: 700 }}>
+                    Recent Activity
+                  </Typography>
+                  <List>
+                    {recentActivity?.map((activity, idx) => (
+                      <ListItem button key={idx} sx={{ borderRadius: 2, mb: 1, '&:hover': { background: '#F3E8F1' } }}>
+                        <ListItemAvatar>
+                          <Box position="relative" display="inline-flex">
+                            <CircularProgress
+                              variant="indeterminate"
+                              size={46}
+                              thickness={4}
+                              sx={{
+                                color: getAvatarColor(activity.type),
+                                animationDuration: '2s',
+                              }}
+                            />
+                            {/* Avatar in center */}
+                            <Box
+                              position="absolute"
+                              top={0}
+                              left={0}
+                              bottom={0}
+                              right={0}
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              <Avatar
+                                sx={{
+                                  bgcolor: getAvatarColor(activity.type),
+                                  border: '2px solid #6D295A',
+                                  width: 36,
+                                  height: 36,
+                                }}
+                              >
+                                <EventIcon sx={{ color: 'black', fontSize: 20 }} />
+                              </Avatar>
+                            </Box>
+                          </Box>
+                        </ListItemAvatar>
+
+                        <ListItemText
+                          primary={
+                            <Typography sx={{ fontWeight: 600 }}>
+                              {activity.message}
+                            </Typography>
+                          }
+                          secondary={
+                            <Typography variant="caption" sx={{ color: '#7b7b7b' }}>
+                              {activity.time}
+                            </Typography>
+                          }
                         />
-                        {/* Avatar in center */}
-                        <Box
-                          position="absolute"
-                          top={0}
-                          left={0}
-                          bottom={0}
-                          right={0}
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                        >
-                          <Avatar
-                            sx={{
-                              bgcolor: getAvatarColor(activity.type),
-                              border: '2px solid #6D295A',
-                              width: 36,
-                              height: 36,
-                            }}
-                          >
-                            <EventIcon sx={{ color: 'black', fontSize: 20 }} />
-                          </Avatar>
-                        </Box>
-                      </Box>
-                    </ListItemAvatar>
-
-                    <ListItemText
-                      primary={
-                        <Typography sx={{ fontWeight: 600 }}>
-                          {activity.message}
-                        </Typography>
-                      }
-                      secondary={
-                        <Typography variant="caption" sx={{ color: '#7b7b7b' }}>
-                          {activity.time}
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </>
       )}
     </Box>

@@ -35,8 +35,34 @@ export const CustomIconButton = ({
   };
   const currentSize = sizeStyles[size] || sizeStyles.medium;
 
-  // Determine text color for outlined variant in dark mode
+  // Handle theme colors and determine button colors
   let buttonTextColor = color;
+  let backgroundColor = color;
+  
+  // Map theme colors to actual color values
+  if (color === 'primary') {
+    backgroundColor = theme.palette.primary.main;
+    buttonTextColor = theme.palette.primary.main;
+  } else if (color === 'secondary') {
+    backgroundColor = theme.palette.secondary.main;
+    buttonTextColor = theme.palette.secondary.main;
+  } else if (color === 'error') {
+    backgroundColor = theme.palette.error.main;
+    buttonTextColor = theme.palette.error.main;
+  } else if (color === 'success') {
+    backgroundColor = theme.palette.success.main;
+    buttonTextColor = theme.palette.success.main;
+  } else if (color === 'warning') {
+    backgroundColor = theme.palette.warning.main;
+    buttonTextColor = theme.palette.warning.main;
+  } else if (color === 'info') {
+    backgroundColor = theme.palette.info.main;
+    buttonTextColor = theme.palette.info.main;
+  } else if (color === 'red') {
+    backgroundColor = '#f44336';
+    buttonTextColor = '#f44336';
+  }
+  
   if (isOutlined && !color && theme.palette.mode === 'dark') {
     buttonTextColor = 'white';
   }
@@ -55,7 +81,7 @@ export const CustomIconButton = ({
           ? "#ccc"
           : isOutlined
           ? "transparent"
-          : color,
+          : backgroundColor,
         cursor: disabled ? "not-allowed" : "pointer",
         padding: "12px 15px 12px 15px",
         fontWeight: fontWeight,
@@ -64,7 +90,7 @@ export const CustomIconButton = ({
           opacity: disabled ? 1 : 0.8,
           backgroundColor: isOutlined
             ? `${buttonTextColor}1A`
-            : color,
+            : backgroundColor,
         },
         ...sx, // <-- merge/override with sx prop
       }}

@@ -1,10 +1,10 @@
 import { DeleteOutline, Visibility } from "@mui/icons-material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Box, Chip, Button, Switch, CircularProgress } from "@mui/material";
-import { CheckCircle2, Eye, PlusCircle, Trash2 } from "lucide-react";
+import { CheckCircle2, Eye, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { CustomIconButton } from "./Button";
 
-export const stylistUserTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds }) => [
+export const stylistUserTableColumns = ({ handleToggleStatus, handleDelete, handleEdit, handleView, togglingIds }) => [
     { field: "fullName", headerName: "Name", width: 180 },
     { field: "email", headerName: "Email", width: 220 },
     { field: "phone", headerName: "Phone", width: 150 },
@@ -82,16 +82,9 @@ export const stylistUserTableColumns = ({ handleToggleStatus, handleDelete, hand
         align: "center",
         renderCell: (params) => (
             <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
-                <CustomIconButton size="small"
-                    icon={<Eye size={16} color="white" />}
-                    color="rgb(77 141 225)"
-                    onClick={() => handleView(params.row)}
-                />
-                <CustomIconButton size="small"
-                    icon={<Trash2 size={16} />}
-                    color="hsl(0 84.2% 60.2%)"
-                    onClick={() => handleDelete(params.row.id)}
-                />
+                <CustomIconButton size="small" icon={<Eye size={16} color="white" />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} />
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
             </Box>
         ),
     },
