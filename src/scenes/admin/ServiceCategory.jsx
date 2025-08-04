@@ -53,6 +53,8 @@ export default function ServiceCategory() {
                 const formattedData = response?.data?.allServices?.map((service) => ({
                     id: service._id,
                     name: service.name || "N/A",
+                    minPrice: service.minPrice || "N/A",
+                    maxPrice: service.maxPrice || "N/A",
                     approved: !!service.isActive,
                     createdAt: service.createdAt
                         ? (() => {

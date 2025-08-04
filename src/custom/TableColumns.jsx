@@ -119,7 +119,7 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
 ];
 
 export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleEdit }) => [
-    { field: "productName", headerName: "Category Name", flex: 1 },
+    { field: "productName", headerName: "Category Name", flex: 0.6 },
     {
         field: "approved",
         headerName: "Status",
@@ -160,6 +160,18 @@ export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, 
 
 export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService, handleEdit }) => [
     { field: "name", headerName: "Service Name", flex: 1 },
+    {
+        field: "minPrice",
+        headerName: "Min Price ($)",
+        width: 100,
+        renderCell: (params) => `$${params.row.minPrice ?? "N/A"}`
+    },
+    {
+        field: "maxPrice",
+        headerName: "Max Price ($)",
+        width: 100,
+        renderCell: (params) => `$${params.row.maxPrice ?? "N/A"}`
+    },
     {
         field: "addSubService",
         headerName: "Add Sub Services",
@@ -770,7 +782,7 @@ export const allAppointmentStatusTableColumns = ({ handleDelete, handleView, han
         flex: 0.8,
         renderCell: (params) => {
             const { status, _id } = params.row;
-            const statusOptions = ["pending", "confirmed", "completed", "cancelled", "rejected"];
+            const statusOptions = ["pending", "confirmed", "completed", "cancelled"];
             return (
                 <select
                     value={status}

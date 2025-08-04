@@ -21,7 +21,6 @@ import {
     Paper,
     Grid,
     Chip,
-    Divider,
 } from "@mui/material";
 import { tokens } from "../../theme";
 import { Header } from '../../components';
@@ -31,7 +30,7 @@ import { API_BASE_URL } from '../../utils/apiConfig';
 import { allAppointmentStatusTableColumns } from '../../custom/TableColumns';
 import CustomTable from '../../custom/Table';
 import { showSuccessToast, showErrorToast } from '../../Toast';
-import { Calendar, Clock, User, Mail, Phone, MapPin, CalendarDays, UserCheck, Scissors, FileText, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User } from 'lucide-react';
 
 const AppointmentStatus = () => {
     const [appointments, setAppointments] = useState([]);
@@ -70,40 +69,11 @@ const AppointmentStatus = () => {
         selectedDateSlots: []
     });
 
-    // Delete dialog state
-    const [deleteDialog, setDeleteDialog] = useState({
-        open: false,
-        appointmentId: null,
-        appointmentDetails: null,
-        reason: '',
-        loading: false
-    });
-
-    // View dialog state
-    const [viewDialog, setViewDialog] = useState({
-        open: false,
-        appointmentDetails: null
-    });
-
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
-    const handleDelete = (appointment) => {
-        setDeleteDialog({
-            open: true,
-            appointmentId: appointment._id,
-            appointmentDetails: appointment,
-            reason: '',
-            loading: false
-        });
-    };
-
-    const handleView = (appointment) => {
-        setViewDialog({
-            open: true,
-            appointmentDetails: appointment
-        });
-    };
+    const handleDelete = () => { };
+    const handleView = () => { };
 
     const handleStatusUpdate = async (appointmentId, newStatus) => {
         setStatusDialog({
@@ -248,41 +218,6 @@ const AppointmentStatus = () => {
             showErrorToast('Failed to reschedule appointment');
         } finally {
             setRescheduleDialog(prev => ({ ...prev, loading: false }));
-        }
-    };
-
-    const handleDeleteConfirm = async () => {
-        const { appointmentId, reason } = deleteDialog;
-        setDeleteDialog(prev => ({ ...prev, loading: true }));
-        
-        try {
-            const requestBody = reason ? { reason } : {};
-            const response = await axios.delete(
-                `${API_BASE_URL}/admin/appointments/${appointmentId}`,
-                {
-                    data: requestBody,
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                        "Content-Type": "application/json",
-                    },
-                    withCredentials: true,
-                }
-            );
-            
-            console.log('Appointment deleted successfully', response?.data);
-            showSuccessToast('Appointment deleted successfully');
-            
-            // Remove appointment from local state
-            setAppointments((prev) =>
-                prev.filter((appt) => appt._id !== appointmentId)
-            );
-            
-            setDeleteDialog(prev => ({ ...prev, open: false }));
-        } catch (err) {
-            console.error('Error deleting appointment:', err);
-            showErrorToast('Failed to delete appointment');
-        } finally {
-            setDeleteDialog(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -554,7 +489,7 @@ const AppointmentStatus = () => {
                                             displayEmpty
                                             renderValue={(selected) => {
                                                 if (!selected) {
-                                                    return <em>Select a slot</em>;
+                                                    return <em>Select a slot</em>; // placeholder styling
                                                 }
                                                 return selected;
                                             }}
@@ -568,6 +503,7 @@ const AppointmentStatus = () => {
                                                 </MenuItem>
                                             ))}
                                         </Select>
+
                                     </Box>
                                 )}
                             </>
@@ -601,312 +537,8 @@ const AppointmentStatus = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {/* Delete Dialog */}
-            <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog(prev => ({ ...prev, open: false }))} maxWidth="sm" fullWidth>
-                <DialogTitle>Delete Appointment</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2} sx={{ mt: 1 }}>
-                                                 {deleteDialog.appointmentDetails && (
-                             <>
-                                 <Typography variant="body2" color="text.secondary">
-                                     <strong>Appointment Details:</strong>
-                                 </Typography>
-                                 <Box sx={{ pl: 2, mb: 2 }}>
-                                     <Typography variant="body2" color="text.secondary">
-                                         <strong>User:</strong> {deleteDialog.appointmentDetails.user?.fullName || 'N/A'}
-                                     </Typography>
-                                     <Typography variant="body2" color="text.secondary">
-                                         <strong>Stylist:</strong> {deleteDialog.appointmentDetails.stylist?.fullName || 'N/A'}
-                                     </Typography>
-                                     <Typography variant="body2" color="text.secondary">
-                                         <strong>Service:</strong> {deleteDialog.appointmentDetails.service?.name || 'N/A'}
-                                     </Typography>
-                                     <Typography variant="body2" color="text.secondary">
-                                         <strong>Date:</strong> {deleteDialog.appointmentDetails.date ? new Date(deleteDialog.appointmentDetails.date).toLocaleDateString() : 'N/A'}
-                                     </Typography>
-                                     <Typography variant="body2" color="text.secondary">
-                                         <strong>Time:</strong> {deleteDialog.appointmentDetails.slot ? `${deleteDialog.appointmentDetails.slot.from} - ${deleteDialog.appointmentDetails.slot.till}` : 'N/A'}
-                                     </Typography>
-                                     <Typography variant="body2" color="text.secondary">
-                                         <strong>Status:</strong> {deleteDialog.appointmentDetails.status || 'N/A'}
-                                     </Typography>
-                                 </Box>
-                             </>
-                         )}
-                        <TextField
-                            label="Reason for Deletion (Optional)"
-                            multiline
-                            rows={3}
-                            value={deleteDialog.reason}
-                            onChange={(e) => setDeleteDialog(prev => ({ ...prev, reason: e.target.value }))}
-                            placeholder="Add a reason for deleting this appointment..."
-                            fullWidth
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setDeleteDialog(prev => ({ ...prev, open: false }))} disabled={deleteDialog.loading}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleDeleteConfirm}
-                        variant="contained"
-                        color="error"
-                        disabled={deleteDialog.loading}
-                    >
-                        {deleteDialog.loading ? 'Deleting...' : 'Delete Appointment'}
-                    </Button>
-                                 </DialogActions>
-             </Dialog>
-
-             {/* View Dialog */}
-             <Dialog 
-                 open={viewDialog.open} 
-                 onClose={() => setViewDialog(prev => ({ ...prev, open: false }))} 
-                 maxWidth="md" 
-                 fullWidth
-                 PaperProps={{
-                     sx: {
-                         borderRadius: 3,
-                         boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                         background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)'
-                     }
-                 }}
-             >
-                 <DialogTitle sx={{ 
-                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                     color: 'white',
-                     borderRadius: '12px 12px 0 0',
-                     display: 'flex',
-                     alignItems: 'center',
-                     gap: 2,
-                     pb: 3
-                 }}>
-                     <CalendarDays size={24} />
-                     <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                         Appointment Details
-                     </Typography>
-                 </DialogTitle>
-                 <DialogContent sx={{ p: 3 }}>
-                     {viewDialog.appointmentDetails && (
-                         <Stack spacing={3}>
-                             {/* Status Banner */}
-                             <Paper elevation={0} sx={{ 
-                                 p: 2, 
-                                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                 borderRadius: 2,
-                                 color: 'white'
-                             }}>
-                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                         <AlertCircle size={20} />
-                                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                             Status: {viewDialog.appointmentDetails.status?.toUpperCase() || 'N/A'}
-                                         </Typography>
-                                     </Box>
-                                     <Chip 
-                                         label={viewDialog.appointmentDetails.status || 'N/A'} 
-                                         color={
-                                             viewDialog.appointmentDetails.status === 'confirmed' ? 'success' :
-                                             viewDialog.appointmentDetails.status === 'pending' ? 'warning' :
-                                             viewDialog.appointmentDetails.status === 'cancelled' ? 'error' :
-                                             viewDialog.appointmentDetails.status === 'completed' ? 'primary' :
-                                             'default'
-                                         } 
-                                         sx={{ 
-                                             fontWeight: 'bold',
-                                             '& .MuiChip-label': { color: 'white' }
-                                         }}
-                                     />
-                                 </Box>
-                             </Paper>
-
-                             {/* User and Stylist Information */}
-                             <Grid container spacing={3}>
-                                 <Grid item xs={12} md={6}>
-                                     <Paper elevation={2} sx={{ 
-                                         p: 3, 
-                                         borderRadius: 2,
-                                         background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                                         color: 'white'
-                                     }}>
-                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                                             <User size={20} />
-                                             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                                 Customer Information
-                                             </Typography>
-                                         </Box>
-                                         <Stack spacing={2}>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <UserCheck size={16} />
-                                                 <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                                                     {viewDialog.appointmentDetails.user?.fullName || 'N/A'}
-                                                 </Typography>
-                                             </Box>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <Mail size={16} />
-                                                 <Typography variant="body2">
-                                                     {viewDialog.appointmentDetails.user?.email || 'N/A'}
-                                                 </Typography>
-                                             </Box>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <Phone size={16} />
-                                                 <Typography variant="body2">
-                                                     {viewDialog.appointmentDetails.user?.phoneNumber || 'N/A'}
-                                                 </Typography>
-                                             </Box>
-                                         </Stack>
-                                     </Paper>
-                                 </Grid>
-                                 
-                                 <Grid item xs={12} md={6}>
-                                     <Paper elevation={2} sx={{ 
-                                         p: 3, 
-                                         borderRadius: 2,
-                                         background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                                         color: 'white'
-                                     }}>
-                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                                             <Scissors size={20} />
-                                             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                                 Stylist Information
-                                             </Typography>
-                                         </Box>
-                                         <Stack spacing={2}>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <UserCheck size={16} />
-                                                 <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                                                     {viewDialog.appointmentDetails.stylist?.fullName || 'N/A'}
-                                                 </Typography>
-                                             </Box>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <Mail size={16} />
-                                                 <Typography variant="body2">
-                                                     {viewDialog.appointmentDetails.stylist?.email || 'N/A'}
-                                                 </Typography>
-                                             </Box>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <Phone size={16} />
-                                                 <Typography variant="body2">
-                                                     {viewDialog.appointmentDetails.stylist?.phoneNumber || 'N/A'}
-                                                 </Typography>
-                                             </Box>
-                                         </Stack>
-                                     </Paper>
-                                 </Grid>
-                             </Grid>
-
-                             {/* Appointment Details */}
-                             <Paper elevation={2} sx={{ 
-                                 p: 3, 
-                                 borderRadius: 2,
-                                 background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
-                             }}>
-                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                                     <Calendar size={20} />
-                                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                                         Appointment Details
-                                     </Typography>
-                                 </Box>
-                                 <Grid container spacing={3}>
-                                     <Grid item xs={12} md={6}>
-                                         <Stack spacing={2}>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <Scissors size={16} />
-                                                 <Box>
-                                                     <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
-                                                         SERVICE
-                                                     </Typography>
-                                                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                                                         {viewDialog.appointmentDetails.service?.name || 'N/A'}
-                                                     </Typography>
-                                                 </Box>
-                                             </Box>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <CalendarDays size={16} />
-                                                 <Box>
-                                                     <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
-                                                         DATE
-                                                     </Typography>
-                                                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                                                         {viewDialog.appointmentDetails.date ? new Date(viewDialog.appointmentDetails.date).toLocaleDateString('en-US', { 
-                                                             weekday: 'long', 
-                                                             year: 'numeric', 
-                                                             month: 'long', 
-                                                             day: 'numeric' 
-                                                         }) : 'N/A'}
-                                                     </Typography>
-                                                 </Box>
-                                             </Box>
-                                         </Stack>
-                                     </Grid>
-                                     <Grid item xs={12} md={6}>
-                                         <Stack spacing={2}>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <Clock size={16} />
-                                                 <Box>
-                                                     <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
-                                                         TIME SLOT
-                                                     </Typography>
-                                                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                                                         {viewDialog.appointmentDetails.slot ? `${viewDialog.appointmentDetails.slot.from} - ${viewDialog.appointmentDetails.slot.till}` : 'N/A'}
-                                                     </Typography>
-                                                 </Box>
-                                             </Box>
-                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                 <FileText size={16} />
-                                                 <Box>
-                                                     <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
-                                                         NOTES
-                                                     </Typography>
-                                                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                                                         {viewDialog.appointmentDetails.notes || 'No notes available'}
-                                                     </Typography>
-                                                 </Box>
-                                             </Box>
-                                         </Stack>
-                                     </Grid>
-                                 </Grid>
-                             </Paper>
-
-                             {/* Additional Info */}
-                             <Paper elevation={1} sx={{ 
-                                 p: 2, 
-                                 borderRadius: 2,
-                                 background: '#f8f9fa',
-                                 border: '1px solid #e9ecef'
-                             }}>
-                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                     <MapPin size={16} />
-                                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                         <strong>Created:</strong> {viewDialog.appointmentDetails.createdAt ? new Date(viewDialog.appointmentDetails.createdAt).toLocaleString() : 'N/A'}
-                                     </Typography>
-                                 </Box>
-                             </Paper>
-                         </Stack>
-                     )}
-                 </DialogContent>
-                 <DialogActions sx={{ p: 3, pt: 0 }}>
-                     <Button 
-                         onClick={() => setViewDialog(prev => ({ ...prev, open: false }))}
-                         variant="contained"
-                         sx={{
-                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                             borderRadius: 2,
-                             px: 4,
-                             py: 1.5,
-                             '&:hover': {
-                                 background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)'
-                             }
-                         }}
-                     >
-                         Close
-                     </Button>
-                 </DialogActions>
-             </Dialog>
-         </Box>
-     );
+        </Box>
+    );
 };
 
 export default AppointmentStatus;
