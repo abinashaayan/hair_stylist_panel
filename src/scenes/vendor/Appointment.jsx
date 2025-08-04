@@ -14,6 +14,7 @@ import { Checkbox, FormGroup, FormControlLabel, CircularProgress } from '@mui/ma
 import Alert from '../../custom/Alert';
 
 const statusOptions = [
+  { value: 'completed', label: 'Completed' },
   { value: 'confirmed', label: 'Confirmed' },
   { value: 'pending', label: 'Pending' },
   { value: 'cancelled', label: 'Cancelled' },

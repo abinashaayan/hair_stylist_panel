@@ -724,7 +724,7 @@ export const orderDetailsTableColumns = ({ handleDelete, handleView }) => [
     },
 ];
 
-export const allAppointmentStatusTableColumns = ({ handleDelete, handleView }) => [
+export const allAppointmentStatusTableColumns = ({ handleDelete, handleView, handleStatusUpdate, handleReschedule }) => [
     {
         field: "user",
         headerName: "User",
@@ -770,11 +770,11 @@ export const allAppointmentStatusTableColumns = ({ handleDelete, handleView }) =
         flex: 0.8,
         renderCell: (params) => {
             const { status, _id } = params.row;
-            const statusOptions = ["confirmed", "cancelled"];
+            const statusOptions = ["pending", "confirmed", "completed", "cancelled", "rejected"];
             return (
                 <select
                     value={status}
-                    onChange={e => params.colDef.handleStatusUpdate ? params.colDef.handleStatusUpdate(_id, e.target.value) : undefined}
+                    onChange={e => handleStatusUpdate ? handleStatusUpdate(_id, e.target.value) : undefined}
                     style={{ padding: '4px 8px', borderRadius: 4 }}
                 >
                     {statusOptions.map(opt => (
@@ -783,7 +783,6 @@ export const allAppointmentStatusTableColumns = ({ handleDelete, handleView }) =
                 </select>
             );
         },
-        handleStatusUpdate: undefined, // will be set by columns factory
     },
     {
         field: "notes",
@@ -800,12 +799,13 @@ export const allAppointmentStatusTableColumns = ({ handleDelete, handleView }) =
     {
         field: "action",
         headerName: "Action",
-        width: 120,
+        width: 180,
         sortable: false,
         renderCell: (params) => (
             <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
-                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row._id)} />
+                <CustomIconButton size="small" icon={<Pencil size={16} />} color="orange" onClick={() => handleReschedule(params.row)} />
+                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row)} />
             </Box>
         ),
     },

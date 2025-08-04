@@ -90,8 +90,10 @@ const StylistDetailsView = ({ open, onClose, data, onSave, editMode = false }) =
                 phoneNumber: data.phoneNumber || '',
                 address: formatAddress(data.address),
                 education: data.education || '',
-                expertise: data.expertise || '',
+                expertise: Array.isArray(data.expertise) ? data.expertise.join(', ') : data.expertise || '',
                 experience: data.experience || [],
+                shopName: data.about?.shopName || '',
+                shopAbout: data.about?.about || '',
                 instagramLink: data.socialMediaLinks?.instagram || '',
                 facebookLink: data.socialMediaLinks?.facebook || '',
                 linkedinLink: data.socialMediaLinks?.linkedin || '',
@@ -148,8 +150,10 @@ const StylistDetailsView = ({ open, onClose, data, onSave, editMode = false }) =
             // Prepare the data according to the API structure
             const updateData = {
                 education: formData.education,
-                expertise: Array.isArray(formData.expertise) ? formData.expertise : [formData.expertise].filter(Boolean),
+                expertise: formData.expertise ? formData.expertise.split(',').map(item => item.trim()).filter(Boolean) : [],
                 experience: formData.experience,
+                shopName: formData.shopName,
+                shopAbout: formData.shopAbout,
                 instagramLink: formData.instagramLink,
                 facebookLink: formData.facebookLink,
                 linkedinLink: formData.linkedinLink,
@@ -179,8 +183,10 @@ const StylistDetailsView = ({ open, onClose, data, onSave, editMode = false }) =
                 phoneNumber: data.phoneNumber || '',
                 address: formatAddress(data.address),
                 education: data.education || '',
-                expertise: data.expertise || '',
+                expertise: Array.isArray(data.expertise) ? data.expertise.join(', ') : data.expertise || '',
                 experience: data.experience || [],
+                shopName: data.about?.shopName || '',
+                shopAbout: data.about?.about || '',
                 instagramLink: data.socialMediaLinks?.instagram || '',
                 facebookLink: data.socialMediaLinks?.facebook || '',
                 linkedinLink: data.socialMediaLinks?.linkedin || '',
@@ -261,7 +267,37 @@ const StylistDetailsView = ({ open, onClose, data, onSave, editMode = false }) =
                             />
                         </Section>
                         
-
+                        {isEditMode && (
+                            <Section title="Additional Information" icon={<Sparkles size={24} />}>
+                                <DetailItem 
+                                    icon={<Sparkles size={20} />} 
+                                    label="Expertise" 
+                                    value={Array.isArray(data.expertise) ? data.expertise.join(', ') : data.expertise} 
+                                    editMode={isEditMode}
+                                    fieldName="expertise"
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                />
+                                <DetailItem 
+                                    icon={<Building2 size={20} />} 
+                                    label="Shop Name" 
+                                    value={data.about?.shopName} 
+                                    editMode={isEditMode}
+                                    fieldName="shopName"
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                />
+                                <DetailItem 
+                                    icon={<Phone size={20} />} 
+                                    label="Shop About" 
+                                    value={data.about?.about} 
+                                    editMode={isEditMode}
+                                    fieldName="shopAbout"
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                />
+                            </Section>
+                        )}
 
                         {data?.about && (
                             <Section title="Shop Details" icon={<Building2 size={24} />}>
