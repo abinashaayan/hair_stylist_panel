@@ -26,7 +26,6 @@ import {
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import "../vendors/customscss/Dashboard.scss";
-// import useStylistAvailability from "../hooks/useStylistAvailability";
 import axios from "axios";
 import { API_BASE_URL } from "../utils/apiConfig";
 
@@ -38,8 +37,6 @@ const VendorDashboard = () => {
   const authToken = Cookies.get("token");
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width: 768px)");
-
-  // const { data: availabilityList } = useStylistAvailability();
 
   const fetchAvailability = async () => {
     try {
@@ -75,7 +72,6 @@ const VendorDashboard = () => {
   ];
 
   return (
-    // m: { xs: "10px", sm: "15px", md: "1.5rem 2.5rem" },
     <Box sx={{ width: "100%", maxWidth: "100%" }}>
       <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
       <Box
@@ -206,15 +202,7 @@ const VendorDashboard = () => {
         mt: 3
       }}>
         <Box>
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            sx={{
-              mb: "15px",
-              textTransform: "uppercase",
-              fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1rem" }
-            }}
-          >
+          <Typography variant="h4" fontWeight="bold" sx={{ mb: "15px", textTransform: "uppercase", fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1rem" } }}>
             Upcoming Appointments
           </Typography>
           <CustomCalendar year={currentYear} month={currentMonth} />

@@ -46,8 +46,8 @@ const EntityDialog = ({
   const [customOtherValue, setCustomOtherValue] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [icon, setIcon] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  // const [minPrice, setMinPrice] = useState("");
+  // const [maxPrice, setMaxPrice] = useState("");
 
   const authToken = Cookies.get("token");
 
@@ -61,8 +61,8 @@ const EntityDialog = ({
       setInputValue(editService.name || "");
       setIsActive(editService.approved !== undefined ? !!editService.approved : true);
       setIcon(editService.icon || "");
-      setMinPrice(editService.minPrice || "");
-      setMaxPrice(editService.maxPrice || "");
+      // setMinPrice(editService.minPrice || "");
+      // setMaxPrice(editService.maxPrice || "");
       if (editService.subServices) {
         setSubServices(editService.subServices);
       } else if (editService.id) {
@@ -86,8 +86,8 @@ const EntityDialog = ({
     try {
       const requestData = {
         name: selectedValue,
-        minPrice: Number(minPrice),
-        maxPrice: Number(maxPrice),
+        // minPrice: Number(minPrice),
+        // maxPrice: Number(maxPrice),
       };
       const token = Cookies.get("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
@@ -194,8 +194,8 @@ const EntityDialog = ({
             name: inputValue,
             isActive,
             icon,
-            minPrice: Number(minPrice), // ✅ add this
-            maxPrice: Number(maxPrice),
+            // minPrice: Number(minPrice), 
+            // maxPrice: Number(maxPrice),
           },
           subServices: subServices.map(sub => ({ _id: sub._id, name: sub.name })).filter(s => s.name),
         },
@@ -336,7 +336,7 @@ const EntityDialog = ({
           </Box>
         ) : (
           <>
-            <InputLabel sx={{ color: "black", mt: 2 }}>Min Price</InputLabel>
+            {/* <InputLabel sx={{ color: "black", mt: 2 }}>Min Price</InputLabel>
             <Input
               type="number"
               placeholder="Enter minimum price"
@@ -353,7 +353,7 @@ const EntityDialog = ({
               onChange={(e) => setMaxPrice(e.target.value)}
               height={50}
               disabled={isView}
-            />
+            /> */}
             <InputLabel sx={{ color: "black" }}>{inputLabel}</InputLabel>
             {(!isEdit && !isView) ? (
               <>

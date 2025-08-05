@@ -1,6 +1,6 @@
-import { Trash2, Eye, Pencil, TransgenderIcon, Plus, Mail } from "lucide-react";
+import { Trash2, Eye, Pencil, TransgenderIcon, Plus, Mail, DollarSign, Gift, Clock, TrendingUp } from "lucide-react";
 import { CustomIconButton } from "./Button";
-import { Box, Chip, CircularProgress, MenuItem, Rating, Select, Switch, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, MenuItem, Rating, Select, Switch, Typography, Tooltip } from "@mui/material";
 import ImageWithLoader from "./ImageWithLoader";
 import PersonIcon from "@mui/icons-material/Person";
 
@@ -160,18 +160,18 @@ export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, 
 
 export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService, handleEdit }) => [
     { field: "name", headerName: "Service Name", flex: 1 },
-    {
-        field: "minPrice",
-        headerName: "Min Price ($)",
-        width: 100,
-        renderCell: (params) => `$${params.row.minPrice ?? "N/A"}`
-    },
-    {
-        field: "maxPrice",
-        headerName: "Max Price ($)",
-        width: 100,
-        renderCell: (params) => `$${params.row.maxPrice ?? "N/A"}`
-    },
+    // {
+    //     field: "minPrice",
+    //     headerName: "Min Price ($)",
+    //     width: 100,
+    //     renderCell: (params) => `$${params.row.minPrice ?? "N/A"}`
+    // },
+    // {
+    //     field: "maxPrice",
+    //     headerName: "Max Price ($)",
+    //     width: 100,
+    //     renderCell: (params) => `$${params.row.maxPrice ?? "N/A"}`
+    // },
     {
         field: "addSubService",
         headerName: "Add Sub Services",
@@ -453,7 +453,7 @@ export const serviceManagementTableColumns = ({ handleToggleStatus, handleDelete
     },
 ];
 
-export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) => [
+export const packageTableColumns = ({ handleDelete, handleView, handleEdit, handleServicePricing, handlePromotionalPricing, handlePricingHistory, handleDynamicPricing }) => [
     {
         field: "photo",
         headerName: "Image",
@@ -477,7 +477,6 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) =>
         },
     },
     { field: "title", headerName: "Title", flex: 1 },
-    { field: "about", headerName: "About", flex: 2 },
     {
         field: "serviceName",
         headerName: "Service",
@@ -575,21 +574,47 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit }) =>
         },
     },
     {
-        field: "createdAt",
-        headerName: "Created At",
-        flex: 1,
-        renderCell: (params) => params.row.createdAt ? new Date(params.row.createdAt).toLocaleDateString() : 'N/A'
-    },
-    {
         field: "action",
         headerName: "Action",
-        width: 180,
+        width: 350,
         sortable: false,
         renderCell: (params) => (
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
-                <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} />
-                <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                <Tooltip title="View Details" arrow>
+                    <Box>
+                        <CustomIconButton size="small" icon={<Eye size={16} />} color="rgb(77 141 225)" onClick={() => handleView(params.row)} />
+                    </Box>
+                </Tooltip>
+                <Tooltip title="Edit Package" arrow>
+                    <Box>
+                        <CustomIconButton size="small" icon={<Pencil size={16} />} color="green" onClick={() => handleEdit(params.row)} />
+                    </Box>
+                </Tooltip>
+                <Tooltip title="Service Pricing" arrow>
+                    <Box>
+                        <CustomIconButton size="small" icon={<DollarSign size={16} />} color="orange" onClick={() => handleServicePricing(params.row)} />
+                    </Box>
+                </Tooltip>
+                <Tooltip title="Promotional Pricing" arrow>
+                    <Box>
+                        <CustomIconButton size="small" icon={<Gift size={16} />} color="purple" onClick={() => handlePromotionalPricing(params.row)} />
+                    </Box>
+                </Tooltip>
+                <Tooltip title="Pricing History" arrow>
+                    <Box>
+                        <CustomIconButton size="small" icon={<Clock size={16} />} color="blue" onClick={() => handlePricingHistory(params.row)} />
+                    </Box>
+                </Tooltip>
+                <Tooltip title="Dynamic Pricing" arrow>
+                    <Box>
+                        <CustomIconButton size="small" icon={<TrendingUp size={16} />} color="teal" onClick={() => handleDynamicPricing(params.row)} />
+                    </Box>
+                </Tooltip>
+                <Tooltip title="Delete Package" arrow>
+                    <Box>
+                        <CustomIconButton size="small" icon={<Trash2 size={16} />} color="hsl(0 84.2% 60.2%)" onClick={() => handleDelete(params.row.id)} />
+                    </Box>
+                </Tooltip>
             </Box>
         ),
     },

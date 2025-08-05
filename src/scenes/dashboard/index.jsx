@@ -292,8 +292,6 @@ function Dashboard() {
                   <Typography variant="h6" sx={{ mb: 1.5, color: '#6D295A', fontWeight: 700 }}>
                     Calendar
                   </Typography>
-
-                  {/* Legend */}
                   <Box display="flex" alignItems="center" gap={3} mb={2}>
                     <Box display="flex" alignItems="center" gap={1}>
                       <Box sx={{ width: 16, height: 16, bgcolor: '#4CAF50', borderRadius: '50%' }} />
@@ -308,8 +306,6 @@ function Dashboard() {
                       <Typography variant="body2">Stylist Availability</Typography>
                     </Box>
                   </Box>
-
-                  {/* Calendar */}
                   <FullCalendar
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
                     initialView="dayGridMonth"
