@@ -12,7 +12,7 @@ const Services = () => {
     if (loading) return <CircularProgress />;
 
   return (
-    <Box m="20px">
+    <Box>
       {(loading || !profile) && <LinearProgress sx={{ mb: 2 }} />}
       <Header title="Services" />
       {(!profile) ? null : (

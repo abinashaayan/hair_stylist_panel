@@ -307,7 +307,7 @@ const Availability = () => {
   return (
     <Box>
       <Header title="Availability Management" />
-      <Box display="flex" justifyContent="center" alignItems="flex-start" minHeight="80vh" p={2} gap={3}>
+      <Box display="flex" justifyContent="center" alignItems="flex-start" minHeight="80vh" gap={3}>
         <Box flex={1} minWidth={350} maxWidth={600}>
           <Card sx={{ minWidth: 350, maxWidth: 600, width: '100%', boxShadow: 4, borderRadius: 4 }}>
             <CardContent>

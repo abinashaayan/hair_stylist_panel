@@ -47,7 +47,7 @@ export default function ServiceManagement() {
       });
       if (response?.data?.status === 200 && response?.data?.success) {
         const formattedData = response?.data?.data?.map((item, index) => ({
-          id: item.subService?._id, 
+          id: item.subService?._id,
           serviceName: item.service?.name || 'N/A',
           subServiceName: item.subService?.name || 'N/A',
           price: item.price ?? 'N/A',
@@ -166,19 +166,17 @@ export default function ServiceManagement() {
 
   return (
     <Box className="p-1">
-      <Container maxWidth={false}>
-        <Header title="Create Sub Service" />
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
-          <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' }, }}>
-            <InputBase placeholder="Search Service" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
-            <IconButton type="button" sx={{ p: 1 }}>
-              <SearchOutlined />
-            </IconButton>
-          </Box>
-          <CustomIconButton icon={<PersonAdd />} text="Add New SUb Service" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
+      <Header title="Create Sub Service" />
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
+        <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px', width: { xs: '100%', sm: 'auto' }, }}>
+          <InputBase placeholder="Search Service" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+          <IconButton type="button" sx={{ p: 1 }}>
+            <SearchOutlined />
+          </IconButton>
         </Box>
-        <CustomTable columns={columns} rows={filteredUsers || []} loading={loading} checkboxSelection />
-      </Container>
+        <CustomIconButton icon={<PersonAdd />} text="Add New SUb Service" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} sx={{ width: { xs: '100%', sm: 'auto' } }} />
+      </Box>
+      <CustomTable columns={columns} rows={filteredUsers || []} loading={loading} checkboxSelection />
 
       <ServiceManagementEntityDialog
         open={openCategoryDialog}

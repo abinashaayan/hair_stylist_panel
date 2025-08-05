@@ -22,6 +22,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import Services from "./scenes/vendor/Services";
 import AppointmentStatus from "./scenes/admin/AppointmentStatus";
 import AllReviews from "./scenes/admin/AllReviews";
+import Notification from "./scenes/vendor/Notification";
 
 const AppRouter = () => {
   const { isAuthenticated, panelType, token, stylistId, login } = useAuth();
@@ -59,6 +60,7 @@ const AppRouter = () => {
                 <Route path="availability" element={<Availability />} />
                 <Route path="portfolio" element={<Portfolio />} />
                 <Route path="stylist-profile" element={<VendorProfile />} />
+                <Route path="notifications" element={<Notification />} />
               </>
             ) : (
               <Route index element={<Navigate to="/login" replace />} />

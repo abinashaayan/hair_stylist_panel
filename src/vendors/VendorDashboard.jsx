@@ -113,7 +113,7 @@ const VendorDashboard = () => {
               }
             }}
           >
-            {stat.icon &&
+            {stat?.icon &&
               React.cloneElement(stat.icon, {
                 sx: {
                   fontSize: { xs: "32px", sm: "40px", md: "48px" },
@@ -121,7 +121,7 @@ const VendorDashboard = () => {
                   mb: 1
                 },
               })}
-            {stat.value && (
+            {stat?.value && (
               <Typography
                 variant="h4"
                 sx={{
@@ -131,7 +131,7 @@ const VendorDashboard = () => {
                   fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" }
                 }}
               >
-                {stat.value}
+                {stat?.value}
               </Typography>
             )}
             <Link to={stat?.path} className="text-decoration-none">
@@ -152,15 +152,7 @@ const VendorDashboard = () => {
       </Box>
 
       <Box mt={2}>
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{
-            mb: "15px",
-            textTransform: "uppercase",
-            fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1rem" }
-          }}
-        >
+        <Typography variant="h4" fontWeight="bold" sx={{ mb: "15px", textTransform: "uppercase", fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1rem" } }}>
           Top Performing Services
         </Typography>
         <Box

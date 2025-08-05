@@ -104,7 +104,7 @@ const Appointment = () => {
   };
 
   return (
-    <Box m="20px">
+    <Box>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
           <CircularProgress />

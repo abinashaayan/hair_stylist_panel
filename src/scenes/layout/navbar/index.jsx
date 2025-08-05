@@ -10,6 +10,7 @@ import {
   Avatar,
   Typography,
   Divider,
+  Badge
 } from "@mui/material";
 
 import { tokens, ColorModeContext } from "../../../theme";
@@ -125,6 +126,14 @@ const Navbar = () => {
       <FlexBetween gap={{ xs: "0.5rem", sm: "2rem" }}>
         {panelType === "vendor" && !isMobile && (
           <Box display="flex" alignItems="center" gap="0.5rem">
+            <Link to="/notifications">
+              <IconButton sx={{ color: 'white' }}>
+                <Badge badgeContent={1} color="error" overlap="circular">
+                  <Notifications fontSize="large" />
+                </Badge>
+              </IconButton>
+            </Link>
+
             <AccessTime sx={{ color: "#FFFFFF", fontSize: { xs: "1rem", sm: "1.2rem" } }} />
             <Typography variant="body2" sx={{ color: "#FFFFFF", fontSize: { xs: "0.7rem", sm: "0.9rem" }, whiteSpace: "nowrap", display: { xs: "none", sm: "block" } }}>
               {formatDateTime(currentDateTime)}
