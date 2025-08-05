@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, CircularProgress, Switch, Card, CardContent, Divider, Tooltip, Snackbar, Alert as MuiAlert, Chip, Checkbox, FormControlLabel } from '@mui/material';
+import { Box, Typography, IconButton, CircularProgress, Switch, Card, CardContent, Divider, Tooltip, Snackbar, Alert as MuiAlert, Chip, Checkbox, FormControlLabel, TextField, Button } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
@@ -40,9 +40,18 @@ const Availability = () => {
   const [availability, setAvailability] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState([]);
+  const [stylistId, setStylistId] = useState(null);
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTill, setCustomTill] = useState('');
 
   const authToken = Cookies.get("token");
   const { profile } = useStylistProfile();
+
+  useEffect(() => {
+    if (profile) {
+      setStylistId(profile._id);
+    }
+  }, [profile]);
 
   const fetchAvailability = async () => {
     try {
@@ -53,7 +62,6 @@ const Availability = () => {
         },
         withCredentials: true,
       });
-      console.log('Availability data fetched:', res.data);
       if (res.data && res.data.success) {
         setApiData(res.data.data || []);
       }
@@ -73,35 +81,65 @@ const Availability = () => {
   const handlePrevWeek = () => setCurrentDate(prev => prev.subtract(7, 'day'));
   const handleNextWeek = () => setCurrentDate(prev => prev.add(7, 'day'));
 
-  const currentAvailability = availability[selectedDate.format('YYYY-MM-DD')] || { slots: [], isClosed: false };
+  // const currentAvailability = availability[selectedDate.format('YYYY-MM-DD')] || { slots: [], isClosed: false };
+  const dateKey = selectedDate.format('YYYY-MM-DD');
+  const currentAvailability = availability[dateKey] || { slots: [], isClosed: false, isHoliday: false };
 
-  const toggleSlot = (slotObj) => {
-    const dateKey = selectedDate.format('YYYY-MM-DD');
-    const current = availability[dateKey] || { slots: [], isClosed: false };
+  // const toggleSlot = (slotObj) => {
+  //   const dateKey = selectedDate.format('YYYY-MM-DD');
+  //   const current = availability[dateKey] || { slots: [], isClosed: false };
 
-    const slotExists = current.slots.some(s => s.from === slotObj.from && s.till === slotObj.till);
+  //   const slotExists = current.slots.some(s => s.from === slotObj.from && s.till === slotObj.till);
 
-    const updatedSlots = slotExists
-      ? current.slots.filter(s => !(s.from === slotObj.from && s.till === slotObj.till))
-      : [...current.slots, slotObj];
+  //   const updatedSlots = slotExists
+  //     ? current.slots.filter(s => !(s.from === slotObj.from && s.till === slotObj.till))
+  //     : [...current.slots, slotObj];
 
-    setAvailability({
-      ...availability,
-      [dateKey]: { ...current, slots: updatedSlots }
-    });
-  };
-
-
-  const toggleClosed = () => {
-    const dateKey = selectedDate.format('YYYY-MM-DD');
-    const current = availability[dateKey] || { slots: [], isClosed: false };
+  //   setAvailability({
+  //     ...availability,
+  //     [dateKey]: { ...current, slots: updatedSlots }
+  //   });
+  // };
+  const toggleSlot = (slot) => {
+    const isPresent = currentAvailability.slots?.some(
+      (s) => s.from === slot.from && s.till === slot.till
+    );
+    const updatedSlots = isPresent
+      ? currentAvailability.slots.filter(
+        (s) => !(s.from === slot.from && s.till === slot.till)
+      )
+      : [...(currentAvailability.slots || []), slot];
 
     setAvailability({
       ...availability,
       [dateKey]: {
-        ...current,
-        isClosed: !current.isClosed,
-        slots: current.isClosed ? current.slots : []
+        ...currentAvailability,
+        slots: updatedSlots
+      }
+    });
+  };
+
+  const toggleClosed = () => {
+    setAvailability({
+      ...availability,
+      [dateKey]: {
+        ...currentAvailability,
+        isClosed: !currentAvailability.isClosed,
+        isHoliday: false,
+        slots: currentAvailability.isClosed ? currentAvailability.slots : []
+      }
+    });
+  };
+
+  const toggleHoliday = () => {
+    setAvailability({
+      ...availability,
+      [dateKey]: {
+        ...currentAvailability,
+        isHoliday: !currentAvailability.isHoliday,
+        isClosed: false,
+        isActive: !currentAvailability.isHoliday && currentAvailability.slots.length > 0, // Add this line
+        slots: currentAvailability.isHoliday ? currentAvailability.slots : [] // Clear slots when turning OFF holiday
       }
     });
   };
@@ -109,13 +147,59 @@ const Availability = () => {
   const handleSaveSlotAvailable = async () => {
     setLoading(true);
     try {
-      const availabilityPayload = Object.entries(availability).map(([date, data]) => ({
-        date,
-        slots: data.slots,
-        isActive: !data.isClosed
-      }));
+      // Prepare the availability payload
+      const availabilityPayload = Object.entries(availability)
+        .map(([date, data]) => {
+          // For custom slots (holidays with slots)
+          if (data.isHoliday && data.slots.length > 0) {
+            return {
+              date,
+              slots: data.slots,
+              isActive: true, // Changed from false to true
+              isHoliday: true
+            };
+          }
 
-      await axios.post(`${API_BASE_URL}/stylist/set-availability/${profile?._id}`,
+          // For closed days (holidays without slots)
+          if (data.isHoliday) {
+            return {
+              date,
+              slots: [],
+              isActive: false,
+              isHoliday: true
+            };
+          }
+
+          // For manually closed days
+          if (data.isClosed) {
+            return {
+              date,
+              slots: [],
+              isActive: false,
+              isHoliday: false
+            };
+          }
+
+          // For regular available days
+          return {
+            date,
+            slots: data.slots,
+            isActive: data.slots.length > 0,
+            isHoliday: false
+          };
+        })
+        .filter(entry =>
+          entry.isHoliday ||
+          entry.isClosed ||
+          entry.slots.length > 0
+        );
+
+      if (availabilityPayload.length === 0) {
+        showErrorToast('No valid availability data to save');
+        return;
+      }
+      const response = await axios.post(
+        `${API_BASE_URL}/stylist/set-availability/${stylistId}`,
         { availability: availabilityPayload },
         {
           headers: {
@@ -125,19 +209,27 @@ const Availability = () => {
           withCredentials: true,
         }
       );
-
-      showSuccessToast('Availability saved successfully');
-      fetchAvailability();
-      setAvailability(prev => ({
-        ...prev,
-        [selectedDate.format('YYYY-MM-DD')]: {
-          slots: [],
-          isClosed: false,
-        }
-      }));
+      if (response.data.success) {
+        showSuccessToast('Availability saved successfully');
+        fetchAvailability();
+        setAvailability(prev => ({
+          ...prev,
+          [selectedDate.format('YYYY-MM-DD')]: {
+            slots: [],
+            isClosed: false,
+            isHoliday: false
+          }
+        }));
+      } else {
+        showErrorToast(response.data.message || 'Failed to save availability');
+      }
     } catch (error) {
-      console.error(error);
-      showErrorToast('Failed to save availability');
+      console.error('Save availability error:', error);
+      showErrorToast(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to save availability'
+      );
     } finally {
       setLoading(false);
     }
@@ -177,6 +269,40 @@ const Availability = () => {
     }
   };
 
+  const handleToggleSlotStatus = async (item, slot) => {
+    try {
+      const res = await axios.put(`${API_BASE_URL}/stylist/availability/toggle-slot`, {
+        stylistId,
+        date: item.date,
+        slotId: slot._id,
+      }, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (res.data.success) {
+        showSuccessToast(res.data.message);
+         setApiData(prev => prev.map(avail => {
+        if (avail.date === item.date) {
+          return {
+            ...avail,
+            slots: avail.slots.map(s => 
+              s._id === slot._id 
+                ? { ...s, isActive: !s.isActive } 
+                : s
+            ),
+            isActive: res.data.isActive
+          };
+        }
+        return avail;
+      }));
+      }
+    } catch (error) {
+      showErrorToast(error.response?.data?.message || 'Failed to update slot status');
+    }
+  };
 
   return (
     <Box>
@@ -235,7 +361,17 @@ const Availability = () => {
                 </Tooltip>
                 <Switch checked={currentAvailability.isClosed} onChange={toggleClosed} color="error" />
               </Box>
-              {!currentAvailability.isClosed && (
+
+              <Box mt={1} display="flex" alignItems="center" gap={1}>
+                <Typography fontWeight={500} color="text.secondary">Custom Slots</Typography>
+                <Switch
+                  checked={currentAvailability.isHoliday}
+                  onChange={toggleHoliday}
+                  color="primary"
+                  disabled={currentAvailability.isClosed}
+                />
+              </Box>
+              {!currentAvailability.isClosed && !currentAvailability.isHoliday && (
                 <Box mt={2}>
                   {Object.entries(TIME_SLOTS).map(([period, slots]) => {
                     const now = dayjs();
@@ -344,13 +480,87 @@ const Availability = () => {
                 </Box>
               )}
               <Divider sx={{ my: 2 }} />
+              {currentAvailability.isHoliday && (
+                <Box mt={2}>
+                  <Typography variant="subtitle2" fontWeight={600}>Add Custom Time Slot</Typography>
+                  <Box display="flex" gap={2} alignItems="center" mt={1}>
+                    <TextField
+                      label="From"
+                      type="time"
+                      size="small"
+                      value={customFrom}
+                      onChange={(e) => setCustomFrom(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      fullWidth
+                    />
+                    <TextField
+                      label="Till"
+                      type="time"
+                      size="small"
+                      value={customTill}
+                      onChange={(e) => setCustomTill(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      fullWidth
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => {
+                        if (customFrom && customTill) {
+                          toggleSlot({ from: customFrom, till: customTill });
+                          setCustomFrom('');
+                          setCustomTill('');
+                        }
+                      }}
+                      disabled={!customFrom || !customTill}
+                    >
+                      Add Slot
+                    </Button>
+                  </Box>
+
+                  {currentAvailability.slots.length > 0 && (
+                    <Box mt={2}>
+                      <Typography variant="subtitle2" fontWeight={600}>Custom Slots Added</Typography>
+                      <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
+                        {currentAvailability.slots.map((slot, index) => (
+                          <Chip
+                            key={index}
+                            label={`${slot.from} - ${slot.till}`}
+                            onDelete={() => {
+                              const updatedSlots = currentAvailability.slots.filter(
+                                (s, i) => i !== index
+                              );
+                              setAvailability({
+                                ...availability,
+                                [dateKey]: {
+                                  ...currentAvailability,
+                                  slots: updatedSlots
+                                }
+                              });
+                            }}
+                            sx={{
+                              bgcolor: '#6d295a',
+                              color: 'white',
+                              fontWeight: 600,
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+              )}
+              <Divider sx={{ my: 2 }} />
               <Box display="flex" justifyContent="center">
                 <CustomIconButton
                   icon={<EventAvailableIcon />}
                   onClick={handleSaveSlotAvailable}
                   text={loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Save Availability'}
                   color="#6d295a"
-                  disabled={loading || currentAvailability.isClosed || currentAvailability.slots.length === 0}
+                  disabled={loading ||
+                    (currentAvailability.isClosed && currentAvailability.isHoliday) ||
+                    (!currentAvailability.isClosed && !currentAvailability.isHoliday && currentAvailability.slots.length === 0)
+                  }
                   size="large"
                   fontWeight={600}
                   variant="contained"
@@ -380,23 +590,30 @@ const Availability = () => {
                       </IconButton>
                     </Box>
                     <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
-                      {item.slots.map(slot => (
-                        <Chip
-                          key={slot._id}
-                          label={`${slot.from} - ${slot.till}`}
-                          color="primary"
-                          size="small"
-                          sx={{
-                            bgcolor: '#6d295a',
-                            color: 'white',
-                            fontWeight: 600,
-                            '& .MuiChip-deleteIcon': {
-                              marginLeft: '5px'
-                            }
-                          }}
-                          deleteIcon={<Trash2 size={16} />}
-                          onDelete={() => handleDeleteSlot(item.date, slot)}
-                        />
+                      {item?.slots?.map(slot => (
+                        <Box key={slot._id} display="flex" alignItems="center" gap={1}>
+                          <Chip
+                            label={`${slot.from} - ${slot.till}`}
+                            color={slot.isActive ? "primary" : "default"}
+                            size="small"
+                            sx={{
+                              bgcolor: slot.isActive
+                                ? (item.isHoliday ? '#8e44ad' : '#6d295a')
+                                : '#d3d3d3',
+                              color: 'white',
+                              fontWeight: 600,
+                            }}
+                            deleteIcon={<Trash2 size={16} />}
+                            onDelete={() => handleDeleteSlot(item.date, slot)}
+                          />
+                          <Switch
+                            size="small"
+                            checked={slot.isActive}
+                            onChange={() => handleToggleSlotStatus(item, slot)}
+                            disabled={loading}
+                            color={item.isHoliday ? "primary" : "default"}
+                          />
+                        </Box>
                       ))}
                     </Box>
                     <Typography variant="caption" color={item.isActive ? 'green' : 'red'} mt={1} display="block">
