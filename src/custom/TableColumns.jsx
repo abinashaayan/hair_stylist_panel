@@ -119,6 +119,17 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
 ];
 
 export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleEdit }) => [
+    {
+        field: "icon",
+        headerName: "Icon",
+        width: 100,
+        renderCell: (params) => {
+            const iconUrl = params.row.icon || "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
+            return (
+                <ImageWithLoader src={iconUrl} alt="Category Icon" width={40} height={40} style={{ objectFit: "cover", borderRadius: "8px", }} />
+            );
+        },
+    },
     { field: "productName", headerName: "Category Name", flex: 0.6 },
     {
         field: "approved",
@@ -159,6 +170,17 @@ export const productCategoryTableColumns = ({ handleToggleStatus, handleDelete, 
 ];
 
 export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleView, togglingIds, handleAddSubService, handleEdit }) => [
+    {
+        field: "icon",
+        headerName: "Icon",
+        width: 100,
+        renderCell: (params) => {
+            const iconUrl = params.row.icon || "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
+            return (
+                <ImageWithLoader src={iconUrl} alt="Category Icon" width={40} height={40} style={{ objectFit: "cover", borderRadius: "8px", }} />
+            );
+        },
+    },
     { field: "name", headerName: "Service Name", flex: 1 },
     // {
     //     field: "minPrice",
@@ -258,18 +280,8 @@ export const ProductTableColumns = ({ handleDelete, handleView, handleEdit }) =>
         renderCell: (params) => {
             const photoUrl = params.row.photos && params.row.photos.length > 0 ? params.row.photos[0] : null;
             const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
-
             return (
-                <img
-                    src={photoUrl || fallbackUrl}
-                    alt="img"
-                    height={40}
-                    width={40}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = fallbackUrl;
-                    }}
-                />
+                <ImageWithLoader src={photoUrl || fallbackUrl} alt="img" width={40} height={40} style={{ objectFit: "cover", borderRadius: "8px", }} />
             );
         },
     },
@@ -461,18 +473,8 @@ export const packageTableColumns = ({ handleDelete, handleView, handleEdit, hand
         renderCell: (params) => {
             const photoUrl = params.row.coverImage;
             const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
-
             return (
-                <img
-                    src={photoUrl || fallbackUrl}
-                    alt="img"
-                    height={40}
-                    width={40}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = fallbackUrl;
-                    }}
-                />
+                <ImageWithLoader src={photoUrl || fallbackUrl} alt="img" width={40} height={40} style={{ objectFit: "cover", borderRadius: "8px", }} />
             );
         },
     },
@@ -630,16 +632,7 @@ export const orderDetailsTableColumns = ({ handleDelete, handleView }) => [
             const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
 
             return (
-                <img
-                    src={photoUrl || fallbackUrl}
-                    alt="img"
-                    height={40}
-                    width={40}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = fallbackUrl;
-                    }}
-                />
+                <ImageWithLoader src={photoUrl || fallbackUrl} alt="img" width={40} height={40} style={{ objectFit: "cover", borderRadius: "8px", }} />
             );
         },
     },
@@ -857,21 +850,11 @@ export const reviewsTableColumns = ({ handleToggleStatus, handleDelete, handleVi
             const photoUrl = params.row.userProfileImage;
             const fallbackUrl = "https://cdn.pixabay.com/photo/2017/02/16/13/42/box-2071537_1280.png";
             return (
-                <img
-                    src={photoUrl || fallbackUrl}
-                    alt="img"
-                    height={40}
-                    width={40}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = fallbackUrl;
-                    }}
-                />
+                <ImageWithLoader src={photoUrl || fallbackUrl} alt="img" width={40} height={40} style={{ objectFit: "cover", borderRadius: "8px", }} />
             );
         },
     },
     { field: "userName", headerName: "User Name", flex: 1 },
-    // { field: "reviewed", headerName: "Reviewed Stylist", flex: 1 },
     {
         field: "ratings",
         headerName: "Rating",

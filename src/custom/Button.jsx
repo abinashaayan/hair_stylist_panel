@@ -38,7 +38,7 @@ export const CustomIconButton = ({
   // Handle theme colors and determine button colors
   let buttonTextColor = color;
   let backgroundColor = color;
-  
+
   // Map theme colors to actual color values
   if (color === 'primary') {
     backgroundColor = theme.palette.primary.main;
@@ -62,7 +62,7 @@ export const CustomIconButton = ({
     backgroundColor = '#f44336';
     buttonTextColor = '#f44336';
   }
-  
+
   if (isOutlined && !color && theme.palette.mode === 'dark') {
     buttonTextColor = 'white';
   }
@@ -80,8 +80,8 @@ export const CustomIconButton = ({
         backgroundColor: disabled
           ? "#ccc"
           : isOutlined
-          ? "transparent"
-          : backgroundColor,
+            ? "transparent"
+            : backgroundColor,
         cursor: disabled ? "not-allowed" : "pointer",
         padding: "12px 15px 12px 15px",
         fontWeight: fontWeight,
@@ -96,7 +96,10 @@ export const CustomIconButton = ({
       }}
       onClick={(event) => {
         event.stopPropagation();
-        if (!disabled) onClick(event);
+        // if (!disabled) onClick(event);
+        if (!disabled && typeof onClick === "function") {
+          onClick(event);
+        }
       }}
     >
       {loading ? (

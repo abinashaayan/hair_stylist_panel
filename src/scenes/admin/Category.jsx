@@ -49,10 +49,11 @@ export default function Category() {
                 },
             });
             if (response?.data?.status === 200) {
-                const formattedData = response?.data?.data.map((category) => ({
+                const formattedData = response?.data?.data?.map((category) => ({
                     id: category._id,
                     productName: category.name || "N/A",
                     approved: category.isActive ?? false,
+                    icon: category.icon,
                     createdAt: new Date(category.createdAt).toLocaleDateString(),
                 }));
 
@@ -175,7 +176,6 @@ export default function Category() {
 
     return (
         <Box className="">
-            {/* <Container maxWidth={false}> */}
                 <Header title="Category" />
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                     <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
@@ -187,7 +187,7 @@ export default function Category() {
                     <CustomIconButton icon={<PersonAdd />} text="Add Category" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} />
                 </Box>
                 <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
-            {/* </Container> */}
+
             <EntityDialog
                 open={openCategoryDialog}
                 handleClose={handleCloseCategoryDialog}
