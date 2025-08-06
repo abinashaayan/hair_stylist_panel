@@ -176,17 +176,18 @@ export default function Category() {
 
     return (
         <Box className="">
-                <Header title="Category" />
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                    <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
-                        <InputBase placeholder="Search Category" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
-                        <IconButton type="button" sx={{ p: 1 }}>
-                            <SearchOutlined />
-                        </IconButton>
-                    </Box>
-                    <CustomIconButton icon={<PersonAdd />} text="Add Category" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} />
+            <Header title="Category" />
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Box display="flex" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
+                    <InputBase placeholder="Search Category" value={searchText} onChange={handleSearch} sx={{ ml: 2, flex: 1 }} />
+                    <IconButton type="button" sx={{ p: 1 }}>
+                        <SearchOutlined />
+                    </IconButton>
                 </Box>
-                <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
+                <CustomIconButton icon={<PersonAdd />} text="Add Category" fontWeight="bold" color="#6d295a" variant="outlined" onClick={handleOpenCategory} />
+            </Box>
+            
+            <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
 
             <EntityDialog
                 open={openCategoryDialog}
@@ -212,14 +213,7 @@ export default function Category() {
                     fetchAllProductCategories();
                 }}
             />
-            <EntityDialog
-                open={isViewDialog}
-                handleClose={handleCloseViewDialog}
-                isView={true}
-                viewValue={viewValue}
-                viewStatus={viewStatus}
-                inputLabel="Category Name"
-            />
+            <EntityDialog open={isViewDialog} handleClose={handleCloseViewDialog} isView={true} viewValue={viewValue} viewStatus={viewStatus} inputLabel="Category Name" />
             <Alert
                 open={alertOpen}
                 title="Delete Category"
