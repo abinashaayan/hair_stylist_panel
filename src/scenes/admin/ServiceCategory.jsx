@@ -49,7 +49,6 @@ export default function ServiceCategory() {
                     Authorization: `Bearer ${authToken}`,
                 },
             });
-            console.log(response?.data?.allServices, 'response?.data');
             if (response?.data?.status === 200) {
                 const formattedData = response?.data?.allServices?.map((service) => ({
                     id: service._id,

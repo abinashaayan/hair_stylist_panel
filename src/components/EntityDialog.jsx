@@ -47,8 +47,6 @@ const EntityDialog = ({
   const [customOtherValue, setCustomOtherValue] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [icon, setIcon] = useState("");
-  // const [minPrice, setMinPrice] = useState("");
-  // const [maxPrice, setMaxPrice] = useState("");
 
   const authToken = Cookies.get("token");
 
@@ -62,8 +60,6 @@ const EntityDialog = ({
       setInputValue(editService.name || "");
       setIsActive(editService.approved !== undefined ? !!editService.approved : true);
       setIcon(editService.icon || "");
-      // setMinPrice(editService.minPrice || "");
-      // setMaxPrice(editService.maxPrice || "");
       if (editService.subServices) {
         setSubServices(editService.subServices);
       } else if (editService.id) {
@@ -75,52 +71,6 @@ const EntityDialog = ({
       setInputValue(viewValue);
     }
   }, [open, isEdit, editValue, isView, viewValue, editService]);
-
-  // const handleAddOrUpdate = async () => {
-  //   const selectedValue = inputValue === "other" ? customOtherValue : inputValue;
-  //   if (!selectedValue.trim()) {
-  //     showCustomMessage(`${inputLabel} is required!`);
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   try {
-  //     const requestData = {
-  //       name: selectedValue, icon
-  //       // minPrice: Number(minPrice),
-  //       // maxPrice: Number(maxPrice),
-  //     };
-  //     const token = Cookies.get("token");
-  //     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  //     if (isEdit && editId) {
-  //       const response = await axios.patch(
-  //         `${API_BASE_URL}/product-category/admin/update/${editId}`,
-  //         requestData,
-  //         { headers }
-  //       );
-  //       if (response?.data?.status === 200) {
-  //         showSuccessToast(response?.data?.message || `${inputLabel} updated successfully`);
-  //         setInputValue("");
-  //         onSuccess();
-  //       }
-  //     } else {
-  //       const response = await axios.post(
-  //         `${API_BASE_URL}${apiEndpoint}`,
-  //         requestData,
-  //         { headers }
-  //       );
-  //       if (response?.data?.status === 201) {
-  //         showSuccessToast(response?.data?.message || `${inputLabel} added successfully`);
-  //         setInputValue("");
-  //         onSuccess();
-  //       }
-  //     }
-  //   } catch (error) {
-  //     showErrorToast(error?.response?.data?.message || "An error occurred");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleAddOrUpdate = async () => {
     const selectedValue = inputValue === "other" ? customOtherValue : inputValue;
@@ -237,45 +187,51 @@ const EntityDialog = ({
   const handleEditSave = async () => {
     setLoading(true);
     try {
-      // await axios.patch(
-      //   `${API_BASE_URL}/service/admin/update-service/${editService.id}`,
-      //   {
-      //     serviceData: {
-      //       name: inputValue,
-      //       icon,
-      //       isActive,
-      //       // minPrice: Number(minPrice), 
-      //       // maxPrice: Number(maxPrice),
-      //     },
-      //     subServices: subServices.map(sub => ({ _id: sub._id, name: sub.name })).filter(s => s.name),
-      //   },
-      //   { headers: { Authorization: `Bearer ${authToken}` } }
-      // );
       const formData = new FormData();
       formData.append("name", inputValue);
-      formData.append("isActive", isActive);
-      if (icon instanceof File) {
-        formData.append("icon", icon);
-      }
 
-      formData.append("subServices", JSON.stringify(
-        subServices.map(sub => ({ _id: sub._id, name: sub.name })).filter(s => s.name)
-      ));
-
-      await axios.patch(
-        `${API_BASE_URL}/service/admin/update-service/${editService.id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "multipart/form-data",
-          }
+      // Handle both service and category cases
+      if (editService) {
+        // Service update
+        formData.append("isActive", isActive);
+        if (icon instanceof File) {
+          formData.append("icon", icon);
         }
-      );
+        // Fixed the JSON.stringify line - removed the extra parenthesis
+        formData.append("subServices", JSON.stringify(
+          subServices.map(sub => ({ _id: sub._id, name: sub.name })).filter(s => s.name)
+        ));
 
-      showSuccessToast("Service updated successfully");
+        await axios.patch(
+          `${API_BASE_URL}/service/admin/update-service/${editService.id}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "multipart/form-data",
+            }
+          }
+        );
+      } else {
+        // Category update
+        if (icon instanceof File) {
+          formData.append("icon", icon);
+        }
+        await axios.patch(
+          `${API_BASE_URL}/product-category/admin/update/${editId}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "multipart/form-data",
+            }
+          }
+        );
+      }
+      showSuccessToast("Updated successfully");
       onSuccess();
     } catch (error) {
+      console.log(error);
       showErrorToast(error?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
@@ -466,7 +422,16 @@ const EntityDialog = ({
       <DialogActions>
         <CustomIconButton icon={<Close />} color="red" text="Close" onClick={handleDialogClose} />
         {!isView && (
-          <CustomIconButton icon={isEdit ? <EditIcon size={16} /> : <PersonAdd />} loading={loading} disabled={loading} color="black" text={isEdit ? "Update" : buttonText} onClick={isEdit ? handleEditSave : handleAddOrUpdate} />
+          <CustomIconButton
+            icon={isEdit ? <EditIcon size={16} /> : <PersonAdd />}
+            loading={loading}
+            disabled={loading}
+            color="black"
+            text={isEdit ? "Update" : buttonText}
+            onClick={isEdit ?
+              (editService ? handleEditSave : handleAddOrUpdate)
+              : handleAddOrUpdate}
+          />
         )}
       </DialogActions>
     </Dialog>
