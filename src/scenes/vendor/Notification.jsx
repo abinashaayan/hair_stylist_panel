@@ -128,17 +128,9 @@ const Notification = () => {
                                     },
                                 }}
                             >
-                                <Avatar
-                                    sx={{
-                                        bgcolor: 'background.default',
-                                        mr: 1,
-                                        width: 30,
-                                        height: 30,
-                                    }}
-                                >
+                                <Avatar sx={{ bgcolor: 'background.default', mr: 1, width: 30, height: 30, }}>
                                     {getIcon(notification.type)}
                                 </Avatar>
-
                                 <Box flex={1}>
                                     <Typography variant="subtitle2" fontWeight={600}>
                                         {notification.title}
