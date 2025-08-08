@@ -25,6 +25,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
         discount: '',
         servicePricing: []
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [file, setFile] = useState(null);
@@ -78,8 +79,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                 });
                 if (rowData.coverImage) { setPreview(rowData.coverImage); }
                 if (rowData.serviceId?._id) { fetchSubServicesByServiceId(rowData.serviceId._id); }
-                if (rowData.servicePricing) { 
-                    // Transform servicePricing to match the form structure
+                if (rowData.servicePricing) {
                     const transformedServicePricing = rowData.servicePricing.map(pricing => ({
                         serviceId: pricing.serviceId?._id || pricing.serviceId,
                         subServiceId: pricing.subServiceId?._id || pricing.subServiceId,
@@ -113,12 +113,12 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
         }
     }, [open, viewMode, editMode, rowData]);
 
-    const serviceOptions = services.map((item) => ({
+    const serviceOptions = services?.map((item) => ({
         label: item.name,
         value: item._id,
     }));
 
-    const subServiceOptions = subServices.map((item) => ({
+    const subServiceOptions = subServices?.map((item) => ({
         label: item.name,
         value: item._id,
     }));
@@ -217,10 +217,8 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
             formData.append('duration', fields.duration);
             formData.append('price', fields.price);
             formData.append('discount', fields.discount);
-            
-            // Add service pricing if available
+
             if (servicePricing.length > 0) {
-                // Transform servicePricing to match API structure
                 const transformedServicePricing = servicePricing.map(pricing => ({
                     serviceId: pricing.serviceId,
                     subServiceId: pricing.subServiceId,
@@ -233,9 +231,9 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                 }));
                 formData.append('servicePricing', JSON.stringify(transformedServicePricing));
             }
-            
+
             if (file) formData.append('files', file);
-            
+
             if (editMode && rowData && rowData._id) {
                 await axios.patch(`${API_BASE_URL}/package/update/${rowData._id}`, formData, {
                     headers: {
@@ -263,7 +261,7 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
 
     const handlePromotionalPricingSubmit = async () => {
         if (!rowData?._id) return;
-        
+
         setLoading(true);
         try {
             await axios.post(`${API_BASE_URL}/package/${rowData._id}/promotional-pricing`, promotionalPricing, {
@@ -528,20 +526,18 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                             <Input name="about" value={fields.about} onChange={handleChange} placeholder="About" multiline rows={2} />
                         </Box>
                         <Box mb={1}>
-                            <Box mb={1}>
-                                <SelectInput
-                                    name="serviceId"
-                                    value={fields.serviceId}
-                                    onChange={(e) => {
-                                        const selectedId = e.target.value;
-                                        setFields({ ...fields, serviceId: selectedId, subServiceIds: [] });
-                                        fetchSubServicesByServiceId(selectedId);
-                                    }}
-                                    options={serviceOptions}
-                                    placeholder={servicesLoading ? 'Loading services...' : 'Select Service'}
-                                    disabled={servicesLoading}
-                                />
-                            </Box>
+                            <SelectInput
+                                name="serviceId"
+                                value={fields.serviceId}
+                                onChange={(e) => {
+                                    const selectedId = e.target.value;
+                                    setFields({ ...fields, serviceId: selectedId, subServiceIds: [] });
+                                    fetchSubServicesByServiceId(selectedId);
+                                }}
+                                options={serviceOptions}
+                                placeholder={servicesLoading ? 'Loading services...' : 'Select Service'}
+                                disabled={servicesLoading}
+                            />
                         </Box>
                         <Box mb={1}>
                             <MultiSelectWithCheckbox
@@ -589,26 +585,26 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                             </AccordionSummary>
                             <AccordionDetails>
                                 <Box mb={2}>
-                                    <CustomIconButton 
-                                        text="Add Service Pricing" 
-                                        color="#6d295a" 
+                                    <CustomIconButton
+                                        text="Add Service Pricing"
+                                        color="#6d295a"
                                         onClick={addServicePricing}
                                         disabled={!fields.serviceId}
                                     />
                                 </Box>
-                                
+
                                 {servicePricing?.map((pricing, index) => (
                                     <Box key={index} mb={2} p={2} border="1px solid #e0e0e0" borderRadius={1}>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                             <Typography variant="subtitle2" fontWeight="bold">Service Pricing {index + 1}</Typography>
-                                            <CustomIconButton 
-                                                text="Remove" 
-                                                color="red" 
+                                            <CustomIconButton
+                                                text="Remove"
+                                                color="red"
                                                 onClick={() => removeServicePricing(index)}
                                                 size="small"
                                             />
                                         </Box>
-                                        
+
                                         <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
                                             <Box>
                                                 <label style={{ fontWeight: 500, fontSize: '12px' }}>Service</label>
@@ -635,47 +631,47 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
                                             </Box>
                                             <Box>
                                                 <label style={{ fontWeight: 500, fontSize: '12px' }}>Current Price</label>
-                                                <Input 
-                                                    placeholder="Current Price" 
-                                                    type="number" 
-                                                    value={pricing.currentPrice} 
+                                                <Input
+                                                    placeholder="Current Price"
+                                                    type="number"
+                                                    value={pricing.currentPrice}
                                                     onChange={(e) => updateServicePricing(index, 'currentPrice', e.target.value)}
                                                 />
                                             </Box>
                                             <Box>
                                                 <label style={{ fontWeight: 500, fontSize: '12px' }}>Base Price</label>
-                                                <Input 
-                                                    placeholder="Base Price" 
-                                                    type="number" 
-                                                    value={pricing.basePrice} 
+                                                <Input
+                                                    placeholder="Base Price"
+                                                    type="number"
+                                                    value={pricing.basePrice}
                                                     onChange={(e) => updateServicePricing(index, 'basePrice', e.target.value)}
                                                 />
                                             </Box>
                                             <Box>
                                                 <label style={{ fontWeight: 500, fontSize: '12px' }}>Peak Hour Multiplier</label>
-                                                <Input 
-                                                    placeholder="1.0" 
-                                                    type="number" 
+                                                <Input
+                                                    placeholder="1.0"
+                                                    type="number"
                                                     step="0.1"
-                                                    value={pricing.peakHourMultiplier} 
+                                                    value={pricing.peakHourMultiplier}
                                                     onChange={(e) => updateServicePricing(index, 'peakHourMultiplier', e.target.value)}
                                                 />
                                             </Box>
                                             <Box>
                                                 <label style={{ fontWeight: 500, fontSize: '12px' }}>Demand Multiplier</label>
-                                                <Input 
-                                                    placeholder="1.0" 
-                                                    type="number" 
+                                                <Input
+                                                    placeholder="1.0"
+                                                    type="number"
                                                     step="0.1"
-                                                    value={pricing.demandMultiplier} 
+                                                    value={pricing.demandMultiplier}
                                                     onChange={(e) => updateServicePricing(index, 'demandMultiplier', e.target.value)}
                                                 />
                                             </Box>
                                             <Box>
                                                 <label style={{ fontWeight: 500, fontSize: '12px' }}>Reason</label>
-                                                <Input 
-                                                    placeholder="Pricing reason" 
-                                                    value={pricing.reason} 
+                                                <Input
+                                                    placeholder="Pricing reason"
+                                                    value={pricing.reason}
                                                     onChange={(e) => updateServicePricing(index, 'reason', e.target.value)}
                                                 />
                                             </Box>

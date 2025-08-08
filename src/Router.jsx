@@ -11,7 +11,7 @@ import Appointment from "./scenes/vendor/Appointment";
 import Packages from "./scenes/vendor/Packages";
 import Availability from "./scenes/vendor/Availability";
 import Portfolio from "./scenes/vendor/Portfolio";
-import Product from "./scenes/vendor/Product";
+import Product from "./scenes/admin/Product";
 import { useAuth } from "./utils/context/AuthContext";
 import OrderDetails from "./scenes/admin/OrderDetails";
 import CustomerDetails from "./scenes/admin/CustomerDetails";

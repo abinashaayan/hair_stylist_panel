@@ -11,11 +11,15 @@ const Alert = ({ open, title = "Confirm", description = "Are you sure?", onClose
     return (
         <Dialog
             open={open}
-            onClose={loading ? undefined : onClose}
+            onClose={(event, reason) => {
+                if (loading) return;
+                if (reason === 'backdropClick') return;
+                onClose(event, reason);
+            }}
+            disableEscapeKeyDown={loading}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
-            disableEscapeKeyDown={loading}
-            disableBackdropClick={loading}
+            // disableBackdropClick={loading}
         >
             <DialogTitle id="alert-dialog-title" className="fw-bold">{title}</DialogTitle>
 
@@ -33,7 +37,7 @@ const Alert = ({ open, title = "Confirm", description = "Are you sure?", onClose
                 </Button>
                 <Button onClick={onConfirm} color="error" variant="contained" sx={{ textTransform: "none" }} autoFocus disabled={loading}>
                     {loading ? <span className="spinner-border spinner-border-sm" style={{ marginRight: 8 }} /> : null}
-                   {confirmLabel}
+                    {confirmLabel}
                 </Button>
             </DialogActions>
         </Dialog>

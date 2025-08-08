@@ -49,27 +49,27 @@ const ProductEntityDialog = ({
   useEffect(() => {
     if (initialData && (mode === 'edit' || mode === 'view')) {
       setFields({
-        name: initialData.name || "",
-        subtitle: initialData.subtitle || "",
-        about: initialData.about || "",
-        price: initialData.price?.toString().replace('$', '') || "",
-        stockQuantity: initialData.stockQuantity?.toString() || "",
-        goodToKnow: Array.isArray(initialData.goodToKnow) ? initialData.goodToKnow.join(", ") : initialData.goodToKnow || "",
-        quickTips: initialData.quickTips || "",
-        discount: initialData.discount ? initialData.discount.toString().replace('%', '') : "",
-        validityInDays: initialData.validityInDays?.toString() || "",
-        isFlashSale: initialData.isFlashSale || false,
-        flashSaleStart: initialData.flashSaleStart
-          ? new Date(initialData.flashSaleStart).toISOString().split('T')[0]
-          : "",
+        name: initialData?.name || "",
+        subtitle: initialData?.subtitle || "",
+        about: initialData?.about || "",
+        price: initialData?.price?.toString().replace('$', '') || "",
+        stockQuantity: initialData?.stockQuantity?.toString() || "",
+        goodToKnow: Array.isArray(initialData?.goodToKnow) ? initialData?.goodToKnow.join(", ") : initialData?.goodToKnow || "",
+        quickTips: initialData?.quickTips || "",
+        discount: initialData?.discount ? initialData?.discount.toString().replace('%', '') : "",
+        validityInDays: initialData?.validityInDays?.toString() || "",
+        isFlashSale: initialData?.isFlashSale || false,
+        flashSaleStart: initialData?.flashSaleStart
+          ? new Date(initialData?.flashSaleStart).toLocaleString()
+          : "N/A",
       });
       setManufacturer({
-        name: initialData.manufacturer?.name || "",
-        address: initialData.manufacturer?.address || "",
-        contact: initialData.manufacturer?.contact || "",
+        name: initialData?.manufacturer?.name || "",
+        address: initialData?.manufacturer?.address || "",
+        contact: initialData?.manufacturer?.contact || "",
       });
-      if (initialData.photos && initialData.photos.length > 0) {
-        setImageUrls(initialData.photos);
+      if (initialData?.photos && initialData?.photos.length > 0) {
+        setImageUrls(initialData?.photos);
       } else {
         setImageUrls([]);
       }

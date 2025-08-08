@@ -118,8 +118,8 @@ export default function Product() {
   }, [authToken]);
 
   useEffect(() => {
-    const filteredIds = filteredUsers.map((row) => row.id);
-    const stillVisible = selectedRows.filter((id) => filteredIds.includes(id));
+    const filteredIds = filteredUsers?.map((row) => row?.id);
+    const stillVisible = selectedRows?.filter((id) => filteredIds.includes(id));
     if (stillVisible.length !== selectedRows.length) {
       setSelectedRows(stillVisible);
     }
@@ -261,7 +261,6 @@ export default function Product() {
 
   const columns = ProductTableColumns({ handleDelete, handleView, handleEdit });
 
-
   return (
     <Box className="p-1">
       <Header title="Products" subtitle="Managing products and inventory" />
@@ -269,9 +268,9 @@ export default function Product() {
         <div severity="warning" sx={{ mb: 2 }} style={{ backgroundColor: "wheat" }} className="rounded p-1">
           ⚠️ Low Stock Alert:
           <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
-            {lowStockProducts?.map((product) => (
-              <li key={product._id}>
-                {product.name} — only {product.stockQuantity} left
+            {lowStockProducts?.map((product, index) => (
+              <li key={index}>
+                {product?.name} — only {product?.stockQuantity} left
               </li>
             ))}
           </ul>
@@ -313,7 +312,7 @@ export default function Product() {
         checkboxSelection
         noRowsMessage="No products found"
         onSelectionModelChange={handleSelectionModelChange}
-        selectionModel={selectedRows}
+        rowSelectionModel={selectedRows}
       />
 
       <ProductEntityDialog

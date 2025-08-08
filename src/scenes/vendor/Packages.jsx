@@ -15,6 +15,7 @@ import {
   Chip,
   Switch,
   FormControlLabel,
+  InputLabel,
 } from "@mui/material";
 import { Header } from "../../components";
 import { SearchOutlined, PersonAdd, ExpandMore, AttachMoney, TrendingUp, LocalOffer, History } from "@mui/icons-material";
@@ -219,7 +220,6 @@ export default function Packages() {
   const handleServicePricing = (row) => {
     console.log(row, 'row')
     setSelectedPackage(row);
-    // Transform the servicePricing to match the form structure
     const transformedServicePricing = (row.servicePricing || []).map(pricing => ({
       serviceId: pricing.serviceId?._id || pricing.serviceId,
       subServiceId: pricing.subServiceId?._id || pricing.subServiceId,
@@ -231,7 +231,6 @@ export default function Packages() {
       reason: pricing.reason
     }));
     setServicePricing(transformedServicePricing);
-    // Fetch sub-services for the selected package's service
     if (row.serviceId?._id) {
       fetchSubServicesByServiceId(row.serviceId._id);
     }
@@ -252,7 +251,6 @@ export default function Packages() {
         },
       });
       if (response?.data?.status === 200) {
-        // Handle the new API response structure
         const pricingHistoryData = response.data.data?.priceHistory || [];
         setPricingHistory(pricingHistoryData);
         setPricingHistoryDialogOpen(true);
@@ -279,7 +277,6 @@ export default function Packages() {
       reason: ''
     };
     setServicePricing([...servicePricing, newPricing]);
-    // Fetch sub-services if service is available
     if (selectedPackage?.serviceId?._id) {
       fetchSubServicesByServiceId(selectedPackage.serviceId._id);
     }
@@ -688,7 +685,7 @@ export default function Packages() {
 
           <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
             <Box>
-              <label style={{ fontWeight: 500 }}>Service</label>
+              <InputLabel style={{ fontWeight: 500 }}>Service</InputLabel>
               <SelectInput
                 value={dynamicPricingSettings.serviceId}
                 onChange={(e) => {
@@ -700,7 +697,7 @@ export default function Packages() {
               />
             </Box>
             <Box>
-              <label style={{ fontWeight: 500 }}>Sub Service</label>
+              <InputLabel style={{ fontWeight: 500 }}>Sub Service</InputLabel>
               <SelectInput
                 value={dynamicPricingSettings.subServiceId}
                 onChange={(e) => setDynamicPricingSettings({ ...dynamicPricingSettings, subServiceId: e.target.value })}
@@ -709,7 +706,7 @@ export default function Packages() {
               />
             </Box>
             <Box>
-              <label style={{ fontWeight: 500 }}>Peak Hour Multiplier</label>
+              <labInputLabelel style={{ fontWeight: 500 }}>Peak Hour Multiplier</labInputLabelel>
               <Input
                 placeholder="1.0"
                 type="number"
@@ -719,7 +716,7 @@ export default function Packages() {
               />
             </Box>
             <Box>
-              <label style={{ fontWeight: 500 }}>Demand Multiplier</label>
+              <InputLabel style={{ fontWeight: 500 }}>Demand Multiplier</InputLabel>
               <Input
                 placeholder="1.0"
                 type="number"

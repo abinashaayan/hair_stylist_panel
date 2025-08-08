@@ -149,7 +149,7 @@ export default function AllReviews() {
                     "Content-Type": "application/json",
                 },
                 data: {
-                    reviewIds: [deleteId], // send as array
+                    reviewIds: [deleteId],
                 },
             });
             if (response?.data?.success) {

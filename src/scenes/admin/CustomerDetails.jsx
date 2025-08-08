@@ -32,6 +32,7 @@ export default function CustomerDetails() {
     const [showDialog, setShowDialog] = useState(false);
     const [shouldEdit, setShouldEdit] = useState(false);
     const [sendingEmailIds, setSendingEmailIds] = useState({});
+    const [reverifyIds, setReverifyIds] = useState({}); 
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -48,15 +49,16 @@ export default function CustomerDetails() {
             });
             setOriginalUsers(response.data.data);
             const formattedData = response?.data?.data.map((user) => ({
-                id: user._id,
-                fullName: user.fullName || "N/A",
-                email: user.email || "N/A",
-                mobile: user.phoneNumber || "N/A",
-                role: user.role || "N/A",
-                city: user.city || "N/A",
-                gender: user.gender || "N/A",
-                status: user.status,
-                createdAt: new Date(user.createdAt).toLocaleDateString(),
+                id: user?._id,
+                fullName: user?.fullName || "N/A",
+                email: user?.email || "N/A",
+                mobile: user?.phoneNumber || "N/A",
+                role: user?.role || "N/A",
+                city: user?.city || "N/A",
+                gender: user?.gender || "N/A",
+                status: user?.status,
+                isPhoneVerified: user?.isPhoneVerified ?? false,
+                createdAt: new Date(user?.createdAt).toLocaleDateString(),
             }));
             setAllUsers(formattedData);
             setFilteredUsers(formattedData);
@@ -69,7 +71,7 @@ export default function CustomerDetails() {
 
     useEffect(() => {
         fetchAllUsers();
-    }, []);
+    }, [authToken]);
 
     const fetchFilteredUsers = async (text = "", date = null) => {
         if (!text && !date) {
@@ -116,7 +118,6 @@ export default function CustomerDetails() {
         fetchFilteredUsers(value, selectedDate);
     };
 
-
     const handleDelete = (id) => {
         setDeleteId(id);
         setAlertOpen(true);
@@ -161,7 +162,6 @@ export default function CustomerDetails() {
     };
 
     const handleToggleUserStatus = async (userId, newStatus) => {
-        console.log(userId, 'userId')
         try {
             const response = await axios.patch(
                 `${API_BASE_URL}/user/admin/user-status/${userId}`,
@@ -183,14 +183,14 @@ export default function CustomerDetails() {
     const handleEdit = (customer) => {
         const fullUserDetails = originalUsers.find(u => u._id === customer.id);
         setSelectedCustomer(fullUserDetails);
-        setShouldEdit(true); // ✅ trigger edit mode in dialog
+        setShouldEdit(true);
         setShowDialog(true);
     };
 
     const handleView = (customer) => {
         const fullUserDetails = originalUsers.find(u => u._id === customer.id);
         setSelectedCustomer(fullUserDetails);
-        setShouldEdit(false); // ✅ view-only mode
+        setShouldEdit(false);
         setShowDialog(true);
     };
 
@@ -200,42 +200,69 @@ export default function CustomerDetails() {
         fetchFilteredUsers("", null);
     };
 
-const handleSendEmail = async (customer) => {
-    const userId = customer?.id;
-    if (!userId) return;
+    const handleSendEmail = async (customer) => {
+        const userId = customer?.id;
+        if (!userId) return;
 
-    setSendingEmailIds(prev => ({ ...prev, [userId]: true }));
+        setSendingEmailIds(prev => ({ ...prev, [userId]: true }));
 
-    try {
-        const response = await axios.post(
-            `${API_BASE_URL}/user/admin/send-email/${userId}`,
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    "Content-Type": "application/json",
-                },
-                withCredentials: true
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/user/admin/send-email/${userId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        "Content-Type": "application/json",
+                    },
+                    withCredentials: true
+                }
+            );
+
+            if (response?.data?.success) {
+                showSuccessToast("Email sent successfully.");
+            } else {
+                showErrorToast(response?.data?.message || "Failed to send email.");
             }
-        );
-
-        if (response?.data?.success) {
-            showSuccessToast("Email sent successfully.");
-        } else {
-            showErrorToast(response?.data?.message || "Failed to send email.");
+        } catch (error) {
+            showErrorToast(error?.response?.data?.message || "Error sending email.");
+        } finally {
+            setSendingEmailIds(prev => ({ ...prev, [userId]: false }));
         }
-    } catch (error) {
-        showErrorToast(error?.response?.data?.message || "Error sending email.");
-    } finally {
-        setSendingEmailIds(prev => ({ ...prev, [userId]: false }));
-    }
-};
+    };
 
+    const handleReverify = async (userId) => {
+        if (!userId) return;
+        setReverifyIds(prev => ({ ...prev, [userId]: true }));
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}/auth/users/${userId}/resend-otp`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        "Content-Type": "application/json",
+                    },
+                    withCredentials: true
+                }
+            );
+            if (response?.data?.success) {
+                showSuccessToast("OTP resent successfully to user's mobile.");
+                fetchAllUsers();
+            } else {
+                showErrorToast(response?.data?.error || "Failed to resend OTP.");
+            }
+        } catch (error) {
+            showErrorToast(error?.response?.data?.error || "Error resending OTP.");
+        } finally {
+            setReverifyIds(prev => ({ ...prev, [userId]: false }));
+        }
+    };
 
-    const columns = userTableColumns({ handleDelete, handleView, handleToggleUserStatus, handleEdit, handleSendEmail, sendingEmailIds });
+    const columns = userTableColumns({ handleDelete, handleView, handleToggleUserStatus, handleEdit, handleSendEmail, handleReverify, sendingEmailIds, reverifyIds });
 
     return (
-        <Box className="p-1">
+        <Box>
             <Header title="All Customers" />
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <Box display="flex" className="me-2" alignItems="center" bgcolor={colors.primary[400]} sx={{ border: '1px solid purple', borderRadius: '10px' }}>
@@ -271,7 +298,7 @@ const handleSendEmail = async (customer) => {
                 </LocalizationProvider>
                 <CustomIconButton color="red" text="Reset" onClick={handleReset} />
             </Box>
-            <CustomTable columns={columns} rows={filteredUsers} loading={loading} checkboxSelection />
+            <CustomTable columns={columns} rows={filteredUsers} loading={loading} />
             <ShowDetailsDialog open={showDialog} onClose={() => setShowDialog(false)} data={selectedCustomer} onUpdate={fetchAllUsers} editModeProp={shouldEdit} />
 
             <Alert

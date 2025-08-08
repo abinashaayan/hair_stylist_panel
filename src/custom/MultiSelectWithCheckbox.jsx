@@ -28,17 +28,20 @@ const MultiSelectWithCheckbox = ({
       value={value}
       onChange={(e, newValue) => onChange(newValue)}
       disabled={disabled}
-      renderOption={(props, option, { selected }) => (
-        <li {...props}>
-          <Checkbox
-            icon={icon}
-            checkedIcon={checkedIcon}
-            style={{ marginRight: 8 }}
-            checked={selected}
-          />
-          {option.label || option}
-        </li>
-      )}
+      renderOption={(props, option, { selected }) => {
+        const { key, ...other } = props;
+        return (
+          <li key={key} {...other}>
+            <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8 }}
+              checked={selected}
+            />
+            {option.label || option}
+          </li>
+        );
+      }}
       renderInput={(params) => (
         <TextField {...params} label={label} placeholder={placeholder} />
       )}

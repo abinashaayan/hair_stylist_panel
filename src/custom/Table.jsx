@@ -118,7 +118,6 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
                                 width: "100%"
                             }}
                             onRowSelectionModelChange={(model) => {
-                              console.log('DataGrid selection changed:', model);
                               if (onSelectionModelChange) onSelectionModelChange(model);
                             }}
                             rowSelectionModel={selectionModel}

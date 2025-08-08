@@ -1,13 +1,41 @@
-import { Trash2, Eye, Pencil, TransgenderIcon, Plus, Mail, DollarSign, Gift, Clock, TrendingUp } from "lucide-react";
+import { Trash2, Eye, Pencil, TransgenderIcon, Plus, Mail, DollarSign, Gift, Clock, TrendingUp, RefreshCcw, CheckCircle } from "lucide-react";
 import { CustomIconButton } from "./Button";
 import { Box, Chip, CircularProgress, MenuItem, Rating, Select, Switch, Typography, Tooltip } from "@mui/material";
 import ImageWithLoader from "./ImageWithLoader";
 import PersonIcon from "@mui/icons-material/Person";
 
-export const userTableColumns = ({ handleDelete, handleView, handleToggleUserStatus, handleEdit, handleSendEmail, sendingEmailIds }) => [
+export const userTableColumns = ({ handleDelete, handleView, handleToggleUserStatus, handleReverify, handleEdit, handleSendEmail, sendingEmailIds, reverifyIds }) => [
     { field: "fullName", headerName: "Full Name", flex: 0.4 },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 0.4 },
+    {
+        field: "otpStatus",
+        headerName: "OTP Status",
+        flex: 0.6,
+        renderCell: (params) => {
+            const verified = params.row.isPhoneVerified;
+            return (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {verified && (
+                        <CheckCircle sx={{ color: "success", fontSize: 16 }} />
+                    )}
+                    {!verified && (
+                        <CustomIconButton
+                            size="small"
+                            icon={<RefreshCcw fontSize="small" />}
+                            loading={reverifyIds[params.row.id]}
+                            color="#ff9800"
+                            text="Reverify"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleReverify(params.row.id);
+                            }}
+                        />
+                    )}
+                </Box>
+            );
+        },
+    },
     {
         field: "role",
         headerName: "Role",
