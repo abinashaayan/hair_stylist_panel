@@ -181,7 +181,7 @@ export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleVi
             );
         },
     },
-    { field: "name", headerName: "Service Name", flex: 1 },
+    { field: "name", headerName: "Service Name", flex: 0.5 },
     // {
     //     field: "minPrice",
     //     headerName: "Min Price ($)",
@@ -197,7 +197,7 @@ export const serviceTableColumns = ({ handleToggleStatus, handleDelete, handleVi
     {
         field: "addSubService",
         headerName: "Add Sub Services",
-        flex: 0.8,
+        flex: 0.5,
         sortable: false,
         renderCell: (params) => (
             <CustomIconButton

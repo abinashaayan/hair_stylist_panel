@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -30,6 +30,7 @@ import {
   PersonAdd,
   PhotoCamera,
   Delete,
+  LinkedIn,
 } from "@mui/icons-material";
 import { tokens } from "../../theme";
 import { Header } from '../../components';
@@ -47,12 +48,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import { Trash2 } from 'lucide-react';
 import Alert from '../../custom/Alert';
-
-const socialIcons = [
-  { icon: <Instagram />, color: '#E1306C', url: '#' },
-  { icon: <Facebook />, color: '#1877F3', url: '#' },
-  { icon: <Twitter />, color: '#1DA1F2', url: '#' },
-];
+import StylistProfileEntityDialog from '../../components/StylistProfileEntityDialog';
 
 const VendorProfile = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -62,10 +58,16 @@ const VendorProfile = () => {
   const [deleteDialog, setDeleteDialog] = React.useState({ open: false, id: null, type: null });
   const [deletingExpertiseId, setDeletingExpertiseId] = React.useState(null);
   const [photoUploading, setPhotoUploading] = React.useState(false);
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
 
   const { profile, loading, error } = useStylistProfile();
+  const socialLinks = profile?.socialMediaLinks || {};
 
-  console.log("profile", profile?.expertise);
+  const socialIcons = [
+    { icon: <Instagram />, color: '#E1306C', url: socialLinks.instagram, name: 'Instagram' },
+    { icon: <Facebook />, color: '#1877F3', url: socialLinks.facebook, name: 'Facebook' },
+    { icon: <LinkedIn />, color: '#0077B5', url: socialLinks.linkedin, name: 'LinkedIn' },
+  ];
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -180,13 +182,42 @@ const VendorProfile = () => {
     }
   }, [error]);
 
+  const formatTime = (timeStr) => {
+    const [hour, minute] = timeStr.split(':');
+    const h = parseInt(hour, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    return `${hour12}:${minute} ${ampm}`;
+  };
+
+  const handleEditProfile = (profile) => {
+    console.log(profile, 'profile')
+    setOpenProfileDialog(true);
+  };
+
   if (loading) return <CircularProgress />;
   if (!profile) return null;
 
+
   return (
-    <Box m={{ xs: 1, md: 4 }}>
-      <Header title="My Profile" subtitle="View and manage your profile information" />
-      <Box sx={{ position: 'relative', width: '100%', mb: 6, borderRadius: '24px', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)', overflow: 'hidden' }}>
+    <Box>
+      <Header title="My Profile" />
+      <Typography
+        variant="h4"
+        fontWeight={400}
+        fontStyle="italic"
+        lineHeight={1.6}
+        color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]}
+        sx={{
+          fontFamily: `'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif`,
+          letterSpacing: '0.5px',
+          mb: 2,
+        }}
+      >
+        {profile?.shopDetails?.about}
+      </Typography>
+
+      <Box sx={{ position: 'relative', width: '100%', mb: 2, borderRadius: '24px', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)', overflow: 'hidden' }}>
         <Box
           sx={{
             position: 'absolute',
@@ -220,7 +251,6 @@ const VendorProfile = () => {
                 onError={(e) => { e.target.onerror = null; e.target.src = profileimage; }}
                 sx={{ width: 140, height: 140, border: '6px solid #fff', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', background: '#fff' }}
               />
-              {/* Upload Icon Overlay */}
               <IconButton
                 sx={{ position: 'absolute', bottom: 8, right: 8, background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', p: 1, zIndex: 3, }}
                 onClick={handleUploadClick}
@@ -228,7 +258,6 @@ const VendorProfile = () => {
               >
                 <PhotoCamera sx={{ color: uploading ? '#aaa' : '#6D295A' }} />
               </IconButton>
-              {/* Hidden file input */}
               <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} disabled={uploading} />
               {/* Loading overlay */}
               {uploading && (
@@ -285,31 +314,62 @@ const VendorProfile = () => {
                 <Typography color="#fff">{profile?.phoneNumber}</Typography>
               </Stack>
               <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-                <AccessTime sx={{ color: theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600] }} />
-                <Typography color="#fff">{profile?.about?.timings?.from} - {profile?.about?.timings?.till}</Typography>
+                <AccessTime
+                  sx={{
+                    color: theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600],
+                  }}
+                />
+                <Chip
+                  size="small"
+                  label={`${formatTime(profile?.shopDetails?.timings?.from)} - ${formatTime(profile?.shopDetails?.timings?.till)} - ${profile?.shopDetails?.schedule}`}
+                  sx={{
+                    backgroundColor: theme.palette.mode === 'dark' ? colors.primary[700] : colors.primary[100],
+                    '& .MuiChip-label': {
+                      color: 'white',
+                      fontWeight: 'bold',
+                    },
+                  }}
+                />
               </Stack>
             </Box>
           </Box>
           <Box>
             <Stack direction="row" spacing={1}>
-              {socialIcons?.map((item, idx) => (
-                <Tooltip title={item.icon.type.displayName} key={idx}>
-                  <IconButton sx={{ color: item.color, background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-                    {item.icon}
-                  </IconButton>
-                </Tooltip>
+              {socialIcons.map((item, idx) => (
+                item.url ? (
+                  <Tooltip title={item.name} key={idx}>
+                    <IconButton
+                      sx={{
+                        color: item.color,
+                        background: '#fff',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                        border: '1px solid #420c36',
+                        borderColor: item.color,
+                        marginRight: 1
+                      }}
+                      component="a"
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.icon}
+                    </IconButton>
+                  </Tooltip>
+                ) : null
               ))}
-              <IconButton sx={{ background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+
+              <IconButton onClick={() => handleEditProfile(profile)} sx={{ background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
                 <Edit sx={{ color: '#6D295A' }} />
               </IconButton>
             </Stack>
           </Box>
         </Box>
+        <StylistProfileEntityDialog open={openProfileDialog} handleClose={() => setOpenProfileDialog(false)} profileData={profile} />
       </Box>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={2}>
         <Grid item xs={12} md={8}>
-          <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', mb: 3, p: 2, }}>
+          <Card sx={{ borderRadius: 4, backgroundColor: colors.cardBackground, boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)', mb: 2, p: 2, }}>
             <CardContent>
               <Typography variant="h4" fontWeight={600} color={theme.palette.mode === 'dark' ? colors.primary[200] : colors.primary[600]} gutterBottom>About</Typography>
               <Typography variant="body1" color={theme.palette.mode === 'dark' ? colors.gray[200] : colors.gray[700]} gutterBottom>{profile?.about?.about}</Typography>

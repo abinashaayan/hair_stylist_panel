@@ -30,6 +30,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../utils/context/AuthContext";
 import FlexBetween from "../../../components/FlexBetween";
 import useStylistProfile from "../../../hooks/useStylistProfile";
+import Cookies from "js-cookie";
+import { API_BASE_URL } from "../../../utils/apiConfig";
+import axios from "axios";
+import { messaging } from "../../../utils/firebase/firebaseConfig";
+import { onMessage } from "firebase/messaging";
+
 
 const Navbar = () => {
   const theme = useTheme();
@@ -40,8 +46,10 @@ const Navbar = () => {
   const isNonMobile = useMediaQuery("(min-width: 768px)");
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [anchorEl, setAnchorEl] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
   const { logout } = useAuth();
+  const authToken = Cookies.get("token");
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const panelType = localStorage.getItem("panelType");
@@ -91,6 +99,80 @@ const Navbar = () => {
     return date.toLocaleString('en-US', options);
   };
 
+  // Add this to your navbar component
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/user/notifications`, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        if (response.data.success) {
+          setNotifications(response.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+
+    const setupNotifications = async () => {
+      // Request permission for web notifications
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            console.log("Notification permission granted");
+
+            // Get FCM token and send to backend
+            const token = await getToken(messaging, {
+              vapidKey: "YOUR_VAPID_KEY" // Get from Firebase Console
+            });
+
+            if (token) {
+              await axios.post(`${API_BASE_URL}/user/device-token`, {
+                token,
+                platform: 'web'
+              }, {
+                headers: { Authorization: `Bearer ${authToken}` }
+              });
+            }
+
+            // Handle foreground messages
+            onMessage(messaging, (payload) => {
+              console.log("Foreground message:", payload);
+              setNotifications(prev => [{
+                _id: Date.now().toString(),
+                title: payload.notification?.title,
+                body: payload.notification?.body,
+                createdAt: new Date(),
+                data: payload.data
+              }, ...prev]);
+
+              // Show notification even in foreground
+              new Notification(payload.notification.title, {
+                body: payload.notification.body,
+                icon: '/logo192.png'
+              });
+            });
+          }
+        } catch (err) {
+          console.error("Notification setup error:", err);
+        }
+      }
+    };
+
+    fetchNotifications();
+    setupNotifications();
+  }, [authToken]);
+
+  const formatTime = (timeStr) => {
+    if (!timeStr || typeof timeStr !== 'string') return '';
+    const [hour, minute] = timeStr.split(':');
+    const h = parseInt(hour, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    return `${hour12}:${minute} ${ampm}`;
+  };
+
   return (
     <FlexBetween
       padding={{ xs: "0.5rem", sm: "1rem" }}
@@ -128,7 +210,7 @@ const Navbar = () => {
           <Box display="flex" alignItems="center" gap="0.5rem">
             <Link to="/notifications">
               <IconButton sx={{ color: 'white' }}>
-                <Badge badgeContent={1} color="error" overlap="circular">
+                <Badge badgeContent={notifications.filter(n => !n.read).length} color="error" overlap="circular">
                   <Notifications fontSize="large" />
                 </Badge>
               </IconButton>
@@ -216,7 +298,10 @@ const Navbar = () => {
               );
             })()}
             <Typography variant="subtitle2" sx={{ color: "#6D295A", fontWeight: 700, mb: 1 }}>
-              09:00 - 18:00
+              {profile?.shopDetails?.schedule}
+            </Typography>
+            <Typography variant="subtitle2" sx={{ color: "#6D295A", fontWeight: 700, mb: 1 }}>
+              {`${formatTime(profile?.shopDetails?.timings?.from)} - ${formatTime(profile?.shopDetails?.timings?.till)}`}
             </Typography>
           </Box>,
           <Divider key="profile-divider" sx={{ my: 0, borderColor: "#eee" }} />

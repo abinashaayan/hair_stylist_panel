@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, useTheme, CardContent, Grid, Avatar, Chip, Tooltip } from "@mui/material";
+import { Box, Typography, useTheme, CardContent, Grid, Avatar, Chip, Tooltip, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
 import { tokens } from "../../theme";
 import Cookies from "js-cookie";
 import axios from 'axios';
@@ -35,6 +35,7 @@ const Appointment = () => {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [loadingStatusId, setLoadingStatusId] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -55,6 +56,7 @@ const Appointment = () => {
           "Content-Type": "application/json",
         },
       });
+      console.log('Fetched Appointments:', response.data);
       if (response?.data?.success) {
         setAppointments(response.data.data);
       } else {
@@ -103,6 +105,8 @@ const Appointment = () => {
     }
   };
 
+  const filteredAppointments = filterStatus === 'all' ? appointments : appointments.filter(app => app.status === filterStatus);
+
   return (
     <Box>
       {loading ? (
@@ -113,9 +117,27 @@ const Appointment = () => {
         <>
           <Header title="Appointment History" />
           <Box>
-            {appointments?.length > 0 ? (
+            <Box display="flex" justifyContent="flex-start" mb={2}>
+              <FormControl size="small" sx={{ minWidth: 200 }}>
+                <InputLabel>Status Filter</InputLabel>
+                <Select
+                  value={filterStatus}
+                  label="Status Filter"
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  {statusOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            {filteredAppointments?.length > 0 ? (
               <Grid container spacing={3}>
-                {appointments?.map((appointment, index) => (
+                {filteredAppointments?.map((appointment, index) => (
                   <Grid item xs={12} md={6} lg={4} key={appointment._id || index}>
                     <Box
                       sx={{
