@@ -9,20 +9,8 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
     const isMobile = useMediaQuery("(max-width: 768px)");
 
     return (
-        <Card sx={{
-            backgroundColor: colors.primary[400],
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column"
-        }}>
-            <CardContent sx={{ 
-                padding: { xs: "8px", sm: "16px" },
-                flex: 1,
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column"
-            }}>
+        <Card sx={{ backgroundColor: colors.primary[400], width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+            <CardContent sx={{ padding: { xs: "8px", sm: "16px" }, flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
                 {loading ? (
                     <Box display="flex" flexDirection="column" gap={2} p={2}>
                         <LinearProgress />
@@ -34,16 +22,16 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
                             width: "100%",
                             height: "100%",
                             overflow: "hidden",
-                            "& .MuiDataGrid-root": { 
+                            "& .MuiDataGrid-root": {
                                 border: "none",
                                 fontSize: { xs: "12px", sm: "14px" }
                             },
-                            "& .MuiDataGrid-cell": { 
+                            "& .MuiDataGrid-cell": {
                                 border: "none",
                                 padding: { xs: "8px 4px", sm: "8px 12px" }
                             },
-                            "& .MuiDataGrid-columnHeaders": { 
-                                backgroundColor: colors.gray[900], 
+                            "& .MuiDataGrid-columnHeaders": {
+                                backgroundColor: colors.gray[900],
                                 borderBottom: "none",
                                 fontSize: { xs: "12px", sm: "14px" },
                                 // padding: { xs: "8px 4px", sm: "8px 12px" }
@@ -65,13 +53,13 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
                                 "scrollbarWidth": "thin",
                                 "scrollbarColor": "#6D295A transparent"
                             },
-                            "& .MuiDataGrid-footerContainer": { 
-                                borderTop: "none", 
+                            "& .MuiDataGrid-footerContainer": {
+                                borderTop: "none",
                                 backgroundColor: colors.gray[900],
                                 fontSize: { xs: "12px", sm: "14px" }
                             },
                             "& .MuiDataGrid-toolbarContainer": {
-                                color: colors.primary[100], 
+                                color: colors.primary[100],
                                 backgroundColor: colors.gray[900],
                                 padding: { xs: "8px", sm: "12px" },
                                 flexDirection: { xs: "column", sm: "row" },
@@ -87,10 +75,10 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
                             columns={columns}
                             components={{ Toolbar: GridToolbar }}
                             initialState={{
-                                pagination: { 
-                                    paginationModel: { 
-                                        pageSize: isMobile ? 5 : 10 
-                                    } 
+                                pagination: {
+                                    paginationModel: {
+                                        pageSize: isMobile ? 5 : 10
+                                    }
                                 },
                             }}
                             checkboxSelection={checkboxSelection}
@@ -103,22 +91,17 @@ const CustomTable = ({ columns, rows, loading, checkboxSelection = false, noRows
                             getRowClassName={(params) => params.row.status === 'expired' ? 'expired-row' : ''}
                             slots={{
                                 noRowsOverlay: () => (
-                                  <Box
-                                    height="100%"
-                                    display="flex"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                  >
-                                    <Typography>{noRowsMessage}</Typography>
-                                  </Box>
+                                    <Box height="100%" display="flex" alignItems="center" justifyContent="center">
+                                        <Typography>{noRowsMessage}</Typography>
+                                    </Box>
                                 ),
-                              }}
+                            }}
                             sx={{
                                 height: { xs: "60vh", sm: "70vh", md: "75vh" },
                                 width: "100%"
                             }}
                             onRowSelectionModelChange={(model) => {
-                              if (onSelectionModelChange) onSelectionModelChange(model);
+                                if (onSelectionModelChange) onSelectionModelChange(model);
                             }}
                             rowSelectionModel={selectionModel}
                         />

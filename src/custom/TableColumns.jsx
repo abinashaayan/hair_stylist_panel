@@ -11,7 +11,7 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
     {
         field: "otpStatus",
         headerName: "OTP Status",
-        flex: 0.6,
+        flex: 0.5,
         renderCell: (params) => {
             const verified = params.row.isPhoneVerified;
             return (
@@ -123,7 +123,7 @@ export const userTableColumns = ({ handleDelete, handleView, handleToggleUserSta
     {
         field: "action",
         headerName: "Action",
-        width: 180,
+        width: 250,
         sortable: false,
         renderCell: (params) => (
             <Box sx={{ display: "flex", gap: 0.5 }}>

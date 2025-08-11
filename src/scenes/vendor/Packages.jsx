@@ -90,6 +90,7 @@ export default function Packages() {
           Authorization: `Bearer ${authToken}`,
         },
       });
+      console.log("Package response:", response?.data);
       if (response?.data?.status === 200 && response?.data?.success) {
         const fullData = (response?.data?.data || []).map((item) => ({ ...item, id: item._id }));
         setAllServices(fullData);
