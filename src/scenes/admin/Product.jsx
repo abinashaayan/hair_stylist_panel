@@ -341,7 +341,6 @@ export default function Product() {
         title="Delete Products"
         description={`Are you sure you want to delete these ${selectedRows.length} products? This action cannot be undone.`}
       />
-      {/* </Container> */}
     </Box>
   );
 };

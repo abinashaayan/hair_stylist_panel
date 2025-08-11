@@ -15,6 +15,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../utils/apiConfig";
 import { showErrorToast, showSuccessToast, showCustomMessage } from "../Toast";
 import Cookies from "js-cookie";
+import SelectInput from "../custom/Select";
 
 const initialManufacturer = { name: "", address: "", contact: "" };
 
@@ -39,12 +40,40 @@ const ProductEntityDialog = ({
     validityInDays: "",
     isFlashSale: false,
     flashSaleStart: "",
+    category: "",
   });
   const [manufacturer, setManufacturer] = useState(initialManufacturer);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [imageUrls, setImageUrls] = useState([]);
   const [contactError, setContactError] = useState("");
+  const [allProductsCategory, setAllProductsCategory] = useState([]);
+
+  const authToken = Cookies.get("token");
+
+
+  const fetchAllProductCategories = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/product-category/admin/get-all`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (response?.data?.status === 200) {
+        setAllProductsCategory(response?.data?.data);
+      }
+    } catch (error) {
+      showErrorToast("Error fetching product categories");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchAllProductCategories();
+  }, [authToken])
 
   useEffect(() => {
     if (initialData && (mode === 'edit' || mode === 'view')) {
@@ -62,6 +91,7 @@ const ProductEntityDialog = ({
         flashSaleStart: initialData?.flashSaleStart
           ? new Date(initialData?.flashSaleStart).toLocaleString()
           : "N/A",
+        category: initialData?.category || "",
       });
       setManufacturer({
         name: initialData?.manufacturer?.name || "",
@@ -124,6 +154,9 @@ const ProductEntityDialog = ({
   };
 
   const handleSubmit = async () => {
+    if (!fields.category)
+      return showCustomMessage("Product category is required!");
+
     if (mode === 'view') {
       handleDialogClose();
       return;
@@ -142,7 +175,6 @@ const ProductEntityDialog = ({
       if (mode === 'edit') {
         const url = `${API_BASE_URL}/product/update/${initialData.id}`;
         if (files.length > 0) {
-          // If files are being uploaded, use FormData
           const formData = new FormData();
           Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
           formData.append("manufacturer[name]", manufacturer.name);
@@ -160,7 +192,6 @@ const ProductEntityDialog = ({
             }
           );
         } else {
-          // No files, send JSON body
           const data = {
             ...fields,
             manufacturer: { ...manufacturer },
@@ -177,7 +208,6 @@ const ProductEntityDialog = ({
           );
         }
       } else {
-        // create mode (unchanged)
         const formData = new FormData();
         Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
         formData.append("manufacturer[name]", manufacturer.name);
@@ -210,6 +240,8 @@ const ProductEntityDialog = ({
       setLoading(false);
     }
   };
+
+  console.log(allProductsCategory, 'allProductsCategory')
 
   return (
     <Dialog open={open} onClose={handleDialogClose} fullWidth maxWidth="lg">
@@ -322,8 +354,22 @@ const ProductEntityDialog = ({
           ) : (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               <Box sx={{ flex: "1 1 45%" }}>
+                <InputLabel sx={{ mb: 0.5 }}>Select Product Category</InputLabel>
+                <SelectInput
+                  name="category"
+                  value={fields.category}
+                  onChange={(e) => setFields({ ...fields, category: e.target.value })}
+                  options={allProductsCategory?.map(cat => ({
+                    value: cat._id,
+                    label: cat.name
+                  }))}
+                  placeholder={loading ? 'Loading categories...' : 'Select Category'}
+                  disabled={loading}
+                />
+              </Box>
+              <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Product Name</InputLabel>
-                <Input name="name" value={fields.name} onChange={handleFieldChange} placeholder="Enter product name" fullWidth />
+                <Input name="name" value={fields?.name} onChange={handleFieldChange} placeholder="Enter product name" fullWidth />
               </Box>
               <Box sx={{ flex: "1 1 45%" }}>
                 <InputLabel sx={{ mb: 0.5 }}>Subtitle</InputLabel>

@@ -5,7 +5,7 @@ import { Header } from "../../components";
 import useStylistProfile from "../../hooks/useStylistProfile";
 import { Close, PersonAdd, SearchOutlined } from "@mui/icons-material";
 import { CustomIconButton } from "../../custom/Button";
-import { Delete } from "lucide-react";
+import { Delete, Edit } from "lucide-react";
 import Input from "../../custom/Input";
 import { API_BASE_URL } from "../../utils/apiConfig";
 import axios from "axios";
@@ -22,6 +22,7 @@ const Services = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [editService, setEditService] = useState(null);
   const [servicesLoading, setServicesLoading] = useState(false);
   const [newService, setNewService] = useState({
     serviceId: "",
@@ -128,12 +129,31 @@ const Services = () => {
       duration: "",
       isActive: true
     });
+    setEditService(null);
     setSubServices([]);
+  };
+
+  const handleEdit = (item) => {
+    setEditService(item?.serviceDetails?._id || item._id);
+    const subServiceIds = item.subServices?.map(s => s.subServiceDetails?._id) || [];
+    setNewService({
+      serviceId: item.serviceId || (item.serviceDetails?._id ?? ""),
+      subServiceIds: subServiceIds, // Fixed this line
+      price: item.price || "",
+      duration: item.duration || "",
+      isActive: item.isActive ?? true,
+    });
+    fetchSubServicesByServiceId(item.serviceId || (item.serviceDetails?._id ?? ""));
+    setOpenDialog(true);
   };
 
   const handleSubmitService = async (e) => {
     e.preventDefault();
     try {
+      if (!newService.serviceId || !newService.price || !newService.duration) {
+        showErrorToast("Please fill all required fields");
+        return;
+      }
       const payload = {
         serviceId: newService.serviceId,
         subServiceId: newService.subServiceIds,
@@ -141,26 +161,53 @@ const Services = () => {
         duration: String(newService.duration),
         isActive: newService.isActive
       };
-      const response = await axios.post(`${API_BASE_URL}/stylist/add-service`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      let response;
+      if (editService) {
+        response = await axios.put(
+          `${API_BASE_URL}/stylist/update-service/${editService}`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+      } else {
+        response = await axios.post(
+          `${API_BASE_URL}/stylist/add-service`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+      }
       if (response.data.success) {
-        showSuccessToast(response.data.message || "Service updated successfully!");
+        showSuccessToast(
+          response.data.message ||
+          (editService ? "Service updated successfully!" : "Service added successfully!")
+        );
         setOpenDialog(false);
         dispatch(fetchStylistProfile());
       } else {
-        showErrorToast(response.data.message || "Failed to update profile.");
+        showErrorToast(response.data.message || "Operation failed. Please try again.");
       }
     } catch (error) {
-      console.error("Update Error:", error);
+      console.error("Service Operation Error:", error);
+      showErrorToast(
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred. Please try again."
+      );
     }
   };
 
-  const handleDelete = (id) => {
-    setDeletingId(id);
+  const handleDelete = (item) => {
+    const serviceId = item?.serviceDetails?._id || item._id;
+    setDeletingId(serviceId);
     setAlertOpen(true);
   };
 
@@ -207,7 +254,7 @@ const Services = () => {
         open={alertOpen}
         title="Delete Review"
         description="Are you sure you want to delete this service? This action cannot be undone."
-        onClose={deletingId ? undefined : () => setAlertOpen(false)}
+        onClose={() => setAlertOpen(false)} 
         onConfirm={handleConfirmDelete}
         loading={deleting}
         disableCancel={deleting}
@@ -243,21 +290,12 @@ const Services = () => {
                       position: 'relative',
                     }}
                   >
-                    <IconButton
-                      sx={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        zIndex: 3,
-                        color: colors.redAccent[500],
-                        backgroundColor: 'rgba(255,255,255,0.8)',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255,255,255,0.9)',
-                        }
-                      }}
-                      onClick={() => handleDelete(item._id)}
-                    >
+                    <IconButton sx={{ position: 'absolute', top: 8, right: 8, zIndex: 3, color: colors.redAccent[500], backgroundColor: 'rgba(255,255,255,0.8)', '&:hover': { backgroundColor: 'rgba(255,255,255,0.9)', } }} onClick={() => handleDelete(item)}>
                       <Delete fontSize="small" />
+                    </IconButton>
+
+                    <IconButton sx={{ position: 'absolute', top: 8, left: 8, zIndex: 3, color: colors.primary.main, backgroundColor: 'rgba(255,255,255,0.8)', '&:hover': { backgroundColor: 'rgba(255,255,255,0.9)', } }} onClick={() => handleEdit(item)}>
+                      <Edit fontSize="small" />
                     </IconButton>
 
                     <Box sx={{ width: '100%', position: 'relative', minHeight: 120, background: theme.palette.mode === 'dark' ? colors.primary[800] : colors.primary[100] }}>
@@ -277,11 +315,6 @@ const Services = () => {
                         <Typography variant="subtitle1" fontWeight={700} sx={{ fontFamily: 'Poppins, sans-serif', textShadow: '0 2px 8px #000', color: '#fff' }}>
                           Service: {item.serviceDetails?.name || <span style={{ color: '#eee' }}>No Service</span>}
                         </Typography>
-                        {item.subServiceDetails?.name && (
-                          <Typography variant="body2" sx={{ fontFamily: 'Poppins, sans-serif', textShadow: '0 1px 4px #000', opacity: 0.85, color: '#fff' }}>
-                            Subservice: {item.subServiceDetails.name}
-                          </Typography>
-                        )}
                         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, alignItems: 'center', mt: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <span role="img" aria-label="price">💲</span>
@@ -317,6 +350,22 @@ const Services = () => {
                           )}
                         </Box>
                       </Box>
+
+                    </Box>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1, justifyContent: 'center' }}>
+                      {item.subServices?.map((sub, subIdx) => (
+                        <Chip
+                          key={subIdx}
+                          label={sub.subServiceDetails?.name || 'Unnamed Subservice'}
+                          size="small"
+                          sx={{
+                            backgroundColor: colors.primary[500],
+                            color: 'blue',
+                            fontWeight: 'bold',
+                            border: `1px solid #420c36`,
+                          }}
+                        />
+                      ))}
                     </Box>
                   </Box>
                 </Grid>
@@ -349,7 +398,7 @@ const Services = () => {
               options={subServiceOptions}
               placeholder="Select Sub Services"
               value={subServiceOptions.filter(opt =>
-                newService.subServiceIds.includes(opt.value)
+                newService?.subServiceIds?.includes(opt.value)
               )}
               onChange={(newValue) => {
                 setNewService({
@@ -389,9 +438,9 @@ const Services = () => {
         <DialogActions sx={{ p: 2 }}>
           <CustomIconButton icon={<Close />} color="red" text="Close" onClick={() => setOpenDialog(false)} />
           <CustomIconButton
-            icon={<PersonAdd />}
+            icon={editService ? <Edit /> : <PersonAdd />}
             color="black"
-            text="Add Service"
+            text={editService ? "Update Service" : "Add Service"}
             onClick={handleSubmitService}
             disabled={!newService.serviceId || !newService.price || !newService.duration}
           />
