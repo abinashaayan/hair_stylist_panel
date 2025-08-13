@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, useTheme, CardContent, Grid, Avatar, Chip, Tooltip, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
+import { Box, Typography, useTheme, Avatar, Chip, Tooltip, FormControl, Select, InputLabel, MenuItem, IconButton, Divider } from "@mui/material";
 import { tokens } from "../../theme";
 import Cookies from "js-cookie";
 import axios from 'axios';
@@ -7,18 +7,29 @@ import { API_BASE_URL } from '../../utils/apiConfig';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import EventIcon from '@mui/icons-material/Event';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import NotesIcon from '@mui/icons-material/Notes';
 import { Header } from '../../components';
-import { Checkbox, FormGroup, FormControlLabel, CircularProgress } from '@mui/material';
+import { FormGroup, CircularProgress } from '@mui/material';
 import Alert from '../../custom/Alert';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { styled } from '@mui/material/styles';
+import { Cancel, Notes, Pending, Schedule } from '@mui/icons-material';
+import { CheckCircleIcon, HomeIcon, PhoneIcon } from 'lucide-react';
 
 const statusOptions = [
-  { value: 'completed', label: 'Completed' },
-  { value: 'confirmed', label: 'Confirmed' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'completed', label: 'Completed', icon: <CheckCircleIcon />, color: '#4CAF50' },
+  { value: 'confirmed', label: 'Confirmed', icon: <CheckCircleIcon />, color: '#2196F3' },
+  { value: 'pending', label: 'Pending', icon: <Pending />, color: '#FF9800' },
+  { value: 'cancelled', label: 'Cancelled', icon: <Cancel />, color: '#F44336' },
 ];
+
+const statusColors = {
+  completed: '#4caf50',
+  confirmed: '#2196f3',
+  pending: '#ff9800',
+  cancelled: '#f44336',
+  expired: '#9e9e9e'
+};
 
 function stringAvatar(name) {
   if (!name) return {};
@@ -27,6 +38,232 @@ function stringAvatar(name) {
     children: initials,
   };
 }
+
+// Custom styled components
+const StyledAccordion = styled(Box)(({ theme }) => ({
+  borderRadius: '12px',
+  marginBottom: '16px',
+  overflow: 'hidden',
+  boxShadow: theme.shadows[2],
+  transition: 'all 0.3s ease',
+  backgroundColor: theme.palette.background.paper,
+  '&:hover': {
+    boxShadow: theme.shadows[4],
+    transform: 'translateY(-2px)'
+  },
+}));
+
+const AccordionHeader = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '16px 20px',
+  cursor: 'pointer',
+  backgroundColor: theme.palette.mode === 'dark' ?
+    theme.palette.grey[800] : theme.palette.grey[100],
+  transition: 'background-color 0.2s',
+  '&:hover': {
+    backgroundColor: theme.palette.mode === 'dark' ?
+      theme.palette.grey[700] : theme.palette.grey[200],
+  },
+}));
+
+const AccordionContent = styled(Box)(({ theme }) => ({
+  padding: '16px',
+  borderTop: `1px solid ${theme.palette.divider}`,
+}));
+
+const DetailRow = ({ icon, label, value }) => (
+  <Box display="flex" alignItems="flex-start" mb={2}>
+    <Box mr={2} mt={0.5} color="text.secondary">
+      {icon}
+    </Box>
+    <Box flex={1}>
+      <Typography variant="caption" color="textSecondary" display="block">
+        {label}
+      </Typography>
+      <Typography variant="body1">{value}</Typography>
+    </Box>
+  </Box>
+);
+
+const StatusBadge = ({ status }) => (
+  <Chip
+    label={status}
+    size="small"
+    sx={{
+      textTransform: 'capitalize',
+      fontWeight: '600',
+      color: '#fff',
+      backgroundColor: statusColors[status] || '#9e9e9e',
+      px: 1,
+      borderRadius: '8px'
+    }}
+  />
+);
+
+
+const AppointmentAccordion = ({ appointment, onStatusChange, loadingStatusId }) => {
+  const [expanded, setExpanded] = useState(false);
+  const theme = useTheme();
+
+  const handleCheckboxClick = (status) => {
+    onStatusChange(appointment._id, status);
+  };
+
+  const currentStatus = statusOptions.find(opt => opt.value === appointment.status);
+
+  return (
+    <StyledAccordion>
+      <AccordionHeader onClick={() => setExpanded(!expanded)}>
+        <Box display="flex" alignItems="center" width="100%">
+          <Avatar
+            {...stringAvatar(appointment?.user?.fullName)}
+            sx={{
+              bgcolor: theme.palette.primary.main,
+              color: '#fff',
+              mr: 2,
+              width: 40,
+              height: 40,
+              fontSize: '1rem',
+              fontWeight: 500
+            }}
+          />
+
+          <Box flexGrow={1}>
+            <Box display="flex" alignItems="center" mb={0.5}>
+              <Typography variant="subtitle1" fontWeight="600" mr={2}>
+                {appointment?.user?.fullName || 'Unknown User'}
+              </Typography>
+              <Typography variant="subtitle1" fontWeight="600" mr={2}>
+                {appointment?.user?.phoneNumber || 'Unknown User'}
+              </Typography>
+              <Chip
+                label={currentStatus?.label}
+                size="small"
+                icon={currentStatus?.icon}
+                sx={{
+                  backgroundColor: currentStatus?.color,
+                  color: '#fff',
+                  fontWeight: 600,
+                }}
+              />
+            </Box>
+
+            <Box display="flex" alignItems="center">
+              <Box display="flex" alignItems="center" mr={3}>
+                <EventIcon sx={{ fontSize: 16, mr: 1, color: theme.palette.text.secondary }} />
+                <Typography variant="body2">
+                  {new Date(appointment?.date).toLocaleDateString()}
+                </Typography>
+              </Box>
+              <Box display="flex" alignItems="center">
+                <Schedule sx={{ fontSize: 16, mr: 1, color: theme.palette.text.secondary }} />
+                <Typography variant="body2">
+                  {appointment?.slot?.from} - {appointment?.slot?.till}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          <IconButton size="small" onClick={(e) => {
+            e.stopPropagation();
+            setExpanded(!expanded);
+          }}>
+            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          </IconButton>
+        </Box>
+      </AccordionHeader>
+
+      {expanded && (
+        <AccordionContent>
+          <Box mb={3}>
+            <Typography variant="subtitle2" color="textSecondary" fontWeight="600" gutterBottom>
+              SERVICE DETAILS
+            </Typography>
+            <DetailRow icon={<PersonIcon fontSize="small" />} label="Service" value={appointment?.service?.name} />
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+          <Box mb={3}>
+            <Typography variant="subtitle2" color="textSecondary" fontWeight="600" gutterBottom>
+              CLIENT INFORMATION
+            </Typography>
+            <DetailRow
+              icon={<EmailIcon fontSize="small" />}
+              label="Email"
+              value={appointment?.user?.email}
+            />
+
+            {appointment?.bookingUserDetails?.phone && (
+              <DetailRow
+                icon={<PhoneIcon fontSize="small" />}
+                label="Phone"
+                value={appointment?.bookingUserDetails?.phone}
+              />
+            )}
+
+            {appointment?.bookingUserDetails?.address && (
+              <DetailRow
+                icon={<HomeIcon fontSize="small" />}
+                label="Address"
+                value={appointment?.bookingUserDetails?.address}
+              />
+            )}
+          </Box>
+
+          {appointment?.notes && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Box>
+                <Typography variant="subtitle2" color="textSecondary" fontWeight="600" gutterBottom>
+                  ADDITIONAL NOTES
+                </Typography>
+                <DetailRow
+                  icon={<Notes fontSize="small" />}
+                  label="Notes"
+                  value={appointment?.notes}
+                />
+              </Box>
+            </>
+          )}
+
+          {appointment?.status !== 'expired' && (
+            <>
+              <Divider sx={{ my: 3 }} />
+              <Box>
+                <Typography variant="subtitle2" color="textSecondary" fontWeight="600" gutterBottom>
+                  UPDATE STATUS
+                </Typography>
+                <FormGroup row sx={{ gap: 2 }}>
+                  {statusOptions?.map(option => (
+                    <Chip
+                      key={option.value}
+                      label={option.label}
+                      icon={option.icon}
+                      onClick={() => handleCheckboxClick(option.value)}
+                      sx={{
+                        backgroundColor: appointment.status === option.value ? option.color : 'transparent',
+                        color: appointment.status === option.value ? '#fff' : option.color,
+                        border: `1px solid ${option.color}`,
+                        '&:hover': {
+                          backgroundColor: `${option.color}20`
+                        }
+                      }}
+                    />
+                  ))}
+                  {loadingStatusId === appointment?._id && (
+                    <CircularProgress size={24} sx={{ ml: 1 }} />
+                  )}
+                </FormGroup>
+              </Box>
+            </>
+          )}
+        </AccordionContent>
+      )}
+    </StyledAccordion>
+  );
+};
 
 const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
@@ -56,7 +293,6 @@ const Appointment = () => {
           "Content-Type": "application/json",
         },
       });
-      console.log('Fetched Appointments:', response.data);
       if (response?.data?.success) {
         setAppointments(response.data.data);
       } else {
@@ -69,7 +305,7 @@ const Appointment = () => {
     }
   };
 
-  const handleCheckboxClick = (appointmentId, status) => {
+  const handleStatusChange = (appointmentId, status) => {
     setSelectedAppointmentId(appointmentId);
     setSelectedStatus(status);
     setAlertOpen(true);
@@ -105,217 +341,104 @@ const Appointment = () => {
     }
   };
 
-  const filteredAppointments = filterStatus === 'all' ? appointments : appointments.filter(app => app.status === filterStatus);
+  const filteredAppointments = filterStatus === 'all'
+    ? appointments
+    : appointments.filter(app => app?.status === filterStatus);
+
+  // Group appointments by status for accordion sections
+  const groupedAppointments = {
+    pending: filteredAppointments.filter(app => app.status === 'pending'),
+    confirmed: filteredAppointments.filter(app => app.status === 'confirmed'),
+    completed: filteredAppointments.filter(app => app.status === 'completed'),
+    cancelled: filteredAppointments.filter(app => app.status === 'cancelled'),
+    expired: filteredAppointments.filter(app => app.status === 'expired'),
+  };
+
+  const renderAppointmentList = (appointments) => {
+    if (appointments.length === 0) {
+      return (
+        <Box display="flex" justifyContent="center" py={4}>
+          <Typography color="textSecondary">
+            No appointments in this category
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <Box>
+        {appointments.map((appointment) => (
+          <AppointmentAccordion
+            key={appointment._id}
+            appointment={appointment}
+            onStatusChange={handleStatusChange}
+            loadingStatusId={loadingStatusId}
+          />
+        ))}
+      </Box>
+    );
+  };
 
   return (
     <Box>
+      <Header title="Appointment Management" />
+
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
           <CircularProgress />
         </Box>
       ) : (
         <>
-          <Header title="Appointment History" />
-          <Box>
-            <Box display="flex" justifyContent="flex-start" mb={2}>
-              <FormControl size="small" sx={{ minWidth: 200 }}>
-                <InputLabel>Status Filter</InputLabel>
-                <Select
-                  value={filterStatus}
-                  label="Status Filter"
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <MenuItem value="all">All</MenuItem>
-                  {statusOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            {filteredAppointments?.length > 0 ? (
-              <Grid container spacing={3}>
-                {filteredAppointments?.map((appointment, index) => (
-                  <Grid item xs={12} md={6} lg={4} key={appointment._id || index}>
-                    <Box
-                      sx={{
-                        borderRadius: 4,
-                        boxShadow: '0 4px 24px rgba(31, 38, 135, 0.10)',
-                        overflow: 'hidden',
-                        background:
-                          appointment.status === 'expired'
-                            ? 'beige'
-                            : theme.palette.mode === 'dark'
-                              ? colors.primary[900]
-                              : '#fff',
-                        transition: 'transform 0.2s, box-shadow 0.2s',
-                        '&:hover': {
-                          transform: 'translateY(-6px) scale(1.04)',
-                          boxShadow: '0 12px 32px 0 rgba(31, 38, 135, 0.18)',
-                        },
-                        display: 'flex',
-                        flexDirection: 'column',
-                        minHeight: 260,
-                        position: 'relative',
-                        color:
-                          appointment.status === 'expired'
-                            ? (theme.palette.mode === 'dark' ? '#fff' : '#000')
-                            : undefined,
-                      }}
-                    >
-                      {appointment.status === 'expired' && (
-                        <Box
-                          component="img"
-                          src="https://www.shutterstock.com/image-vector/grunge-green-expired-word-round-600w-2494298589.jpg"
-                          alt="Expired Stamp"
-                          sx={{
-                            position: 'absolute',
-                            top: 10,
-                            right: 10,
-                            width: 100,
-                            opacity: 0.3,
-                            zIndex: 5,
-                          }}
-                        />
-                      )}
-                      <CardContent sx={{ pb: 7 }}>
-                        <Box display="flex" alignItems="center" mb={2}>
-                          <Avatar {...stringAvatar(appointment.user?.fullName)} sx={{ bgcolor: '#6D295A', color: '#fff', mr: 2, width: 48, height: 48, fontSize: 22, fontFamily: 'Poppins, sans-serif' }} />
-                          <Box>
-                            <Typography variant="h6" color={
-                              appointment.status === 'expired'
-                                ? (theme.palette.mode === 'dark' ? '#fff' : '#000')
-                                : (theme.palette.mode === 'dark' ? colors.gray[100] : '#222')
-                            } fontWeight="bold" sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                              {appointment.user?.fullName || 'Unknown User'}
-                            </Typography>
-                            <Box display="flex" alignItems="center" color={colors.gray[300]}>
-                              <EmailIcon sx={{ fontSize: 16, mr: 0.5, color: '#6D295A' }} />
-                              <Typography variant="body2" sx={{ fontFamily: 'Poppins, sans-serif' }}>{appointment.user?.email}</Typography>
-                            </Box>
-                          </Box>
-                        </Box>
-                        <Box mb={1} display="flex" alignItems="center">
-                          <PersonIcon sx={{ fontSize: 18, mr: 1, color: colors.greenAccent[400] }} />
-                          <Typography variant="body1" color={theme.palette.mode === 'dark' ? colors.gray[200] : '#6D295A'} fontWeight="bold" sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                            {appointment.service?.name}
-                          </Typography>
-                        </Box>
-                        <Box mb={1} display="flex" alignItems="center">
-                          <EventIcon sx={{ fontSize: 18, mr: 1, color: colors.blueAccent[300] }} />
-                          <Typography variant="body2" color={
-                            appointment.status === 'expired'
-                              ? (theme.palette.mode === 'dark' ? '#fff' : '#000')
-                              : colors.gray[200]
-                          } mr={2} sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                            {new Date(appointment.date).toLocaleDateString()}
-                          </Typography>
-                          <AccessTimeIcon sx={{ fontSize: 18, mr: 1, color: colors.greenAccent[400] }} />
-                          <Typography variant="body2" color={
-                            appointment.status === 'expired'
-                              ? (theme.palette.mode === 'dark' ? '#fff' : '#000')
-                              : colors.gray[200]
-                          } sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                            {appointment.slot?.from} - {appointment.slot?.till}
-                          </Typography>
-                        </Box>
-                        {appointment.notes && (
-                          <Box mt={1} display="flex" alignItems="center">
-                            <NotesIcon sx={{ fontSize: 16, mr: 1, color: colors.redAccent[400] }} />
-                            <Typography variant="body2" color={
-                              appointment.status === 'expired'
-                                ? (theme.palette.mode === 'dark' ? '#fff' : '#000')
-                                : colors.gray[300]
-                            } sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                              {appointment.notes}
-                            </Typography>
-                          </Box>
-                        )}
-                        <Box mb={2} mt={2}>
-                          {appointment.status !== 'expired' && (
-                            <FormGroup row>
-                              {statusOptions.map(option => (
-                                <FormControlLabel
-                                  key={option.value}
-                                  control={
-                                    <Checkbox
-                                      checked={appointment.status === option.value}
-                                      onChange={() => handleCheckboxClick(appointment._id, option.value)}
-                                      disabled={loadingStatusId === appointment._id}
-                                      color="primary"
-                                    />
-                                  }
-                                  label={option.label}
-                                />
-                              ))}
-                              {loadingStatusId === appointment._id && (
-                                <CircularProgress size={24} sx={{ ml: 2 }} />
-                              )}
-                            </FormGroup>
-                          )}
-                        </Box>
-                      </CardContent>
-                      <Box sx={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        px: 2,
-                        py: 1.5,
-                        zIndex: 2,
-                        background: 'linear-gradient(90deg, #6D295A 0%, #420C36 100%)',
-                        color: '#fff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        borderBottomLeftRadius: 16,
-                        borderBottomRightRadius: 16,
-                      }}>
-                        <Chip
-                          label={appointment.status}
-                          size="small"
-                          sx={{
-                            textTransform: 'capitalize',
-                            fontWeight: 'bold',
-                            fontFamily: 'Poppins, sans-serif',
-                            color: '#fff',
-                            backgroundColor:
-                              appointment.status === 'expired' ? '#E53935' :
-                                appointment.status === 'confirmed' ? '#43a047' : // success green
-                                  appointment.status === 'pending' ? '#FFA726' :
-                                    appointment.status === 'cancelled' ? '#E53935' :
-                                      '#888',
-                            boxShadow:
-                              appointment.status === 'expired' ? '0 0 8px #E5393544' :
-                                appointment.status === 'confirmed' ? '0 0 8px #43a04744' :
-                                  appointment.status === 'pending' ? '0 0 8px #FFA72644' :
-                                    appointment.status === 'cancelled' ? '0 0 8px #E5393544' :
-                                      '0 0 8px #8884',
-                          }}
-                        />
-                        <Tooltip title="Created At">
-                          <Typography variant="caption" sx={{ color: '#fff', fontFamily: 'Poppins, sans-serif' }}>
-                            {new Date(appointment.createdAt).toLocaleString()}
-                          </Typography>
-                        </Tooltip>
-                      </Box>
-                    </Box>
-                  </Grid>
+          <Box mb={3}>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Filter by Status</InputLabel>
+              <Select
+                value={filterStatus}
+                label="Filter by Status"
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <MenuItem value="all">All Appointments</MenuItem>
+                {statusOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
                 ))}
-              </Grid>
-            ) : (
-              <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%" minHeight="200px">
-                <Typography variant="h5" color={colors.gray[300]} mb={2} sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                  No appointments found.
-                </Typography>
-                <Typography variant="body2" color={colors.gray[400]} sx={{ fontFamily: 'Poppins, sans-serif' }}>
-                  You have no appointment history yet. Book a service to see it here!
-                </Typography>
-              </Box>
-            )}
+                <MenuItem value="expired">Expired</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
+
+          {filterStatus === 'all' ? (
+            <>
+              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                Pending Appointments ({groupedAppointments.pending.length})
+              </Typography>
+              {renderAppointmentList(groupedAppointments.pending)}
+
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+                Confirmed Appointments ({groupedAppointments.confirmed.length})
+              </Typography>
+              {renderAppointmentList(groupedAppointments.confirmed)}
+
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+                Completed Appointments ({groupedAppointments.completed.length})
+              </Typography>
+              {renderAppointmentList(groupedAppointments.completed)}
+
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+                Cancelled Appointments ({groupedAppointments.cancelled.length})
+              </Typography>
+              {renderAppointmentList(groupedAppointments.cancelled)}
+
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+                Expired Appointments ({groupedAppointments.expired.length})
+              </Typography>
+              {renderAppointmentList(groupedAppointments.expired)}
+            </>
+          ) : (
+            renderAppointmentList(filteredAppointments)
+          )}
+
           <Alert
             open={alertOpen}
             title="Change Status"

@@ -32,31 +32,29 @@ export const AuthProvider = ({ children }) => {
 
   // Check token expiration on mount and at intervals
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const auth = localStorage.getItem("isAuthenticated") === "true";
       const type = localStorage.getItem("panelType");
       const cookieToken = Cookies.get("token");
-      const storedStylistId = localStorage.getItem("stylistId");
 
       setIsAuthenticated(auth);
       setPanelType(type);
       setToken(cookieToken);
-      setStylistId(storedStylistId);
 
       // If token is expired, logout
       if (cookieToken && isTokenExpired(cookieToken)) {
-        logout('expired');
+        await logout('expired');
       }
     };
 
     checkAuth();
-    // Check every 30 seconds
-    const interval = setInterval(() => {
+    // Check every 10 seconds
+    const interval = setInterval(async () => {
       const cookieToken = Cookies.get("token");
       if (cookieToken && isTokenExpired(cookieToken)) {
-        logout('expired');
+        await logout('expired');
       }
-    }, 30000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
