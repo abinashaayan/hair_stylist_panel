@@ -241,11 +241,9 @@ const ProductEntityDialog = ({
     }
   };
 
-  console.log(allProductsCategory, 'allProductsCategory')
-
   return (
     <Dialog open={open} onClose={handleDialogClose} fullWidth maxWidth="lg">
-      <DialogTitle>
+      <DialogTitle component="div">
         <Typography variant="h5" className="fw-bold">
           {dialogTitle}
         </Typography>

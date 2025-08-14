@@ -59,7 +59,6 @@ export default function PackageEntityDialog({ open, handleClose, onSuccess, view
     useEffect(() => {
         if (open) {
             if (open && (viewMode || editMode) && rowData) {
-                console.log("Edit/View Mode Row Data:", rowData);
                 setFields({
                     title: rowData.title || rowData.name || '',
                     about: rowData.about || '',

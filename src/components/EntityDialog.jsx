@@ -189,19 +189,14 @@ const EntityDialog = ({
     try {
       const formData = new FormData();
       formData.append("name", inputValue);
-
-      // Handle both service and category cases
       if (editService) {
-        // Service update
         formData.append("isActive", isActive);
         if (icon instanceof File) {
           formData.append("icon", icon);
         }
-        // Fixed the JSON.stringify line - removed the extra parenthesis
         formData.append("subServices", JSON.stringify(
           subServices.map(sub => ({ _id: sub._id, name: sub.name })).filter(s => s.name)
         ));
-
         await axios.patch(
           `${API_BASE_URL}/service/admin/update-service/${editService.id}`,
           formData,
@@ -213,7 +208,6 @@ const EntityDialog = ({
           }
         );
       } else {
-        // Category update
         if (icon instanceof File) {
           formData.append("icon", icon);
         }
@@ -245,7 +239,7 @@ const EntityDialog = ({
 
   return (
     <Dialog open={open} onClose={handleDialogClose} fullWidth>
-      <DialogTitle>
+      <DialogTitle component="div">
         <Typography variant="h5" className="fw-bold">
           {isView ? `View ${inputLabel}` : isEdit ? `Edit ${inputLabel}` : dialogTitle}
         </Typography>

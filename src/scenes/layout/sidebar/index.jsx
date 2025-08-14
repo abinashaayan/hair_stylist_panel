@@ -72,7 +72,7 @@ const SideBar = () => {
     ],
     vendor: [
       { title: "Packages", path: "/packages", icon: <InventoryOutlined /> },
-      { title: "Services", path: "/services", icon: <CalendarMonthOutlined /> },
+      // { title: "Services", path: "/services", icon: <CalendarMonthOutlined /> },
       { title: "Reviews", path: "/reviews", icon: <PersonOutlined /> },
       { title: "Portfolio", path: "/portfolio", icon: <AddCircleOutline /> },
       { title: "Availability Management", path: "/availability", icon: <AccessTimeOutlined /> },
@@ -88,7 +88,6 @@ const SideBar = () => {
         top: 0,
         left: 0,
         height: "100vh",
-        zIndex: 1000,
         borderRightWidth: "1px",
         borderRightStyle: "solid",
         borderColor: "#efefef",

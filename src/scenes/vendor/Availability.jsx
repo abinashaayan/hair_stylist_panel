@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, CircularProgress, Switch, Card, CardContent, Divider, Tooltip, Snackbar, Alert as MuiAlert, Chip, Checkbox, FormControlLabel, TextField, Button } from '@mui/material';
+import { Box, Typography, IconButton, CircularProgress, Switch, Card, CardContent, Divider, Tooltip, Alert as MuiAlert, Chip, Checkbox, FormControlLabel, TextField, Button } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
@@ -81,25 +81,9 @@ const Availability = () => {
   const handlePrevWeek = () => setCurrentDate(prev => prev.subtract(7, 'day'));
   const handleNextWeek = () => setCurrentDate(prev => prev.add(7, 'day'));
 
-  // const currentAvailability = availability[selectedDate.format('YYYY-MM-DD')] || { slots: [], isClosed: false };
   const dateKey = selectedDate.format('YYYY-MM-DD');
   const currentAvailability = availability[dateKey] || { slots: [], isClosed: false, isHoliday: false };
 
-  // const toggleSlot = (slotObj) => {
-  //   const dateKey = selectedDate.format('YYYY-MM-DD');
-  //   const current = availability[dateKey] || { slots: [], isClosed: false };
-
-  //   const slotExists = current.slots.some(s => s.from === slotObj.from && s.till === slotObj.till);
-
-  //   const updatedSlots = slotExists
-  //     ? current.slots.filter(s => !(s.from === slotObj.from && s.till === slotObj.till))
-  //     : [...current.slots, slotObj];
-
-  //   setAvailability({
-  //     ...availability,
-  //     [dateKey]: { ...current, slots: updatedSlots }
-  //   });
-  // };
   const toggleSlot = (slot) => {
     const isPresent = currentAvailability.slots?.some(
       (s) => s.from === slot.from && s.till === slot.till
@@ -359,19 +343,19 @@ const Availability = () => {
                 <Tooltip title="Mark this day as closed for appointments">
                   <Typography fontWeight={500} color="text.secondary">Closed</Typography>
                 </Tooltip>
-                <Switch checked={currentAvailability.isClosed} onChange={toggleClosed} color="error" />
+                <Switch checked={currentAvailability?.isClosed} onChange={toggleClosed} color="error" />
               </Box>
 
               <Box mt={1} display="flex" alignItems="center" gap={1}>
                 <Typography fontWeight={500} color="text.secondary">Custom Slots</Typography>
                 <Switch
-                  checked={currentAvailability.isHoliday}
+                  checked={currentAvailability?.isHoliday}
                   onChange={toggleHoliday}
                   color="primary"
-                  disabled={currentAvailability.isClosed}
+                  disabled={currentAvailability?.isClosed}
                 />
               </Box>
-              {!currentAvailability.isClosed && !currentAvailability.isHoliday && (
+              {!currentAvailability?.isClosed && !currentAvailability?.isHoliday && (
                 <Box mt={2}>
                   {Object.entries(TIME_SLOTS).map(([period, slots]) => {
                     const now = dayjs();
@@ -387,7 +371,7 @@ const Availability = () => {
                       return true;
                     });
 
-                    const selectedSlots = currentAvailability.slots.filter(slot => slots.includes(slot));
+                    const selectedSlots = currentAvailability?.slots.filter(slot => slots.includes(slot));
                     const selectedAvailableSlots = selectedSlots.filter(slot => availableSlots.includes(slot));
                     const allSelected = availableSlots.length > 0 && selectedAvailableSlots.length === availableSlots.length;
                     const someSelected = selectedAvailableSlots.length > 0 && !allSelected;
@@ -395,7 +379,7 @@ const Availability = () => {
                     const handlePeriodCheckbox = (e) => {
                       const checked = e.target.checked;
                       if (checked) {
-                        const newSlots = Array.from(new Set([...currentAvailability.slots, ...availableSlots]));
+                        const newSlots = Array.from(new Set([...currentAvailability?.slots, ...availableSlots]));
                         setAvailability({
                           ...availability,
                           [selectedDate.format('YYYY-MM-DD')]: {
@@ -404,7 +388,7 @@ const Availability = () => {
                           }
                         });
                       } else {
-                        const newSlots = currentAvailability.slots.filter(slot => !slots.includes(slot));
+                        const newSlots = currentAvailability?.slots.filter(slot => !slots.includes(slot));
                         setAvailability({
                           ...availability,
                           [selectedDate.format('YYYY-MM-DD')]: {
@@ -480,7 +464,7 @@ const Availability = () => {
                 </Box>
               )}
               <Divider sx={{ my: 2 }} />
-              {currentAvailability.isHoliday && (
+              {currentAvailability?.isHoliday && (
                 <Box mt={2}>
                   <Typography variant="subtitle2" fontWeight={600}>Add Custom Time Slot</Typography>
                   <Box display="flex" gap={2} alignItems="center" mt={1}>
@@ -558,8 +542,8 @@ const Availability = () => {
                   text={loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Save Availability'}
                   color="#6d295a"
                   disabled={loading ||
-                    (currentAvailability.isClosed && currentAvailability.isHoliday) ||
-                    (!currentAvailability.isClosed && !currentAvailability.isHoliday && currentAvailability.slots.length === 0)
+                    (currentAvailability?.isClosed && currentAvailability?.isHoliday) ||
+                    (!currentAvailability?.isClosed && !currentAvailability?.isHoliday && currentAvailability?.slots.length === 0)
                   }
                   size="large"
                   fontWeight={600}
@@ -579,8 +563,8 @@ const Availability = () => {
               {apiData?.length === 0 ? (
                 <Typography color="text.secondary">No availability data found.</Typography>
               ) : (
-                apiData?.map((item) => (
-                  <Box key={item._id} mb={2} p={2} borderRadius={2} bgcolor="#f8f8fa" boxShadow={1}>
+                apiData?.map((item, index) => (
+                  <Box key={index} mb={2} p={2} borderRadius={2} bgcolor="#f8f8fa" boxShadow={1}>
                     <Box display="flex" alignItems="center" gap={1}>
                       <Typography fontWeight={600} color="#6d295a">
                         {item.date}

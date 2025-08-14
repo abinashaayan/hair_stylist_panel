@@ -9,16 +9,12 @@ import {
   DialogContent,
   DialogActions,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Chip,
   Switch,
   FormControlLabel,
   InputLabel,
 } from "@mui/material";
 import { Header } from "../../components";
-import { SearchOutlined, PersonAdd, ExpandMore, AttachMoney, TrendingUp, LocalOffer, History } from "@mui/icons-material";
+import { SearchOutlined, PersonAdd, AttachMoney, TrendingUp, LocalOffer, History } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomTable from "../../custom/Table";
@@ -90,7 +86,6 @@ export default function Packages() {
           Authorization: `Bearer ${authToken}`,
         },
       });
-      console.log("Package response:", response?.data);
       if (response?.data?.status === 200 && response?.data?.success) {
         const fullData = (response?.data?.data || []).map((item) => ({ ...item, id: item._id }));
         setAllServices(fullData);
@@ -219,7 +214,6 @@ export default function Packages() {
 
   // Service Pricing Management Functions
   const handleServicePricing = (row) => {
-    console.log(row, 'row')
     setSelectedPackage(row);
     const transformedServicePricing = (row.servicePricing || []).map(pricing => ({
       serviceId: pricing.serviceId?._id || pricing.serviceId,

@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, } from "react-router-dom";
+import PrivateRoute from "./utils/PrivateRoute";
+import { useAuth } from "./utils/context/AuthContext";
+import LoadingScreen from "./components/LoadingScreen";
+
+// Lazy load scenes to optimize initial load time
 import App from "./App";
 import { Dashboard } from "./scenes";
 import Login from "./components/Login";
-import PrivateRoute from "./utils/PrivateRoute";
 import VendorDashboard from "./vendors/VendorDashboard";
 import VendorProfile from "./scenes/vendor/VendorProfile";
 import ServiceManagement from "./scenes/vendor/ServiceManagement";
@@ -12,14 +16,12 @@ import Packages from "./scenes/vendor/Packages";
 import Availability from "./scenes/vendor/Availability";
 import Portfolio from "./scenes/vendor/Portfolio";
 import Product from "./scenes/admin/Product";
-import { useAuth } from "./utils/context/AuthContext";
 import OrderDetails from "./scenes/admin/OrderDetails";
 import CustomerDetails from "./scenes/admin/CustomerDetails";
 import RegisteredStylist from "./scenes/admin/RegisteredStylist";
 import Category from "./scenes/admin/Category";
 import ServiceCategory from "./scenes/admin/ServiceCategory";
-import LoadingScreen from "./components/LoadingScreen";
-import Services from "./scenes/vendor/Services";
+// import Services from "./scenes/vendor/Services";
 import AppointmentStatus from "./scenes/admin/AppointmentStatus";
 import AllReviews from "./scenes/admin/AllReviews";
 import Notification from "./scenes/vendor/Notification";

@@ -47,7 +47,7 @@ function formatAddress(address) {
 const DetailItem = ({ icon, label, value, fullWidth = false, editMode = false, fieldName = null, formData = {}, handleChange = null }) => (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, borderBottom: '1px solid #f0f0f0' }}>
         {icon && <Box sx={{ color: 'primary.main' }}>{icon}</Box>}
-        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', minWidth: '120px' }}>{label}</Typography>
+        <Typography component="span" variant="subtitle2" sx={{ fontWeight: 'bold', minWidth: '120px' }}>{label}</Typography>
         {editMode && fieldName ? (
             <TextField
                 name={fieldName}
@@ -61,7 +61,7 @@ const DetailItem = ({ icon, label, value, fullWidth = false, editMode = false, f
         ) : typeof value === 'boolean' ? (
             <Chip label={value ? 'Yes' : 'No'} color={value ? 'success' : 'default'} size="small" />
         ) : (
-            <Typography variant="body2" sx={{ wordBreak: 'break-word', flexGrow: 1 }}>{value || 'N/A'}</Typography>
+            <Typography component="div" variant="body2" sx={{ wordBreak: 'break-word', flexGrow: 1 }}>{value || 'N/A'}</Typography>
         )}
     </Stack>
 );
