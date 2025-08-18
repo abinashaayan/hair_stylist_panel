@@ -206,7 +206,7 @@ const Navbar = () => {
         )}
       </FlexBetween>
       <FlexBetween gap={{ xs: "0.5rem", sm: "2rem" }}>
-        {panelType === "vendor" && !isMobile && (
+        {(panelType === "vendor" || panelType === "admin") && !isMobile && (
           <Box display="flex" alignItems="center" gap="0.5rem">
             <Link to="/notifications">
               <IconButton sx={{ color: 'white' }}>

@@ -51,6 +51,7 @@ const AppRouter = () => {
                 <Route path="service-management" element={<ServiceManagement />} />
                 <Route path="order-details" element={<OrderDetails />} />
                 <Route path="appointment-status" element={<AppointmentStatus />} />
+                <Route path="notifications" element={<Notification />} />
               </>
             ) : panelType === "vendor" ? (
               <>
